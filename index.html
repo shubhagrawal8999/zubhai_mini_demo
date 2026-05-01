@@ -537,70 +537,17 @@ async function joinWaitlist(){
   btn.textContent='Joining...';
 
  try{
-  /* 1. Save to Supabase */
-  const sbRes = await fetch(SUPABASE_URL+'/rest/v1/waitlist',{
+  const res = await fetch(BACKEND+'/join-waitlist',{
     method:'POST',
-    headers:{
-      'Content-Type':'application/json',
-      'apikey':SUPABASE_KEY,
-      'Authorization':'Bearer '+SUPABASE_KEY,
-      'Prefer':'return=minimal'
-    },
+    headers:{'Content-Type':'application/json'},
     body:JSON.stringify({name:name,email:email,field:field,language:lang})
   });
-
-  /* 2. Send welcome email */
-  await fetch(BACKEND+'/send-welcome-email',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:name,email:email,field:field})
-  });
-
-  /* 3. Show success */
   document.getElementById('form-wrap').style.display='none';
   document.getElementById('success-box').style.display='block';
   document.getElementById('counter').textContent=parseInt(document.getElementById('counter').textContent)+1;
-
 }catch(e){
   document.getElementById('form-wrap').style.display='none';
   document.getElementById('success-box').style.display='block';
-}
-  /* 2. Send welcome email */
-  await fetch(BACKEND+'/send-welcome-email',{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({name:name,email:email,field:field})
-  });
-
-  /* 3. Show success */
-  document.getElementById('form-wrap').style.display='none';
-  document.getElementById('success-box').style.display='block';
-  document.getElementById('counter').textContent=parseInt(document.getElementById('counter').textContent)+1;
-
-}catch(e){
-  document.getElementById('form-wrap').style.display='none';
-  document.getElementById('success-box').style.display='block';
-}
-
-
-    /* 2. Send welcome email via HuggingFace backend */
-    await fetch(`${BACKEND}/send-welcome-email`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,email,field})
-    });
-
-    /* 3. Show success */
-    document.getElementById('form-wrap').style.display='none';
-    document.getElementById('success-box').style.display='block';
-    const c=document.getElementById('counter');
-    c.textContent=parseInt(c.textContent)+1;
-
-  }catch(e){
-    /* Still show success — don't block user if one call fails */
-    document.getElementById('form-wrap').style.display='none';
-    document.getElementById('success-box').style.display='block';
-  }
 }
 
 /* Enter key submits form */
