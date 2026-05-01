@@ -536,7 +536,7 @@ async function joinWaitlist(){
   btn.disabled=true;
   btn.textContent='Joining...';
 
-  try{
+ try{
   /* 1. Save to Supabase */
   const sbRes = await fetch(SUPABASE_URL+'/rest/v1/waitlist',{
     method:'POST',
@@ -549,6 +549,22 @@ async function joinWaitlist(){
     body:JSON.stringify({name:name,email:email,field:field,language:lang})
   });
 
+  /* 2. Send welcome email */
+  await fetch(BACKEND+'/send-welcome-email',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:name,email:email,field:field})
+  });
+
+  /* 3. Show success */
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('success-box').style.display='block';
+  document.getElementById('counter').textContent=parseInt(document.getElementById('counter').textContent)+1;
+
+}catch(e){
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('success-box').style.display='block';
+}
   /* 2. Send welcome email */
   await fetch(BACKEND+'/send-welcome-email',{
     method:'POST',
