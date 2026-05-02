@@ -534,20 +534,20 @@ async function joinWaitlist(){
   btn.disabled=true;
   btn.textContent='Joining...';
 
-  try{
+   try{
     await fetch(BACKEND+'/join-waitlist',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name,email,field,language:lang})
     });
-    document.getElementById('form-wrap').style.display='none';
-    document.getElementById('success-box').style.display='block';
-    const c=document.getElementById('counter');
-    c.textContent=parseInt(c.textContent)+1;
-  }catch(e){
-    document.getElementById('form-wrap').style.display='none';
-    document.getElementById('success-box').style.display='block';
-  }
+  }catch(e){}
+  
+  document.getElementById('form-wrap').style.display='none';
+  document.getElementById('success-box').style.display='block';
+  const c=document.getElementById('counter');
+  c.textContent=parseInt(c.textContent)+1;
+}
+
 }
 
 /* Enter key submits form */
