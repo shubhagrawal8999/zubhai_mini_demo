@@ -9,7 +9,8 @@
     *{margin:0;padding:0;box-sizing:border-box}
     :root{--bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a2e;--gold:#FFD700;--cyan:#00D4FF;--orange:#FF6B35;--green:#00FF88;--text:#E8E8E8;--muted:#666}
     body{background:var(--bg);color:var(--text);font-family:'Segoe UI',sans-serif;min-height:100vh;position:relative}
-    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:.35;pointer-events:none}
+    #bg-canvas{position:fixed;inset:0;z-index:0;opacity:.9;pointer-events:none}
+    body::before{content:"";position:fixed;inset:0;background:radial-gradient(circle at 20% 20%, rgba(255,215,0,.18), transparent 35%),radial-gradient(circle at 80% 70%, rgba(0,212,255,.14), transparent 35%);z-index:1;pointer-events:none}
     nav,.screen{position:relative;z-index:2}
     nav{background:rgba(18,18,26,.9);padding:14px 24px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #222}
     nav h1{color:var(--gold)} .nav-right{display:flex;gap:12px}
@@ -30,9 +31,7 @@
 <canvas id="bg-canvas"></canvas>
 <nav><h1>⚡ ZUBHAI</h1><div class="nav-right"><div class="streak-badge">🔥 <span id="streak-count">0</span> day streak</div><div class="pts-badge">🏆 <span id="total-points">0</span> pts</div></div></nav>
 
-<div class="screen active" id="screen-auth"><div class="auth-box"><h2>⚡ ZUBHAI</h2><p>Learn AI by doing.</p><input class="auth-input" id="auth-email" placeholder="Email"><input class="auth-input" id="auth-password" type="password" placeholder="Password"><button class="btn btn-gold" onclick="handleAuth()">Sign Up / Login</button><div id="auth-msg"></div></div></div>
-
-<div class="screen" id="screen-onboard"><div class="panel"><h2>Build Your Profile</h2><div id="chat-box"></div><div style="display:flex;gap:8px"><input id="chat-input" class="chat-input" placeholder="Type..." onkeypress="if(event.key==='Enter') sendMessage()"><button class="btn btn-cyan" onclick="sendMessage()">Send</button></div></div></div>
+<div class="screen active" id="screen-onboard"><div class="panel"><h2>Build Your Profile</h2><div id="chat-box"></div><div style="display:flex;gap:8px"><input id="chat-input" class="chat-input" placeholder="Type..." onkeypress="if(event.key==='Enter') sendMessage()"><button class="btn btn-cyan" onclick="sendMessage()">Send</button></div></div></div>
 
 <div class="screen" id="screen-skill"><div class="panel"><h2>Choose your 21-day skill program</h2><p style="color:var(--muted);margin:8px 0 16px">Select one track to continue.</p><div id="skill-list" class="skill-grid"></div></div></div>
 
@@ -41,8 +40,7 @@
 <script>
 const API="https://zubhai-zubhai-backened.hf.space";
 const SUPABASE_URL="https://ceikerijcbyxtltpkqcu.supabase.co";
-const SUPABASE_KEY="<SECRET>";
-let userId=null,userProfile=null,history=[];
+let userId="demo-user";let userProfile={field:"marketing",selected_skill:"",points:0,streak:0};let history=[];
 
 const SKILLS_BY_FIELD={marketing:["AI for Content Creation","AI for Social Media","AI for Email Marketing"],developer:["AI for Code Review","AI for Documentation","AI for Testing"],student:["AI for Study Planning","AI for Research","AI for Writing"],hr:["AI for Recruitment","AI for Performance Reviews","AI for Training"],default:["AI Basics","AI for Productivity","AI for Communication"]};
 
@@ -50,15 +48,14 @@ function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classL
 function getFieldKey(field=''){const f=field.toLowerCase();if(f.includes('market'))return'marketing';if(f.includes('dev')||f.includes('software'))return'developer';if(f.includes('student'))return'student';if(f.includes('hr')||f.includes('recruit'))return'hr';return'default';}
 function addMsg(text,who){const box=document.getElementById('chat-box');box.innerHTML+=`<div class="msg ${who}"><span>${text}</span></div>`;box.scrollTop=box.scrollHeight;}
 
-async function handleAuth(){const email=document.getElementById('auth-email').value.trim();const password=document.getElementById('auth-password').value.trim();if(!email||!password)return;const res=await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`,{method:'POST',headers:{'Content-Type':'application/json','apikey':SUPABASE_KEY},body:JSON.stringify({email,password})});const data=await res.json();if(data.access_token){userId=data.user.id;await loadUserProfile();}else{document.getElementById('auth-msg').innerText='Login failed';}}
-async function loadUserProfile(){const res=await fetch(`${SUPABASE_URL}/rest/v1/users?id=eq.${userId}`,{headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}});const data=await res.json();userProfile=data[0]||{};if(userProfile.field){if(userProfile.selected_skill){goToLobby();}else{showSkillSelection();}}else{startOnboarding();}}
 function startOnboarding(){showScreen('screen-onboard');addMsg("Hi! I'm Zubhai AI 🤖 What is your job or field?",'ai');}
-async function sendMessage(){const input=document.getElementById('chat-input');const msg=input.value.trim();if(!msg)return;input.value='';addMsg(msg,'user');const res=await fetch(`${API}/onboard`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history,user_id:userId})});const data=await res.json();addMsg(data.reply,'ai');history.push({role:'user',content:msg},{role:'assistant',content:data.reply});if(data.reply.toLowerCase().includes('level')){setTimeout(loadUserProfile,1000);}}
+async function sendMessage(){const input=document.getElementById('chat-input');const msg=input.value.trim();if(!msg)return;input.value='';addMsg(msg,'user');if(!userProfile.field||userProfile.field==='marketing'){userProfile.field=msg;}const res=await fetch(`${API}/onboard`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,history,user_id:userId})});const data=await res.json();addMsg(data.reply,'ai');history.push({role:'user',content:msg},{role:'assistant',content:data.reply});if(data.reply.toLowerCase().includes('level')){setTimeout(showSkillSelection,700);}}
 function showSkillSelection(){showScreen('screen-skill');const skills=SKILLS_BY_FIELD[getFieldKey(userProfile.field)]||SKILLS_BY_FIELD.default;const list=document.getElementById('skill-list');list.innerHTML='';skills.forEach(skill=>{const b=document.createElement('button');b.className='skill-btn';b.textContent=skill;b.onclick=()=>selectSkill(skill);list.appendChild(b);});}
 async function selectSkill(skill){await fetch(`${API}/select-skill`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,skill})});userProfile.selected_skill=skill;goToLobby();}
 function goToLobby(){document.getElementById('selected-skill').innerText=userProfile.selected_skill||'';showScreen('screen-lobby');}
 
-(function init3D(){const canvas=document.getElementById('bg-canvas');const r=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});const s=new THREE.Scene();const c=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,1e3);c.position.z=32;r.setSize(innerWidth,innerHeight);const pts=[];const arr=new Float32Array(240);for(let i=0;i<80;i++){const p={x:(Math.random()-.5)*70,y:(Math.random()-.5)*45,z:(Math.random()-.5)*30,vx:(Math.random()-.5)*.02,vy:(Math.random()-.5)*.02,vz:(Math.random()-.5)*.01};pts.push(p);arr[i*3]=p.x;arr[i*3+1]=p.y;arr[i*3+2]=p.z;}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(arr,3));s.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xFFD700,size:.28,transparent:true,opacity:.9})));addEventListener('resize',()=>{r.setSize(innerWidth,innerHeight);c.aspect=innerWidth/innerHeight;c.updateProjectionMatrix();});(function a(){requestAnimationFrame(a);pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;if(Math.abs(p.x)>35)p.vx*=-1;if(Math.abs(p.y)>22)p.vy*=-1;if(Math.abs(p.z)>15)p.vz*=-1;arr[i*3]=p.x;arr[i*3+1]=p.y;arr[i*3+2]=p.z;});g.attributes.position.needsUpdate=true;r.render(s,c);})();})();
+(function init3D(){const canvas=document.getElementById('bg-canvas');const r=new THREE.WebGLRenderer({canvas,alpha:true,antialias:true});r.setPixelRatio(Math.min(devicePixelRatio,2));const scene=new THREE.Scene();const cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1e3);cam.position.z=30;r.setSize(innerWidth,innerHeight);const N=140,pts=[],arr=new Float32Array(N*3);for(let i=0;i<N;i++){const p={x:(Math.random()-.5)*90,y:(Math.random()-.5)*60,z:(Math.random()-.5)*40,vx:(Math.random()-.5)*.03,vy:(Math.random()-.5)*.03,vz:(Math.random()-.5)*.02};pts.push(p);arr[i*3]=p.x;arr[i*3+1]=p.y;arr[i*3+2]=p.z;}const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(arr,3));scene.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xFFD700,size:.32,transparent:true,opacity:.95})));const lgeo=new THREE.BufferGeometry();const lmat=new THREE.LineBasicMaterial({color:0x00D4FF,transparent:true,opacity:.17});const lines=new THREE.LineSegments(lgeo,lmat);scene.add(lines);let mx=0,my=0;addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*6;my=-(e.clientY/innerHeight-.5)*6;});addEventListener('resize',()=>{r.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});(function a(){requestAnimationFrame(a);pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;if(Math.abs(p.x)>45)p.vx*=-1;if(Math.abs(p.y)>30)p.vy*=-1;if(Math.abs(p.z)>20)p.vz*=-1;arr[i*3]=p.x;arr[i*3+1]=p.y;arr[i*3+2]=p.z;});g.attributes.position.needsUpdate=true;const la=[];for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dz=pts[i].z-pts[j].z;if(dx*dx+dy*dy+dz*dz<260){la.push(pts[i].x,pts[i].y,pts[i].z,pts[j].x,pts[j].y,pts[j].z);}}lgeo.setAttribute('position',new THREE.Float32BufferAttribute(la,3));cam.position.x+=(mx-cam.position.x)*.02;cam.position.y+=(my-cam.position.y)*.02;cam.lookAt(scene.position);r.render(scene,cam);})();})();
+startOnboarding();
 </script>
 </body>
 </html>
