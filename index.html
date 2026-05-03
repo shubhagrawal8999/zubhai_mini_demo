@@ -405,6 +405,24 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:60px
   </div>
 </section>
 
+
+
+<!-- APP FLOW (onboarding -> skill select -> lobby) -->
+<section id="app-flow" style="display:none;min-height:100vh;padding:120px 0;background:var(--surface)">
+  <div class="container">
+    <div id="skill-screen" style="max-width:760px;margin:0 auto;display:none">
+      <h2 class="section-title" style="font-size:42px;margin-bottom:12px">Choose your 21-day skill program</h2>
+      <p class="section-sub" style="margin-bottom:28px">Pick one skill to start your first focused 21-day track.</p>
+      <div id="skill-options" style="display:grid;grid-template-columns:1fr;gap:12px"></div>
+    </div>
+
+    <div id="lobby-screen" style="max-width:760px;margin:0 auto;display:none;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px">
+      <h2 class="section-title" style="font-size:38px;margin-bottom:8px">Lobby</h2>
+      <p class="section-sub">You're all set. Your 21-day program is active: <strong id="selected-skill-label" style="color:var(--gold)"></strong></p>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
 
 <!-- ABOUT SECTION -->
@@ -668,6 +686,65 @@ async function submitFeedback(){
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement.closest('#form-wrap'))joinWaitlist();
 });
+
+
+const SKILLS_BY_FIELD = {
+  marketing: ["AI for Content Creation","AI for Social Media","AI for Email Marketing"],
+  developer: ["AI for Code Review","AI for Documentation","AI for Testing"],
+  student: ["AI for Study Planning","AI for Research","AI for Writing"],
+  hr: ["AI for Recruitment","AI for Performance Reviews","AI for Training"],
+  default: ["AI Basics","AI for Productivity","AI for Communication"]
+};
+
+function getFieldKey(fieldValue = '') {
+  const v = fieldValue.toLowerCase();
+  if (v.includes('market')) return 'marketing';
+  if (v.includes('developer') || v.includes('software')) return 'developer';
+  if (v.includes('student')) return 'student';
+  if (v.includes('hr') || v.includes('recruit')) return 'hr';
+  return 'default';
+}
+
+function showSkillSelectionAfterOnboarding({ userId, field }) {
+  document.querySelectorAll('nav, .hero, .stats-bar, section, footer').forEach(el => {
+    if (el.id !== 'app-flow') el.style.display = 'none';
+  });
+
+  const appFlow = document.getElementById('app-flow');
+  const skillScreen = document.getElementById('skill-screen');
+  const skillOptions = document.getElementById('skill-options');
+  appFlow.style.display = 'block';
+  skillScreen.style.display = 'block';
+
+  const key = getFieldKey(field);
+  const skills = SKILLS_BY_FIELD[key] || SKILLS_BY_FIELD.default;
+
+  skillOptions.innerHTML = '';
+  skills.forEach(skill => {
+    const btn = document.createElement('button');
+    btn.className = 'form-submit';
+    btn.style.textAlign = 'left';
+    btn.style.marginTop = '0';
+    btn.textContent = skill;
+    btn.onclick = () => selectSkill(userId, skill);
+    skillOptions.appendChild(btn);
+  });
+}
+
+async function selectSkill(userId, skill) {
+  await fetch(BACKEND + '/select-skill', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, skill })
+  });
+
+  document.getElementById('skill-screen').style.display = 'none';
+  document.getElementById('lobby-screen').style.display = 'block';
+  document.getElementById('selected-skill-label').textContent = skill;
+}
+
+// Example integration point: call this after onboarding completes.
+// showSkillSelectionAfterOnboarding({ userId: 'USER_ID_FROM_ONBOARDING', field: 'Marketing' });
 </script>
 </body>
 </html>
