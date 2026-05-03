@@ -406,6 +406,95 @@ footer{background:var(--surface);border-top:1px solid var(--border);padding:60px
 </section>
 
 <!-- FOOTER -->
+
+<!-- ABOUT SECTION -->
+<section id="about" style="background:var(--black);position:relative;z-index:2">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center">
+      <div>
+        <span class="section-tag reveal">Our story</span>
+        <h2 class="section-title reveal">Built from frustration.<br/><span class="line-gold">Built for you.</span></h2>
+        <p class="reveal" style="font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:20px">I spent months watching AI courses, collecting certificates, feeling productive. But when someone asked me "can you build something with AI?" — I had nothing to show.</p>
+        <p class="reveal" style="font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:20px">The problem isn't access to information. We have too much of it. The problem is that nobody makes you actually DO anything.</p>
+        <p class="reveal" style="font-size:16px;color:var(--muted);line-height:1.8">So I built Zubhai. A platform that gives you personalized AI challenges every day, verifies your actual work, and rewards your progress like a game.</p>
+        <div class="reveal" style="margin-top:32px;display:flex;align-items:center;gap:16px">
+          <div style="width:48px;height:48px;border-radius:50%;background:rgba(212,160,23,.15);border:1px solid rgba(212,160,23,.3);display:flex;align-items:center;justify-content:center;font-size:20px">🇮🇳</div>
+          <div>
+            <div style="font-weight:600;font-size:15px">Shubh Agrawal</div>
+            <div style="color:var(--muted);font-size:13px">Founder, Zubhai · Maharashtra, India</div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal d2">
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:24px;padding:40px">
+          <h3 style="font-family:var(--font-head);font-size:22px;color:var(--gold);margin-bottom:24px">Our Vision</h3>
+          <p style="color:var(--muted);line-height:1.8;margin-bottom:24px;font-size:15px">A world where every professional — marketer, teacher, nurse, engineer — has the AI skills they need to thrive in their field.</p>
+          <p style="color:var(--muted);line-height:1.8;font-size:15px">Not through 40-hour courses. Through 15 minutes of daily practice, verified by AI, gamified for habit.</p>
+          <div style="margin-top:32px;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white)"><span style="color:var(--gold)">⚡</span> Built in India for Indian professionals</div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white)"><span style="color:var(--gold)">⚡</span> Zero budget, maximum impact</div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white)"><span style="color:var(--gold)">⚡</span> Works in your language</div>
+            <div style="display:flex;align-items:center;gap:12px;font-size:14px;color:var(--white)"><span style="color:var(--gold)">⚡</span> Free to start, always</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEEDBACK SECTION -->
+<section id="feedback" style="background:var(--surface);position:relative;z-index:2">
+  <div class="container">
+    <div style="max-width:640px;margin:0 auto;text-align:center">
+      <span class="section-tag reveal">Help us build better</span>
+      <h2 class="section-title reveal">Tell us what you need.<br/><span class="line-cyan">We actually listen.</span></h2>
+      <p class="section-sub reveal" style="margin:0 auto 40px;text-align:center">Every response shapes what we build next. This takes 60 seconds.</p>
+      <div class="reveal d1" id="feedback-wrap">
+        <div class="form-group">
+          <input class="form-input" type="text" id="fb-name" placeholder="Your name (optional)"/>
+        </div>
+        <div class="form-group">
+          <select class="form-input" id="fb-field">
+            <option value="" disabled selected>What is your field / job?</option>
+            <option>Marketing</option><option>Sales</option><option>Student</option>
+            <option>Software Developer</option><option>Designer</option><option>Finance</option>
+            <option>HR / Recruitment</option><option>Teacher / Educator</option>
+            <option>Healthcare</option><option>Entrepreneur</option><option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <textarea class="form-input" id="fb-challenge" placeholder="What is your biggest challenge with learning AI right now?" style="height:90px;resize:none"></textarea>
+        </div>
+        <div class="form-group">
+          <textarea class="form-input" id="fb-feature" placeholder="What one feature would make you use Zubhai every single day?" style="height:90px;resize:none"></textarea>
+        </div>
+        <button class="form-submit" onclick="submitFeedback()" id="fb-btn">Send Feedback ✨</button>
+      </div>
+      <div id="feedback-success" style="display:none;background:rgba(0,229,255,.06);border:1px solid rgba(0,229,255,.2);border-radius:20px;padding:40px;text-align:center">
+        <h3 style="color:var(--cyan);font-family:var(--font-head);font-size:24px;margin-bottom:10px">Thank you! 🙏</h3>
+        <p style="color:var(--muted);font-size:15px;line-height:1.7">Your feedback goes directly to Shubh. We read every single response and use it to build features that actually matter to you.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT HUNT BADGE SECTION -->
+<section style="background:var(--black);padding:60px 0;position:relative;z-index:2">
+  <div class="container" style="text-align:center">
+    <span class="section-tag reveal">Launching on</span>
+    <h2 class="section-title reveal" style="font-size:32px">Product Hunt 🚀</h2>
+    <p class="reveal" style="color:var(--muted);font-size:16px;max-width:480px;margin:0 auto 32px;line-height:1.7">We are launching on Product Hunt soon. Join the waitlist and we will notify you on launch day so you can be first to support us.</p>
+    <div class="reveal d1" style="display:inline-flex;align-items:center;gap:16px;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px 32px">
+      <div style="font-size:40px">🏆</div>
+      <div style="text-align:left">
+        <div style="font-family:var(--font-head);font-size:18px;font-weight:700;color:var(--white)">Coming to Product Hunt</div>
+        <div style="color:var(--muted);font-size:13px;margin-top:4px">Join the waitlist to get notified on launch day</div>
+      </div>
+      <a href="#waitlist" style="background:var(--gold);color:#000;padding:12px 24px;border-radius:10px;font-weight:700;text-decoration:none;font-family:var(--font-head);font-size:14px;white-space:nowrap">Get Notified</a>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="container">
     <div class="footer-grid">
@@ -534,26 +623,52 @@ async function joinWaitlist(){
   btn.disabled=true;
   btn.textContent='Joining...';
 
-   try{
+  try{
     await fetch(BACKEND+'/join-waitlist',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({name,email,field,language:lang})
     });
-  }catch(e){}
-  
-  document.getElementById('form-wrap').style.display='none';
-  document.getElementById('success-box').style.display='block';
-  const c=document.getElementById('counter');
-  c.textContent=parseInt(c.textContent)+1;
-}
-
+    document.getElementById('form-wrap').style.display='none';
+    document.getElementById('success-box').style.display='block';
+    const c=document.getElementById('counter');
+    c.textContent=parseInt(c.textContent)+1;
+  }catch(e){
+    document.getElementById('form-wrap').style.display='none';
+    document.getElementById('success-box').style.display='block';
+  }
 }
 
 /* Enter key submits form */
+
+async function submitFeedback(){
+  const name = document.getElementById('fb-name').value.trim();
+  const field = document.getElementById('fb-field').value;
+  const challenge = document.getElementById('fb-challenge').value.trim();
+  const feature = document.getElementById('fb-feature').value.trim();
+  
+  if(!challenge && !feature){ alert('Please fill in at least one field.'); return; }
+  
+  const btn = document.getElementById('fb-btn');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  
+  try{
+    await fetch(BACKEND+'/submit-feedback',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,field,challenge,feature})
+    });
+  }catch(e){}
+  
+  document.getElementById('feedback-wrap').style.display='none';
+  document.getElementById('feedback-success').style.display='block';
+}
+
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter'&&document.activeElement.closest('#form-wrap'))joinWaitlist();
 });
 </script>
 </body>
 </html>
+
