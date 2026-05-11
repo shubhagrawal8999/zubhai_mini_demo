@@ -1,1076 +1,1025 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zubhai — Master AI Skills</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+from fastapi import FastAPI
+from fastapi.responses import FileResponse
+from supabase import create_client
+from openai import OpenAI
+import anthropic
+import os
+import json
+import re
+import requests
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import date
+
+app = FastAPI()
+
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+supabase = create_client(
+    os.environ.get("SUPABASE_URL"),
+    os.environ.get("SUPABASE_SERVICE_KEY") or os.environ.get("SUPABASE_KEY")
+)
+openai_client = OpenAI(api_key=os.environ.get("OPENAI_API_KEY"))
+deepseek_client = OpenAI(api_key=os.environ.get("DEEPSEEK_API_KEY"), base_url="https://api.deepseek.com")
+claude_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+
+# ── UTILS ─────────────────────────────────────────────────────────────
+
+def current_year():
+    return date.today().year
+
+def calculate_streak(last_active_str, current_streak):
+    today = date.today()
+    if not last_active_str:
+        return {"streak": 1, "is_rest_day": False, "streak_broken": False}
+    try:
+        last_active = date.fromisoformat(last_active_str[:10])
+    except:
+        return {"streak": 1, "is_rest_day": False, "streak_broken": False}
+    delta = (today - last_active).days
+    if delta == 0:
+        return {"streak": current_streak, "is_rest_day": False, "streak_broken": False, "already_today": True}
+    elif delta == 1:
+        new_streak = current_streak + 1
+        if new_streak > 6:
+            return {"streak": 0, "is_rest_day": True, "streak_broken": False}
+        return {"streak": new_streak, "is_rest_day": False, "streak_broken": False}
+    else:
+        return {"streak": 1, "is_rest_day": False, "streak_broken": True}
+
+
+def get_challenge_time(base_time, day):
+    return base_time + ((day - 1) // 3) * 5
+
+
+def fetch_web_context(field, topic):
+    """
+    Fetch real current web context about this skill for this field.
+    Uses current year dynamically — never hardcoded.
+    """
+    try:
+        yr = current_year()
+        q = requests.utils.quote(
+            f"AI used in {field} for {topic} {yr} practical examples real tools"
+        )
+        res = requests.get(
+            f"https://r.jina.ai/https://www.google.com/search?q={q}",
+            timeout=12
+        )
+        if res.status_code == 200 and len(res.text) > 100:
+            return res.text[:2500]
+        return ""
+    except:
+        return ""
+
+
+def extract_json(text):
+    """
+    Robust JSON extraction — handles markdown fences, extra text, partial responses.
+    """
+    if not text:
+        return None
+    # Strip markdown fences
+    text = text.replace("```json", "").replace("```", "").strip()
+    # Try direct parse first
+    try:
+        return json.loads(text)
+    except:
+        pass
+    # Find first { ... } block
+    try:
+        start = text.find("{")
+        end = text.rfind("}") + 1
+        if start != -1 and end > start:
+            return json.loads(text[start:end])
+    except:
+        pass
+    # Regex fallback for score and points
+    try:
+        score_match = re.search(r'"score"\s*:\s*(\d+)', text)
+        points_match = re.search(r'"points"\s*:\s*(\d+)', text)
+        feedback_match = re.search(r'"feedback"\s*:\s*"([^"]+)"', text)
+        good_match = re.search(r'"what_was_good"\s*:\s*"([^"]+)"', text)
+        improve_match = re.search(r'"what_to_improve"\s*:\s*"([^"]+)"', text)
+        if score_match and points_match:
+            return {
+                "score": int(score_match.group(1)),
+                "points": int(points_match.group(1)),
+                "feedback": feedback_match.group(1) if feedback_match else "Graded",
+                "what_was_good": good_match.group(1) if good_match else "",
+                "what_to_improve": improve_match.group(1) if improve_match else ""
+            }
+    except:
+        pass
+    return None
+
+
+# ── EMAIL SYSTEM ──────────────────────────────────────────────────────
+
+SENDER_NAME = "Shubh from Zubhai"
+SENDER_EMAIL = os.environ.get("GMAIL_USER", "shubzz429@gmail.com")
+
+def send_email_html(to_email: str, subject: str, html: str, name: str = ""):
+    """Core email sender."""
+    try:
+        msg = MIMEMultipart("alternative")
+        msg["Subject"] = subject
+        msg["From"] = f"{SENDER_NAME} <{SENDER_EMAIL}>"
+        msg["To"] = to_email
+        msg["Reply-To"] = SENDER_EMAIL
+        msg.attach(MIMEText(html, "html"))
+        srv = smtplib.SMTP_SSL("smtp.gmail.com", 465)
+        srv.login(SENDER_EMAIL, os.environ.get("GMAIL_APP_PASSWORD"))
+        srv.sendmail(SENDER_EMAIL, to_email, msg.as_string())
+        srv.quit()
+        print(f"Email sent to {to_email}: {subject}")
+        return True
+    except Exception as e:
+        print(f"Email failed to {to_email}: {e}")
+        return False
+
+
+def email_base(content: str, preview_text: str = "") -> str:
+    """Base email template — dark teal Zubhai brand."""
+    return f"""<!DOCTYPE html>
+<html><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Zubhai</title>
 <style>
-:root{
-  --bg:#070d12;
-  --bg2:#0b1520;
-  --surface:#0f1e2b;
-  --card:#122030;
-  --card2:#162840;
-  --teal:#00d4aa;
-  --teal2:#00ffcc;
-  --teal-dim:rgba(0,212,170,.12);
-  --teal-border:rgba(0,212,170,.22);
-  --purple:#7c5cfc;
-  --purple2:#9d82ff;
-  --orange:#ff7a3d;
-  --gold:#f5a623;
-  --green:#00e676;
-  --red:#ff5252;
-  --white:#e8f4f0;
-  --muted:#6a8fa8;
-  --border:rgba(0,212,170,.1);
-  --border2:rgba(255,255,255,.07);
-  --f:'Inter',sans-serif;
-  --fm:'DM Mono',monospace;
-  --sidebar:268px;
-}
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--white);font-family:var(--f);overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--teal-border);border-radius:4px}
-
-/* ── LANDING NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0;transition:.3s}
-nav.solid{background:rgba(7,13,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.nav-logo-text{font-size:20px;font-weight:800;color:var(--white);letter-spacing:.5px}
-.nav-links{display:flex;gap:32px}
-.nav-links a{color:var(--muted);font-size:14px;font-weight:500;text-decoration:none;transition:.2s}
-.nav-links a:hover{color:var(--white)}
-.nav-actions{display:flex;gap:10px}
-.btn-ghost{border:1px solid var(--border2);color:var(--white);padding:9px 22px;border-radius:100px;font-size:14px;font-weight:500;cursor:pointer;background:none;transition:.2s;font-family:var(--f)}
-.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
-.btn-teal{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:10px 24px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.2s;font-family:var(--f)}
-.btn-teal:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-
-/* ── HERO ── */
-.hero{min-height:100vh;display:flex;align-items:center;padding-top:80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(0,212,170,.08) 0%,transparent 65%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(124,92,252,.06) 0%,transparent 65%);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:2}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--teal-dim);border:1px solid var(--teal-border);padding:6px 16px;border-radius:100px;font-size:12px;color:var(--teal);font-family:var(--fm);margin-bottom:24px;letter-spacing:.5px}
-.hero-tag-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-.hero-title{font-size:clamp(42px,5vw,68px);font-weight:900;line-height:1.05;margin-bottom:20px;letter-spacing:-1px}
-.hero-title .line1{color:var(--white)}
-.hero-title .line2{background:linear-gradient(135deg,var(--teal),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-title .line3{color:var(--white);opacity:.85}
-.hero-sub{font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:36px;font-weight:400;max-width:460px}
-.hero-sub strong{color:var(--white);font-weight:600}
-.hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.btn-hero-primary{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:15px 32px;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.25s;font-family:var(--f);display:inline-flex;align-items:center;gap:8px}
-.btn-hero-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,212,170,.35)}
-.btn-hero-ghost{border:1px solid var(--border2);color:var(--white);padding:15px 32px;border-radius:100px;font-size:15px;font-weight:500;cursor:pointer;background:none;transition:.25s;font-family:var(--f)}
-.btn-hero-ghost:hover{border-color:var(--teal);color:var(--teal)}
-
-/* HERO VISUAL — 3D card stack */
-.hero-visual{position:relative;height:480px}
-.hero-card-main{position:absolute;top:40px;left:50%;transform:translateX(-50%);width:300px;background:linear-gradient(135deg,var(--card2),var(--surface));border:1px solid var(--teal-border);border-radius:20px;padding:24px;box-shadow:0 32px 64px rgba(0,0,0,.4),0 0 0 1px var(--border);animation:float1 4s ease-in-out infinite}
-@keyframes float1{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-12px)}}
-.hero-card-back1{position:absolute;top:20px;left:calc(50% + 30px);width:280px;background:linear-gradient(135deg,rgba(124,92,252,.15),rgba(0,212,170,.08));border:1px solid rgba(124,92,252,.2);border-radius:20px;padding:20px;transform:rotate(6deg);z-index:-1;animation:float2 4s ease-in-out infinite .5s}
-@keyframes float2{0%,100%{transform:rotate(6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-8px)}}
-.hero-card-back2{position:absolute;top:30px;left:calc(50% - 80px);width:280px;background:linear-gradient(135deg,rgba(255,122,61,.1),rgba(245,166,35,.08));border:1px solid rgba(255,122,61,.18);border-radius:20px;padding:20px;transform:rotate(-5deg);z-index:-1;animation:float3 4s ease-in-out infinite 1s}
-@keyframes float3{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-6px)}}
-.hero-card-label{font-size:9px;color:var(--teal);font-family:var(--fm);letter-spacing:1.5px;margin-bottom:12px;text-transform:uppercase}
-.hero-card-day{font-size:22px;font-weight:800;margin-bottom:4px}
-.hero-card-topic{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5}
-.hero-tool-badge{display:inline-flex;align-items:center;gap:6px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:100px;padding:5px 12px;font-size:11px;color:var(--teal);font-weight:600;margin-bottom:14px}
-.hero-prompt-preview{background:rgba(0,0,0,.3);border-radius:10px;padding:10px 12px;font-size:10px;color:rgba(232,244,240,.6);line-height:1.6;font-family:var(--fm);margin-bottom:14px}
-.hero-score-row{display:flex;gap:8px}
-.hero-score-chip{flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:8px;text-align:center}
-.hero-score-v{font-size:18px;font-weight:800;color:var(--teal)}
-.hero-score-l{font-size:8px;color:var(--muted);margin-top:1px}
-.hero-float-badge{position:absolute;background:var(--card2);border:1px solid var(--teal-border);border-radius:12px;padding:10px 14px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:7px;animation:floatbadge 3s ease-in-out infinite}
-@keyframes floatbadge{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.fb1{top:0;right:0;color:var(--green);border-color:rgba(0,230,118,.2);animation-delay:.3s}
-.fb2{bottom:60px;left:0;color:var(--orange);border-color:rgba(255,122,61,.2);animation-delay:.8s}
-.fb3{bottom:0;right:30px;color:var(--purple2);border-color:rgba(124,92,252,.2);animation-delay:1.3s}
-.fb-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-
-/* ── STATS BAR ── */
-.stats-bar{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 0}
-.stats-inner{max-width:1200px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:repeat(4,1fr)}
-.stat-item{text-align:center;padding:0 20px;border-right:1px solid var(--border2)}
-.stat-item:last-child{border:none}
-.stat-n{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--teal),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.stat-l{font-size:13px;color:var(--muted);margin-top:4px}
-
-/* ── SHARED ── */
-.section{padding:96px 0}
-.section-inner{max-width:1200px;margin:0 auto;padding:0 40px}
-.s-tag{display:inline-block;font-family:var(--fm);font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;background:var(--teal-dim);border:1px solid var(--teal-border);padding:4px 12px;border-radius:100px}
-.s-title{font-size:clamp(30px,3.5vw,46px);font-weight:800;line-height:1.1;margin-bottom:14px;letter-spacing:-.5px}
-.s-sub{font-size:15px;color:var(--muted);line-height:1.75;max-width:520px;font-weight:400}
-.reveal{opacity:0;transform:translateY(24px);transition:all .65s cubic-bezier(.25,.46,.45,.94)}
-.reveal.on{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
-
-/* ── FEATURES GRID ── */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px}
-.feat-card{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:26px;transition:.3s;position:relative;overflow:hidden;cursor:default}
-.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:0;transition:.3s}
-.feat-card:hover{border-color:var(--teal-border);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
-.feat-card:hover::before{opacity:1}
-.feat-card.hi{border-color:var(--teal-border);background:linear-gradient(135deg,rgba(0,212,170,.05),var(--card))}
-.feat-ico-wrap{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:var(--teal-dim);border:1px solid var(--teal-border)}
-.feat-ico-wrap.purple{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22)}
-.feat-ico-wrap.orange{background:rgba(255,122,61,.12);border-color:rgba(255,122,61,.22)}
-.feat-ico-wrap.gold{background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.22)}
-.feat-ico-wrap.green{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.22)}
-.feat-h{font-size:15px;font-weight:700;margin-bottom:7px}
-.feat-p{font-size:13px;color:var(--muted);line-height:1.7}
-
-/* ── HOW IT WORKS ── */
-.how-bg{background:var(--bg2)}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px}
-.step-card{background:var(--card);border:1px solid var(--border2);padding:30px 26px;transition:.3s;position:relative}
-.step-card:first-child{border-radius:18px 0 0 18px}
-.step-card:nth-child(3){border-radius:0 18px 18px 0}
-.step-card:hover{border-color:var(--teal-border);transform:translateY(-3px);position:relative;z-index:2}
-.step-num{font-family:var(--fm);font-size:10px;color:var(--teal);letter-spacing:2px;margin-bottom:16px;display:block}
-.step-ico-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),#00a880);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px;font-weight:800;color:#000}
-.step-h{font-size:16px;font-weight:700;margin-bottom:8px}
-.step-p{font-size:12px;color:var(--muted);line-height:1.7}
-
-/* ── TOOLS SECTION ── */
-.tools-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
-.tool-pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:10px 18px;font-size:13px;font-weight:500;transition:.2s}
-.tool-pill:hover{border-color:var(--teal-border);color:var(--teal)}
-.tool-pill-dot{width:8px;height:8px;border-radius:50%}
-
-/* ── REVIEWS ── */
-.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
-.rev-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px;transition:.2s}
-.rev-card:hover{border-color:var(--teal-border)}
-.rev-stars{color:var(--gold);font-size:13px;margin-bottom:12px;letter-spacing:2px}
-.rev-text{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:16px;font-style:italic}
-.rev-author{display:flex;align-items:center;gap:10px}
-.rev-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000}
-.rev-name{font-size:13px;font-weight:600}
-.rev-role{font-size:11px;color:var(--muted)}
-
-/* ── CTA ── */
-.cta-box{background:linear-gradient(135deg,var(--surface),var(--bg2));border:1px solid var(--teal-border);border-radius:24px;padding:64px 48px;text-align:center;position:relative;overflow:hidden}
-.cta-box::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(0,212,170,.08),transparent 70%);pointer-events:none}
-.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
-
-/* ── FOOTER ── */
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 28px}
-.foot-inner{max-width:1200px;margin:0 auto;padding:0 40px}
-.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:32px}
-.foot-logo-wrap{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.foot-logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.foot-logo-text{font-size:17px;font-weight:800}
-.foot-desc{font-size:12px;color:var(--muted);line-height:1.75;max-width:220px}
-.foot-col h4{font-size:12px;font-weight:600;color:var(--white);margin-bottom:12px;letter-spacing:.3px}
-.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
-.foot-col a{font-size:12px;color:var(--muted);text-decoration:none;transition:.2s}
-.foot-col a:hover{color:var(--teal)}
-.foot-bottom{border-top:1px solid var(--border2);padding-top:20px;display:flex;justify-content:space-between}
-.foot-bottom p{font-size:11px;color:var(--muted)}
-
-/* ══ APP SHELL ══════════════════════════════════════════ */
-#app{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:row}
-#app.open{display:flex}
-
-/* ── SIDEBAR (Claude-style) ── */
-.sb{width:var(--sidebar);min-width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.sb-top{padding:16px 12px 8px}
-.sb-logo-row{display:flex;align-items:center;gap:8px;padding:4px 8px;margin-bottom:8px}
-.sb-logo-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.sb-logo-text{font-size:16px;font-weight:800;color:var(--white)}
-.sb-new-btn{display:flex;align-items:center;gap:8px;width:100%;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--teal);cursor:pointer;transition:.2s;font-family:var(--f)}
-.sb-new-btn:hover{background:rgba(0,212,170,.18)}
-.sb-search{display:flex;align-items:center;gap:8px;width:100%;background:none;border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--muted);cursor:pointer;transition:.2s;font-family:var(--f);margin-top:6px}
-.sb-search:hover{border-color:var(--teal-border);color:var(--white)}
-.sb-divider{height:1px;background:var(--border2);margin:10px 12px}
-.sb-section-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:4px 20px 6px;font-family:var(--fm)}
-.sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;cursor:pointer;transition:.15s;color:#8ab0c8;border-radius:8px;margin:0 8px}
-.sb-nav-item:hover{background:rgba(255,255,255,.04);color:var(--white)}
-.sb-nav-item.active{background:var(--teal-dim);color:var(--teal);font-weight:500}
-.sb-nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.sb-nav-right{margin-left:auto}
-.sb-badge{background:var(--border2);border-radius:100px;padding:2px 7px;font-size:9px;font-family:var(--fm);color:var(--muted)}
-.sb-badge.done{background:rgba(0,230,118,.1);color:var(--green)}
-.sb-badge.today{background:var(--teal-dim);color:var(--teal)}
-.sb-recents-scroll{flex:1;overflow-y:auto;padding-bottom:8px}
-.sb-ch-item{display:flex;align-items:center;gap:9px;padding:8px 20px;font-size:12px;cursor:pointer;transition:.15s;color:#8ab0c8;margin:0 8px;border-radius:8px}
-.sb-ch-item:hover{background:rgba(255,255,255,.04);color:var(--white)}
-.sb-ch-item.active{background:var(--teal-dim);color:var(--teal)}
-.sb-ch-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0}
-.sb-ch-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-user-section{border-top:1px solid var(--border2);padding:12px}
-.sb-user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:.2s}
-.sb-user-row:hover{background:rgba(255,255,255,.04)}
-.sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000;flex-shrink:0}
-.sb-user-info{flex:1;min-width:0}
-.sb-user-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-user-plan{font-size:11px;color:var(--muted)}
-.sb-logout-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;transition:.2s;border-radius:6px}
-.sb-logout-btn:hover{color:var(--red);background:rgba(255,82,82,.08)}
-
-/* ── MAIN CONTENT AREA ── */
-.app-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.app-topbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(7,13,18,.9);backdrop-filter:blur(12px);flex-shrink:0}
-.app-topbar-title{font-size:14px;font-weight:700;color:var(--white)}
-.app-stats-row{display:flex;gap:8px}
-.app-stat{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;font-family:var(--fm)}
-.app-stat.teal{color:var(--teal);border-color:var(--teal-border)}
-.app-stat.gold{color:var(--gold);border-color:rgba(245,166,35,.25)}
-.app-stat.orange{color:var(--orange);border-color:rgba(255,122,61,.25)}
-.app-body{flex:1;overflow-y:auto;padding:28px 32px}
-.screen{display:none;max-width:620px;margin:0 auto}
-.screen.on{display:block}
-
-/* ── AUTH ── */
-.auth-center{min-height:calc(100vh - 110px);display:flex;align-items:center;justify-content:center}
-.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:22px;padding:40px 36px;text-align:center;width:100%;max-width:420px;position:relative;overflow:hidden}
-.auth-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%);pointer-events:none}
-.auth-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px}
-.auth-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.auth-logo-text{font-size:22px;font-weight:900;color:var(--white)}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6}
-.inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:13px 15px;color:var(--white);font-size:14px;margin-bottom:11px;transition:.2s;font-family:var(--f)}
-.inp:focus{outline:none;border-color:var(--teal)}
-.inp::placeholder{color:var(--muted)}
-.auth-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;margin-top:3px}
-.auth-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.auth-err{color:var(--red);font-size:12px;margin-top:7px;min-height:16px}
-.auth-sw{color:var(--muted);font-size:12px;margin-top:12px}
-.auth-sw span{color:var(--teal);cursor:pointer;font-weight:500}
-
-/* ── ONBOARDING ── */
-.ob-prog{display:flex;gap:5px;margin-bottom:22px}
-.ob-dot{flex:1;height:3px;border-radius:100px;background:var(--border2);transition:.4s}
-.ob-dot.done{background:var(--teal)}
-.ob-dot.cur{background:rgba(0,212,170,.4)}
-.ob-q{font-size:18px;font-weight:800;margin-bottom:5px;letter-spacing:-.2px}
-.ob-hint{font-size:13px;color:var(--muted);margin-bottom:18px}
-.ob-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.ob-chip{padding:9px 17px;border:1px solid var(--border2);border-radius:100px;font-size:13px;cursor:pointer;transition:.2s;color:#8ab0c8;background:var(--card);font-family:var(--f)}
-.ob-chip:hover{border-color:var(--teal-border);color:var(--white)}
-.ob-chip.sel{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);font-weight:600}
-.ob-other-link{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block}
-.ob-other-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--white);font-size:13px;font-family:var(--f);margin-bottom:10px;display:none}
-.ob-other-inp.show{display:block}
-.ob-other-inp:focus{outline:none;border-color:var(--teal)}
-.ob-next{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;margin-top:6px}
-.ob-next:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.25)}
-.ob-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-
-/* PROFILE CARD */
-.profile-card{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--teal-border);border-radius:18px;padding:22px;margin:14px 0;position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%)}
-.profile-card h3{font-size:13px;color:var(--teal);margin-bottom:11px;font-weight:700;letter-spacing:.3px}
-.profile-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.ptag{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:100px;padding:4px 11px;font-size:11px;color:var(--teal);font-weight:500}
-.profile-card p{font-size:13px;color:var(--muted);line-height:1.7}
-.profile-card p strong{color:var(--white);font-weight:600}
-
-/* SKILL SELECT */
-.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.skill-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px;cursor:pointer;transition:.2s}
-.skill-card:hover{border-color:var(--teal-border);transform:translateY(-2px)}
-.skill-card.sel{border-color:var(--teal);background:var(--teal-dim)}
-.sk-ico{font-size:22px;margin-bottom:8px}
-.sk-name{font-size:13px;font-weight:700;margin-bottom:3px}
-.sk-desc{font-size:11px;color:var(--muted);line-height:1.5}
-
-/* CURRICULUM */
-.spin-wrap{text-align:center;padding:56px 0}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
-@keyframes spin{to{transform:rotate(360deg)}}
-.spin-wrap p{color:var(--muted);font-size:13px;margin-top:12px}
-.curr-week{margin-bottom:18px}
-.curr-week-h{font-size:10px;color:var(--teal);font-weight:700;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--fm)}
-.curr-day-row{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--card);border:1px solid var(--border2);border-radius:9px;margin-bottom:5px;font-size:12px;transition:.2s}
-.curr-day-row:hover{border-color:var(--teal-border)}
-.curr-day-n{font-family:var(--fm);font-size:9px;color:var(--muted);width:32px;flex-shrink:0}
-.curr-day-t{flex:1;color:var(--white)}
-.curr-day-tool{font-size:9px;color:var(--teal);background:var(--teal-dim);border-radius:100px;padding:2px 8px}
-.curr-milestone{border-color:rgba(245,166,35,.2);background:rgba(245,166,35,.02)}
-.curr-milestone .curr-day-n{color:var(--gold)}
-
-/* LOBBY */
-.pg-title{font-size:19px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px}
-.pg-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
-.lobby-hero{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--teal-border);border-radius:18px;padding:22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden}
-.lobby-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%)}
-.lobby-h2{font-size:20px;font-weight:800;margin-bottom:3px}
-.lobby-p{font-size:12px;color:var(--muted)}
-.lobby-start-btn{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:12px;padding:12px 22px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;white-space:nowrap;flex-shrink:0}
-.lobby-start-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,212,170,.3)}
-.lobby-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.lobby-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px;cursor:pointer;text-align:center;transition:.2s}
-.lobby-card:hover{border-color:var(--teal-border);transform:translateY(-2px)}
-.lobby-card-ico{font-size:26px;margin-bottom:7px}
-.lobby-card-lbl{font-size:13px;font-weight:700}
-.lobby-card-sub{font-size:10px;color:var(--muted);margin-top:2px}
-
-/* CHALLENGE */
-.day-pill{display:inline-block;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:4px 14px;border-radius:100px;font-weight:700;font-size:11px;font-family:var(--fm);margin-bottom:12px}
-.milestone-banner{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:11px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--gold);font-weight:500}
-.tool-badge{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,rgba(0,212,170,.05),rgba(124,92,252,.05));border:1px solid var(--teal-border);border-radius:13px;padding:14px 16px;margin-bottom:14px}
-.tool-badge-ico{font-size:24px;flex-shrink:0;margin-top:2px}
-.tool-badge-info{flex:1}
-.tool-badge-name{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:2px}
-.tool-badge-model{font-size:11px;color:var(--muted)}
-.tool-badge-link{font-size:11px;color:var(--teal);text-decoration:none;font-weight:500}
-.tool-badge-link:hover{text-decoration:underline}
-.tool-badge-why{font-size:11px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid var(--border2);line-height:1.5}
-.c-card{background:var(--card);border:1px solid var(--teal-border);border-radius:14px;padding:20px;margin-bottom:18px;line-height:1.9;font-size:13px;color:var(--white);white-space:pre-wrap;word-break:break-word;position:relative}
-.c-lbl{font-size:8px;color:var(--teal);font-family:var(--fm);letter-spacing:1.5px;margin-bottom:10px;display:block;text-transform:uppercase}
-.sub-label{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:11px;font-family:var(--f)}
-.sub-inp{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--white);font-size:13px;margin-bottom:8px;font-family:var(--f);transition:.2s}
-.sub-inp:focus{outline:none;border-color:var(--teal)}
-.sub-or{text-align:center;color:var(--muted);font-size:11px;margin:7px 0}
-.sub-ta{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--white);font-size:13px;height:110px;resize:none;font-family:var(--f);transition:.2s}
-.sub-ta:focus{outline:none;border-color:var(--teal)}
-.sub-btn{width:100%;background:linear-gradient(135deg,var(--green),#00c85a);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:12px;transition:.2s}
-.sub-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,230,118,.25)}
-.sub-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-
-/* SCORE */
-.score-center{text-align:center;padding:8px 0}
-.score-ring{width:130px;height:130px;border-radius:50%;border:3px solid var(--teal);margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(0,212,170,.05),transparent);box-shadow:0 0 30px rgba(0,212,170,.15)}
-.score-n{font-size:48px;font-weight:900;color:var(--teal);line-height:1}
-.score-d{color:var(--muted);font-size:12px}
-.score-fb{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:16px;text-align:left;line-height:1.7;font-size:13px;margin-bottom:10px;color:var(--white)}
-.score-good{background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.12);border-radius:9px;padding:11px 14px;font-size:12px;color:var(--green);margin-bottom:8px;text-align:left}
-.score-improve{background:rgba(255,122,61,.04);border:1px solid rgba(255,122,61,.12);border-radius:9px;padding:11px 14px;font-size:12px;color:var(--orange);margin-bottom:12px;text-align:left}
-.score-pts-row{font-size:18px;font-weight:800;color:var(--teal);margin-bottom:6px}
-.score-mot{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:16px}
-.score-back-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s}
-.score-back-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-
-/* LEADERBOARD */
-.lb-item{display:flex;align-items:center;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:12px 15px;margin-bottom:8px;transition:.2s}
-.lb-item:hover{border-color:var(--teal-border)}
-.lb-rank{font-size:15px;font-weight:900;width:32px;color:var(--muted);font-family:var(--fm)}
-.lb-rank.top{color:var(--gold)}
-.lb-info{flex:1}
-.lb-name{font-size:13px;font-weight:600}
-.lb-meta{font-size:10px;color:var(--muted);margin-top:1px}
-.lb-pts{font-size:14px;font-weight:800;color:var(--teal);font-family:var(--fm)}
-
-/* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--teal-border);color:var(--white);padding:11px 20px;border-radius:100px;font-size:13px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;font-weight:500}
-
-/* CONFIRM BTN */
-.confirm-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:14px;transition:.2s}
-.confirm-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-.confirm-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
-
-@media(max-width:768px){
-  .sb{display:none}
-  .nav-inner{padding:14px 20px}
-  .nav-links{display:none}
-  .hero-inner{grid-template-columns:1fr;gap:40px;padding:0 20px}
-  .hero-visual{display:none}
-  .stats-inner{grid-template-columns:1fr 1fr;padding:0 20px}
-  .stat-item{border:none;padding-bottom:12px}
-  .section-inner{padding:0 20px}
-  .feat-grid,.steps-grid,.rev-grid{grid-template-columns:1fr}
-  .foot-grid{grid-template-columns:1fr;gap:24px}
-  .foot-bottom{flex-direction:column;gap:6px}
-}
+body{{margin:0;padding:0;background:#070d12;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}}
+.wrap{{max-width:580px;margin:0 auto;background:#070d12}}
+.header{{background:linear-gradient(135deg,#0f1e2b,#162840);padding:28px 32px;border-bottom:2px solid #00d4aa33}}
+.logo{{font-size:22px;font-weight:900;color:#00d4aa;letter-spacing:1px;text-decoration:none}}
+.logo-dot{{color:#ffffff;opacity:.6}}
+.body{{padding:32px;background:#0b1520}}
+.footer{{padding:24px 32px;background:#070d12;border-top:1px solid #ffffff0f;text-align:center}}
+.footer p{{color:#4a6a7a;font-size:12px;margin:4px 0;line-height:1.6}}
+.footer a{{color:#00d4aa;text-decoration:none}}
+.btn{{display:inline-block;background:linear-gradient(135deg,#00d4aa,#00a880);color:#000000;font-weight:700;font-size:15px;padding:14px 32px;border-radius:100px;text-decoration:none;margin:20px 0}}
+.btn:hover{{background:#00ffcc}}
+.card{{background:#122030;border:1px solid #00d4aa22;border-radius:16px;padding:24px;margin:20px 0}}
+.card-gold{{background:#1a1500;border:1px solid #f5a62333;border-radius:16px;padding:24px;margin:20px 0}}
+h1{{color:#e8f4f0;font-size:26px;font-weight:800;margin:0 0 12px;line-height:1.2}}
+h2{{color:#e8f4f0;font-size:20px;font-weight:700;margin:0 0 10px}}
+p{{color:#8ab0c8;font-size:15px;line-height:1.75;margin:0 0 14px}}
+.teal{{color:#00d4aa;font-weight:600}}
+.gold{{color:#f5a623;font-weight:600}}
+.green{{color:#00e676;font-weight:600}}
+.stat-row{{display:flex;gap:12px;margin:16px 0}}
+.stat-box{{flex:1;background:#0f1e2b;border:1px solid #00d4aa18;border-radius:12px;padding:14px;text-align:center}}
+.stat-n{{font-size:24px;font-weight:900;color:#00d4aa}}
+.stat-l{{font-size:11px;color:#4a6a7a;margin-top:3px}}
+.divider{{height:1px;background:#ffffff0a;margin:20px 0}}
+.tag{{display:inline-block;background:#00d4aa15;border:1px solid #00d4aa30;color:#00d4aa;font-size:11px;font-weight:600;padding:4px 12px;border-radius:100px;margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}}
 </style>
 </head>
 <body>
+<div class="wrap">
+<div class="header">
+  <span class="logo">⚡ ZUBHAI<span class="logo-dot">.</span></span>
+</div>
+<div class="body">
+{content}
+</div>
+<div class="footer">
+  <p>You are receiving this because you signed up at <a href="https://zubhai.vercel.app">zubhai.vercel.app</a></p>
+  <p>Built with ♥ in India by <a href="https://linkedin.com/in/shubhagrawal429">Shubh Agrawal</a></p>
+  <p style="margin-top:8px"><a href="mailto:shubzz429@gmail.com">Reply to this email</a> — I read every one.</p>
+</div>
+</div>
+</body></html>"""
 
-<!-- ═══ LANDING NAV ═══ -->
-<nav id="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <div class="nav-logo-icon">⚡</div>
-      <span class="nav-logo-text">Zubhai</span>
-    </a>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#reviews">Reviews</a>
-    </div>
-    <div class="nav-actions">
-      <button class="btn-ghost" onclick="openApp('login')">Login</button>
-      <button class="btn-teal" onclick="openApp('signup')">Get Started →</button>
-    </div>
-  </div>
-</nav>
 
-<!-- ═══ HERO ═══ -->
-<section class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-tag"><span class="hero-tag-dot"></span>Now live — any profession, any language</div>
-      <h1 class="hero-title">
-        <div class="line1">Master AI Skills</div>
-        <div class="line2">Built for Your Job.</div>
-        <div class="line3">Verified by AI.</div>
-      </h1>
-      <p class="hero-sub">Zubhai gives you <strong>21 daily AI challenges</strong> built for your exact profession — doctor, developer, teacher, lawyer or anything else. Use ChatGPT, Claude, Perplexity, Midjourney — wherever the task needs. AI verifies your work. You actually learn.</p>
-      <div class="hero-btns">
-        <button class="btn-hero-primary" onclick="openApp('signup')">Start Learning Free ⚡</button>
-        <button class="btn-hero-ghost" onclick="openApp('login')">Login →</button>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-card-back2">
-        <div style="font-size:10px;color:var(--orange);font-family:var(--fm);letter-spacing:1px;margin-bottom:8px">DAY 14 · MILESTONE ⭐</div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px">Week 2 Project</div>
-        <div style="font-size:11px;color:var(--muted)">Publish your LinkedIn post</div>
-      </div>
-      <div class="hero-card-back1">
-        <div style="font-size:10px;color:var(--purple2);font-family:var(--fm);letter-spacing:1px;margin-bottom:8px">TOOL · PERPLEXITY</div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px">Search real data first</div>
-        <div style="font-size:11px;color:var(--muted)">AI cites real sources</div>
-      </div>
-      <div class="hero-card-main">
-        <div class="hero-card-label">DAY 7 · SALES · MILESTONE</div>
-        <div class="hero-card-day">Week 1 Complete</div>
-        <div class="hero-card-topic">AI Lead Generation — Publish your outreach system on LinkedIn</div>
-        <div class="hero-tool-badge">🛠️ Perplexity + ChatGPT</div>
-        <div class="hero-prompt-preview">Search for top AI lead gen tools 2025. Then ask me 2 questions. Build my outreach plan...</div>
-        <div class="hero-score-row">
-          <div class="hero-score-chip"><div class="hero-score-v">9</div><div class="hero-score-l">Score</div></div>
-          <div class="hero-score-chip"><div class="hero-score-v" style="color:var(--gold)">+190</div><div class="hero-score-l">Points</div></div>
-          <div class="hero-score-chip"><div class="hero-score-v" style="color:var(--orange)">7🔥</div><div class="hero-score-l">Streak</div></div>
-        </div>
-      </div>
-      <div class="hero-float-badge fb1"><span class="fb-dot"></span>200 LinkedIn views</div>
-      <div class="hero-float-badge fb2"><span class="fb-dot"></span>Day 21 complete</div>
-      <div class="hero-float-badge fb3"><span class="fb-dot"></span>1,240 pts earned</div>
-    </div>
-  </div>
-</section>
+def send_welcome_email(to_email: str, name: str, field: str, language: str, time_per_day: int):
+    """Fired on signup — warm, personal, sets expectation."""
+    content = f"""
+<div class="tag">Welcome to Zubhai</div>
+<h1>Hey {name}! You are in. ⚡</h1>
+<p>You just joined Zubhai — the AI learning platform that makes you actually <em>use</em> AI, not just watch videos about it.</p>
 
-<!-- ═══ STATS ═══ -->
-<div class="stats-bar">
-  <div class="stats-inner">
-    <div class="stat-item reveal"><div class="stat-n">21</div><div class="stat-l">Linked daily challenges</div></div>
-    <div class="stat-item reveal d1"><div class="stat-n">₹0</div><div class="stat-l">To get started</div></div>
-    <div class="stat-item reveal d2"><div class="stat-n">10+</div><div class="stat-l">AI tools taught</div></div>
-    <div class="stat-item reveal d3"><div class="stat-n">∞</div><div class="stat-l">Professions supported</div></div>
-  </div>
+<div class="card">
+  <h2>Your personalized plan</h2>
+  <p style="margin:8px 0">💼 <span class="teal">{field}</span> — challenges built for your exact job</p>
+  <p style="margin:8px 0">🌐 Language: <span class="teal">{language}</span></p>
+  <p style="margin:8px 0">⏱ Starting at: <span class="teal">{time_per_day} minutes/day</span></p>
+  <p style="margin:8px 0">📈 Grows +5 min every 3 days automatically</p>
 </div>
 
-<!-- ═══ FEATURES ═══ -->
-<section class="section" id="features">
-  <div class="section-inner">
-    <span class="s-tag reveal">Features</span>
-    <h2 class="s-title reveal">Everything built around<br/>your exact profession.</h2>
-    <p class="s-sub reveal">Not generic AI tips. A doctor gets different challenges than a developer. A chef gets different than a lawyer. Every day, every tool, every challenge — built for you.</p>
-    <div class="feat-grid">
-      <div class="feat-card hi reveal"><div class="feat-ico-wrap">🎯</div><div class="feat-h">Any Profession</div><div class="feat-p">Doctor, lawyer, chef, teacher, developer, CA — AI builds your 21-day curriculum from scratch. No hardcoded templates.</div></div>
-      <div class="feat-card reveal d1"><div class="feat-ico-wrap purple">🛠️</div><div class="feat-h">Right Tool Each Day</div><div class="feat-p">ChatGPT, Claude, Perplexity, Midjourney, Gamma — each challenge tells you which AI to use and exactly why.</div></div>
-      <div class="feat-card reveal d2"><div class="feat-ico-wrap orange">🔗</div><div class="feat-h">21 Linked Days</div><div class="feat-p">Each day builds on the last. Day 7 = milestone project. Day 21 = your complete AI workflow. Nothing is isolated.</div></div>
-      <div class="feat-card reveal"><div class="feat-ico-wrap gold">🔥</div><div class="feat-h">Growing Challenges</div><div class="feat-p">Start at your time. Add 5 min every 3 days. By Day 21 you're doing serious work — and it feels natural, not forced.</div></div>
-      <div class="feat-card reveal d1"><div class="feat-ico-wrap green">✅</div><div class="feat-h">Real Verification</div><div class="feat-p">AI reads your actual output. Scores 1–10. Tells you what was good and what to improve. No fake certificates.</div></div>
-      <div class="feat-card hi reveal d2"><div class="feat-ico-wrap purple">🌐</div><div class="feat-h">Your Language</div><div class="feat-p">Hindi, Marathi, Tamil, Bengali, English. Every challenge responds in the language you think best in.</div></div>
-    </div>
-  </div>
-</section>
+<p>Here is what happens next:</p>
+<p>✅ Log in and choose your 21-day skill program<br/>
+✅ Get your Day 1 challenge — built for a {field}<br/>
+✅ Do it in ChatGPT, Claude, or Perplexity (we tell you which)<br/>
+✅ Submit your work — AI reads it and gives you a real score<br/>
+✅ Earn points, build streak, climb the leaderboard</p>
 
-<!-- ═══ HOW IT WORKS ═══ -->
-<section class="section how-bg" id="how">
-  <div class="section-inner">
-    <span class="s-tag reveal">How it works</span>
-    <h2 class="s-title reveal">From signup to<br/>real AI skills in 21 days.</h2>
-    <div class="steps-grid">
-      <div class="step-card reveal"><span class="step-num">01 /</span><div class="step-ico-num">🤖</div><div class="step-h">Tell us who you are</div><div class="step-p">5 chip questions. Profession, AI experience, biggest struggle, language, and time per day. 60 seconds.</div></div>
-      <div class="step-card reveal d1"><span class="step-num">02 /</span><div class="step-ico-num">⚡</div><div class="step-h">Get your 21-day plan</div><div class="step-p">AI builds your personalized linked curriculum. Every day flows into the next. Stored and ready instantly.</div></div>
-      <div class="step-card reveal d2"><span class="step-num">03 /</span><div class="step-ico-num">🛠️</div><div class="step-h">Use the right AI tool</div><div class="step-p">Open the tool we recommend. Copy and paste your challenge. The AI inside guides you step by step.</div></div>
-      <div class="step-card reveal"><span class="step-num">04 /</span><div class="step-ico-num">✅</div><div class="step-h">AI grades your work</div><div class="step-p">Paste your link or output. AI reads it, scores 1–10, and gives specific feedback — not generic praise.</div></div>
-      <div class="step-card reveal d1"><span class="step-num">05 /</span><div class="step-ico-num">🏆</div><div class="step-h">Real milestone results</div><div class="step-p">Day 7, 14, 21 are project days. LinkedIn posts, live URLs, client emails. Something real every week.</div></div>
-      <div class="step-card reveal d2" style="border-radius:0 18px 18px 0;border-color:var(--teal-border)"><span class="step-num">∞ /</span><div class="step-ico-num">🧠</div><div class="step-h">It compounds</div><div class="step-p">Every challenge remembers your past work. Day 21 is built on everything you learned. It gets sharper daily.</div></div>
-    </div>
-  </div>
-</section>
+<a href="https://zubhai.vercel.app" class="btn">Start Day 1 Now ⚡</a>
 
-<!-- ═══ TOOLS ═══ -->
-<section class="section">
-  <div class="section-inner">
-    <span class="s-tag reveal">AI Tools</span>
-    <h2 class="s-title reveal">Not just ChatGPT.<br/>The right tool for every task.</h2>
-    <p class="s-sub reveal">Each challenge tells you which AI tool to use and why. We teach across the full AI ecosystem.</p>
-    <div class="tools-grid reveal">
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#10a37f"></span>ChatGPT · GPT-4o</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--teal)"></span>Claude · Sonnet</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#6b6ef9"></span>Perplexity AI</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#ff4088"></span>Midjourney</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--orange)"></span>DALL-E 3</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--purple)"></span>Gamma.app</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--gold)"></span>Canva AI</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#4285f4"></span>Gemini Pro</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--green)"></span>Code Interpreter</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#ff6b6b"></span>ElevenLabs</div>
-    </div>
-  </div>
-</section>
+<div class="divider"></div>
+<p style="font-size:13px;color:#4a6a7a">A personal note from me — I built Zubhai because I spent months watching AI courses and had nothing to show for it. This platform forces you to build something real every day. I hope it changes how you work. — Shubh</p>"""
+    return send_email_html(
+        to_email,
+        "⚡ Welcome to Zubhai — Your Day 1 challenge is ready",
+        email_base(content),
+        name
+    )
 
-<!-- ═══ REVIEWS ═══ -->
-<section class="section how-bg" id="reviews">
-  <div class="section-inner">
-    <span class="s-tag reveal">Reviews</span>
-    <h2 class="s-title reveal">Real results from<br/>real learners.</h2>
-    <div class="rev-grid">
-      <div class="rev-card reveal"><div class="rev-stars">★★★★★</div><div class="rev-text">"I tried 3 AI courses. None made me DO anything. Day 1 on Zubhai I built something real for my marketing job. The streak system is addictive."</div><div class="rev-author"><div class="rev-av">P</div><div><div class="rev-name">Priya Sharma</div><div class="rev-role">Marketing Manager · Mumbai</div></div></div></div>
-      <div class="rev-card reveal d1"><div class="rev-stars">★★★★★</div><div class="rev-text">"Doctor hoon aur AI se darr lagta tha. Zubhai ne Perplexity use karaya medical research ke liye — ab main papers 10 minute mein summarise karta hoon."</div><div class="rev-author"><div class="rev-av" style="background:linear-gradient(135deg,var(--purple),var(--teal))">R</div><div><div class="rev-name">Dr. Rahul Mehta</div><div class="rev-role">Physician · Delhi</div></div></div></div>
-      <div class="rev-card reveal d2"><div class="rev-stars">★★★★★</div><div class="rev-text">"The tool recommendations changed everything. Day 4 it told me to use Claude instead of ChatGPT for code review. I never went back to my old way."</div><div class="rev-author"><div class="rev-av" style="background:linear-gradient(135deg,var(--orange),var(--gold))">A</div><div><div class="rev-name">Ananya Krishnan</div><div class="rev-role">Developer · Bangalore</div></div></div></div>
-    </div>
-  </div>
-</section>
 
-<!-- ═══ CTA ═══ -->
-<section class="section">
-  <div class="section-inner">
-    <div class="cta-box reveal">
-      <span class="s-tag" style="display:inline-block">Start today</span>
-      <h2 class="s-title" style="max-width:500px;margin:0 auto 12px">Ready to actually<br/>master AI?</h2>
-      <p class="s-sub" style="margin:0 auto;text-align:center">Free forever. Built for Indian professionals. Works in your language. No credit card needed.</p>
-      <div class="cta-btns">
-        <button class="btn-hero-primary" onclick="openApp('signup')">Start Learning Free ⚡</button>
-        <button class="btn-hero-ghost" onclick="openApp('login')">Already have account →</button>
-      </div>
-    </div>
-  </div>
-</section>
+def send_challenge_ready_email(to_email: str, name: str, day: int, topic: str, tool: str, time_minutes: int, is_milestone: bool):
+    """Fired when a new challenge is available each day."""
+    milestone_block = ""
+    if is_milestone:
+        milestone_block = f"""
+<div class="card-gold">
+  <p style="margin:0;font-size:13px">⭐ <span class="gold">MILESTONE DAY</span> — Complete today for +100 bonus points. This is your Week {day//7} project.</p>
+</div>"""
 
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <div class="foot-inner">
-    <div class="foot-grid">
-      <div>
-        <div class="foot-logo-wrap"><div class="foot-logo-icon">⚡</div><span class="foot-logo-text">Zubhai</span></div>
-        <p class="foot-desc">Personalized AI challenges for every profession. Real verification. Real results. Built in India.</p>
-      </div>
-      <div class="foot-col"><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#" onclick="openApp('signup')">Sign Up</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
-      <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:shubzz429@gmail.com">Email us</a></li></ul></div>
-    </div>
-    <div class="foot-bottom"><p>© 2025 Zubhai. Built in India 🇮🇳</p><p>Built with ♥ by Shubh Agrawal</p></div>
-  </div>
-</footer>
+    content = f"""
+<div class="tag">Day {day} of 21</div>
+<h1>Your Day {day} challenge is ready</h1>
+{milestone_block}
+<p>Today you are learning: <span class="teal">{topic}</span></p>
 
-<!-- ═══════════════ APP SHELL ═══════════════ -->
-<div id="app">
-
-  <!-- SIDEBAR -->
-  <div class="sb" id="sb">
-    <div class="sb-top">
-      <div class="sb-logo-row">
-        <div class="sb-logo-icon">⚡</div>
-        <span class="sb-logo-text">Zubhai</span>
-      </div>
-      <button class="sb-new-btn" onclick="navTo('sc-challenge');startChallenge()">
-        <span>+</span> New Challenge
-      </button>
-      <button class="sb-search">
-        <span>🔍</span> Search challenges...
-      </button>
-    </div>
-    <div class="sb-divider"></div>
-    <div class="sb-section-label">Navigation</div>
-    <div class="sb-nav-item active" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-nav-icon">🏠</span>Home</div>
-    <div class="sb-nav-item" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-nav-icon">⚡</span>Today's Challenge</div>
-    <div class="sb-nav-item" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-nav-icon">🏆</span>Leaderboard</div>
-    <div class="sb-nav-item" onclick="showToast('Community coming soon! 🚀')"><span class="sb-nav-icon">💬</span>Community<span class="sb-nav-right sb-badge">Soon</span></div>
-    <div class="sb-divider"></div>
-    <div class="sb-section-label">Past Challenges</div>
-    <div class="sb-recents-scroll" id="sb-recents">
-      <div style="padding:8px 20px;font-size:11px;color:var(--muted)">No challenges yet</div>
-    </div>
-    <div class="sb-user-section">
-      <div class="sb-user-row">
-        <div class="sb-avatar" id="sb-av">?</div>
-        <div class="sb-user-info">
-          <div class="sb-user-name" id="sb-uname">—</div>
-          <div class="sb-user-plan" id="sb-uplan">Free plan</div>
-        </div>
-        <button class="sb-logout-btn" onclick="logout()" title="Logout">↗</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- MAIN -->
-  <div class="app-main">
-    <div class="app-topbar">
-      <div class="app-topbar-title" id="top-title">⚡ Zubhai</div>
-      <div class="app-stats-row">
-        <div class="app-stat orange">🔥 <span id="ap-streak">0</span></div>
-        <div class="app-stat gold">🏆 <span id="ap-pts">0</span> pts</div>
-        <div class="app-stat teal">Day <span id="ap-day">1</span>/21</div>
-      </div>
-    </div>
-    <div class="app-body">
-
-      <!-- AUTH -->
-      <div class="screen on" id="sc-auth">
-        <div class="auth-center">
-          <div class="auth-card">
-            <div class="auth-glow"></div>
-            <div class="auth-logo"><div class="auth-logo-icon">⚡</div><span class="auth-logo-text">Zubhai</span></div>
-            <div class="auth-sub">Master AI skills built for your profession</div>
-            <input class="inp" type="email" id="a-email" placeholder="Your email address"/>
-            <input class="inp" type="password" id="a-pass" placeholder="Password (min 6 characters)"/>
-            <button class="auth-btn" id="auth-btn" onclick="handleAuth()"><span id="auth-lbl">Sign Up Free →</span></button>
-            <div class="auth-err" id="auth-err"></div>
-            <div class="auth-sw"><span id="auth-sw-txt">Already have an account?</span> <span onclick="toggleMode()"><span id="auth-sw-act">Login instead</span></span></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- ONBOARD -->
-      <div class="screen" id="sc-onboard">
-        <div class="ob-prog" id="ob-prog"></div>
-        <div id="ob-body"></div>
-      </div>
-
-      <!-- SKILL SELECT -->
-      <div class="screen" id="sc-skill">
-        <div class="pg-title">Choose Your Program</div>
-        <div class="pg-sub">Pick the AI skill you want to master in 21 days</div>
-        <div class="skill-grid" id="skill-grid"></div>
-        <button class="confirm-btn" id="confirm-btn" onclick="confirmSkill()" disabled>Generate My 21-Day Plan ⚡</button>
-      </div>
-
-      <!-- CURRICULUM LOADING -->
-      <div class="screen" id="sc-curr-load">
-        <div class="spin-wrap">
-          <div class="spinner"></div>
-          <p id="curr-msg">Building your personalized 21-day curriculum...</p>
-        </div>
-      </div>
-
-      <!-- CURRICULUM PREVIEW -->
-      <div class="screen" id="sc-curr-preview">
-        <div class="pg-title">Your 21-Day Plan is Ready ⚡</div>
-        <div class="pg-sub" id="curr-sub"></div>
-        <div id="curr-weeks"></div>
-        <button class="confirm-btn" style="margin-top:6px" onclick="goToLobby()">Start Day 1 →</button>
-      </div>
-
-      <!-- LOBBY -->
-      <div class="screen" id="sc-lobby">
-        <div class="lobby-hero">
-          <div>
-            <div class="lobby-h2" id="lobby-greet">Welcome back!</div>
-            <div class="lobby-p" id="lobby-sub">Ready for today's challenge?</div>
-          </div>
-          <button class="lobby-start-btn" onclick="navTo('sc-challenge');startChallenge()">Start Challenge ⚡</button>
-        </div>
-        <div class="lobby-cards">
-          <div class="lobby-card" onclick="navTo('sc-lb');loadLb()"><div class="lobby-card-ico">🏆</div><div class="lobby-card-lbl">Leaderboard</div><div class="lobby-card-sub">Your global rank</div></div>
-          <div class="lobby-card" onclick="showToast('Community coming soon! 🚀')"><div class="lobby-card-ico">💬</div><div class="lobby-card-lbl">Community</div><div class="lobby-card-sub">Coming soon</div></div>
-        </div>
-      </div>
-
-      <!-- CHALLENGE -->
-      <div class="screen" id="sc-challenge">
-        <div id="ch-content"><div class="spin-wrap"><div class="spinner"></div><p>Generating your challenge...</p></div></div>
-      </div>
-
-      <!-- SCORE -->
-      <div class="screen" id="sc-score">
-        <div class="pg-title">Your Results</div>
-        <div class="score-center">
-          <div class="score-ring"><div class="score-n" id="sc-n">0</div><div class="score-d">/10</div></div>
-          <div class="score-fb" id="sc-fb"></div>
-          <div class="score-good" id="sc-good" style="display:none"></div>
-          <div class="score-improve" id="sc-improve" style="display:none"></div>
-          <div class="score-pts-row" id="sc-pts"></div>
-          <div class="score-mot" id="sc-mot"></div>
-          <button class="score-back-btn" onclick="goToLobby()">Back to Home 🚀</button>
-        </div>
-      </div>
-
-      <!-- LEADERBOARD -->
-      <div class="screen" id="sc-lb">
-        <div class="pg-title">🏆 Leaderboard</div>
-        <div class="pg-sub">Top learners on Zubhai</div>
-        <div id="lb-list"></div>
-      </div>
-
-    </div>
-  </div>
+<div class="card">
+  <p style="margin:0 0 8px;font-size:12px;color:#4a6a7a;text-transform:uppercase;letter-spacing:1px">Tool for today</p>
+  <h2 style="color:#00d4aa;margin:0 0 6px">🛠️ {tool}</h2>
+  <p style="margin:0;font-size:13px">Estimated time: <strong style="color:#e8f4f0">{time_minutes} minutes</strong></p>
 </div>
 
-<script>
-const API="https://zubhai-zubhai-backened.hf.space";
-let userId=null,userProfile=null,authMode="signup";
-let selSkill="",curChallenge="",curChallengeId="",curToolUrl="";
+<p>Open the app, copy your challenge prompt, paste it into {tool}, and submit your output. The AI grades your actual work — not just completion.</p>
 
-const SKILL_MAP={
-  marketing:[{i:"✍️",n:"AI for Content Creation",d:"Blogs, captions, campaigns"},{i:"📊",n:"AI for Social Media",d:"Build social strategies"},{i:"📧",n:"AI for Email Marketing",d:"Write converting emails"}],
-  sales:[{i:"🎯",n:"AI for Lead Generation",d:"Find and qualify leads"},{i:"💬",n:"AI for Sales Scripts",d:"Write winning pitches"},{i:"📈",n:"AI for CRM",d:"Automate follow-ups"}],
-  developer:[{i:"🔍",n:"AI for Code Review",d:"Review and improve code"},{i:"📝",n:"AI for Documentation",d:"Write clean docs"},{i:"🧪",n:"AI for Testing",d:"Generate test cases"}],
-  doctor:[{i:"📋",n:"AI for Clinical Notes",d:"Summarise notes faster"},{i:"🔬",n:"AI for Medical Research",d:"Cite real sources with Perplexity"},{i:"💊",n:"AI for Patient Comms",d:"Write clear instructions"}],
-  teacher:[{i:"📚",n:"AI for Lesson Planning",d:"Build lesson plans fast"},{i:"📝",n:"AI for Assessments",d:"Create tests and rubrics"},{i:"💬",n:"AI for Student Feedback",d:"Write personalised feedback"}],
-  student:[{i:"📚",n:"AI for Study Planning",d:"Build revision schedules"},{i:"🔬",n:"AI for Research",d:"Summarise papers fast"},{i:"✏️",n:"AI for Academic Writing",d:"Essays and reports"}],
-  hr:[{i:"🎯",n:"AI for Recruitment",d:"Screen candidates faster"},{i:"📋",n:"AI for Performance Reviews",d:"Write fair reviews"},{i:"🎓",n:"AI for Training",d:"Build training programs"}],
-  lawyer:[{i:"📄",n:"AI for Legal Drafting",d:"Draft contracts and briefs"},{i:"🔍",n:"AI for Legal Research",d:"Find cases and precedents"},{i:"📋",n:"AI for Client Comms",d:"Write clear client letters"}],
-  default:[{i:"⚡",n:"AI Basics",d:"Foundations of AI effectively"},{i:"🚀",n:"AI for Productivity",d:"Save hours every day"},{i:"💡",n:"AI for Communication",d:"Write better with AI"}]
-};
+<a href="https://zubhai.vercel.app" class="btn">Open Today's Challenge →</a>
 
-const OBQ=[
-  {key:"field",q:"What do you do?",hint:"We build your entire program around your profession",
-   chips:["Doctor","Teacher","Sales","Developer","Student","Marketing","HR","Finance","Lawyer","Engineer","Nurse","Architect","Chef","Journalist","Pharmacist","CA / Accountant"],
-   other:true,op:"Type your profession..."},
-  {key:"xp",q:"How much have you actually used AI?",hint:"Be honest — this sets where we start",
-   chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
-  {key:"struggle",q:"What's the real reason you're here?",hint:"The more honest you are the better your challenges",
-   chips:["I waste time on repetitive work","I don't know where to start","I want to get ahead of colleagues","I need to learn fast or fall behind","My job now requires AI knowledge"],other:false},
-  {key:"lang",q:"Which language do you think best in?",hint:"Your AI challenges respond in this language",
-   chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali","Telugu","Punjabi","Gujarati","Kannada"],
-   other:true,op:"Type your language..."},
-  {key:"time",q:"How much time can you give Zubhai per day?",hint:"Challenges start here and grow +5 min every 3 days automatically",
-   chips:["10 minutes","15 minutes","20-30 minutes","45 minutes"],other:false}
-];
-let obStep=0,obAns={};
+<p style="font-size:12px;color:#4a6a7a;margin-top:16px">🔥 Do it today — your streak is counting.</p>"""
+    return send_email_html(
+        to_email,
+        f"⚡ Day {day} challenge: {topic}",
+        email_base(content),
+        name
+    )
 
-// REVEAL
-const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
-window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
 
-// UTILS
-function showToast(msg){
-  document.querySelectorAll('.toast').forEach(t=>t.remove());
-  const t=document.createElement('div');t.className='toast';t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},3000);
-}
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-async function post(path,body){
-  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return r.json();
-}
+def send_streak_risk_email(to_email: str, name: str, streak: int, day: int):
+    """Fired at 8pm if user hasn't done today's challenge — streak about to break."""
+    content = f"""
+<div class="tag">Streak Alert 🔥</div>
+<h1>{name}, your {streak}-day streak is at risk.</h1>
+<p>You have not completed today's challenge yet. Your {streak}-day streak breaks at midnight.</p>
 
-// SCREENS
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-  const T={'sc-auth':'⚡ Zubhai','sc-onboard':'Build Your Profile','sc-skill':'Choose Program',
-    'sc-curr-load':'Building Plan...','sc-curr-preview':'Your 21-Day Plan',
-    'sc-lobby':'Home','sc-challenge':"Today's Challenge",'sc-score':'Your Results','sc-lb':'Leaderboard'};
-  document.getElementById('top-title').textContent=T[id]||'⚡ Zubhai';
-}
-function navTo(id){
-  showScreen(id);
-  ['nav-home','nav-ch','nav-lb'].forEach(n=>document.getElementById(n)?.classList.remove('active'));
-  if(id==='sc-lobby')document.getElementById('nav-home')?.classList.add('active');
-  if(id==='sc-challenge')document.getElementById('nav-ch')?.classList.add('active');
-  if(id==='sc-lb')document.getElementById('nav-lb')?.classList.add('active');
-}
+<div class="card" style="text-align:center">
+  <div class="stat-n" style="font-size:48px">🔥</div>
+  <div class="stat-n">{streak}</div>
+  <div class="stat-l" style="font-size:14px;margin-top:4px">Day streak — ending tonight</div>
+</div>
 
-// OPEN APP
-function openApp(mode){
-  authMode=mode;updateAuthUI();
-  document.getElementById('app').classList.add('open');
-  document.getElementById('sb').style.display='none';
-  showScreen('sc-auth');
-  const uid=localStorage.getItem('z_uid');
-  if(uid&&!userId){
-    userId=uid;
-    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
-      if(d.status==='success'){userProfile=d.user;afterLogin();}
-      else{userId=null;localStorage.removeItem('z_uid');}
-    }).catch(()=>{userId=null;});
-  }
-}
-function updateAuthUI(){
-  document.getElementById('auth-lbl').textContent=authMode==='login'?'Login →':'Sign Up Free →';
-  document.getElementById('auth-sw-txt').textContent=authMode==='login'?'New to Zubhai?':'Already have an account?';
-  document.getElementById('auth-sw-act').textContent=authMode==='login'?'Sign up free':'Login instead';
-}
-function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
-function logout(){userId=null;userProfile=null;localStorage.removeItem('z_uid');document.getElementById('app').classList.remove('open');document.getElementById('sb').style.display='none';}
+<p>It is Day {day} of your 21-day program. You are {"almost halfway" if day < 12 else "so close to the end"}. Do not let one missed day break the momentum you have built.</p>
 
-// AUTH
-async function handleAuth(){
-  const email=document.getElementById('a-email').value.trim();
-  const pass=document.getElementById('a-pass').value.trim();
-  const err=document.getElementById('auth-err');
-  const btn=document.getElementById('auth-btn');
-  err.textContent='';
-  if(!email||!pass){err.textContent='Please fill in both fields.';return;}
-  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
-  btn.disabled=true;document.getElementById('auth-lbl').textContent='Please wait...';
-  try{
-    const d=await post(authMode==='login'?'/auth/login':'/auth/signup',{email,password:pass});
-    if(d.status==='success'){
-      userId=d.user_id;userProfile=d.user||{id:userId,email};
-      localStorage.setItem('z_uid',userId);afterLogin();
-    } else {
-      err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();
+<a href="https://zubhai.vercel.app" class="btn">Complete Today's Challenge →</a>
+
+<p style="font-size:12px;color:#4a6a7a">Takes {15 + ((day-1)//3)*5} minutes. You have got this.</p>"""
+    return send_email_html(
+        to_email,
+        f"🔥 Your {streak}-day streak breaks tonight — {name}, take action",
+        email_base(content),
+        name
+    )
+
+
+def send_score_email(to_email: str, name: str, day: int, score: int, points: int, total_points: int, feedback: str, what_was_good: str, what_to_improve: str, motivation: str, is_milestone: bool):
+    """Fired after grading — detailed score report."""
+    score_color = "#00e676" if score >= 8 else "#f5a623" if score >= 6 else "#ff7a3d"
+    milestone_bonus = " +100 milestone bonus" if is_milestone else ""
+    tag = "MILESTONE COMPLETE" if is_milestone else f"DAY {day} COMPLETE"
+    good_block = f"<p style='margin:8px 0;font-size:13px'>checkmark What worked: {what_was_good}</p>" if what_was_good else ""
+    improve_block = f"<p style='margin:8px 0;font-size:13px'>bulb Improve tomorrow: {what_to_improve}</p>" if what_to_improve else ""
+
+    content = (
+        f'<div class="tag">{tag}</div>'
+        f"<h1>You scored {score}/10 on Day {day}</h1>"
+        f'<div style="text-align:center;margin:24px 0">'
+        f'<div style="width:100px;height:100px;border-radius:50%;border:3px solid {score_color};margin:0 auto 16px;display:flex;align-items:center;justify-content:center">'
+        f'<span style="font-size:42px;font-weight:900;color:{score_color}">{score}</span></div>'
+        f'<p style="color:{score_color};font-size:18px;font-weight:700;margin:0">+{points} points{milestone_bonus}</p>'
+        f'<p style="color:#4a6a7a;font-size:13px;margin:4px 0">Total: {total_points} points earned</p></div>'
+        f'<div class="card">'
+        f'<p style="margin:0 0 10px;font-size:13px;color:#8ab0c8">{feedback}</p>'
+        f"{good_block}{improve_block}</div>"
+        f'<p style="font-style:italic;color:#6a8fa8">{motivation}</p>'
+        f'<a href="https://zubhai.vercel.app" class="btn">See Day {day+1} Challenge</a>'
+    )
+    return send_email_html(
+        to_email,
+        f"Your Day {day} score: {score}/10 — +{points} pts earned",
+        email_base(content),
+        name
+    )
+
+
+def send_milestone_email(to_email: str, name: str, week: int, day: int, total_points: int, streak: int):
+    """Fired on Day 7, 14, 21 completion."""
+    week_names = {1: "Foundation", 2: "Application", 3: "Mastery"}
+    next_msg = {
+        1: "Week 2 starts tomorrow — challenges get more advanced. You are ready.",
+        2: "Week 3 starts tomorrow — Mastery level. Real-world publishing begins.",
+        3: "You completed the full 21-day program. You are in the top 1% of AI learners in India."
     }
-  } catch(e){
-    err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();
-  }
-}
-function afterLogin(){
-  document.getElementById('auth-btn').disabled=false;updateAuthUI();
-  document.getElementById('sb').style.display='flex';
-  refreshSidebar();
-  if(userProfile?.field){
-    if(userProfile.skill){userProfile.curriculum?goToLobby():runCurriculum();}
-    else showSkillSelect();
-  } else startOnboarding();
-}
+    content = f"""
+<div class="tag">{"🏆 Program Complete!" if week == 3 else f"⭐ Week {week} Complete"}</div>
+<h1>{"Congratulations! 21 days done." if week==3 else f"Week {week} complete, {name}!"}</h1>
 
-// ONBOARDING
-function startOnboarding(){obStep=0;obAns={};showScreen('sc-onboard');renderOb();}
-function renderOb(){
-  const q=OBQ[obStep];
-  let dots='';
-  for(let i=0;i<OBQ.length;i++) dots+=`<div class="ob-dot ${i<obStep?'done':i===obStep?'cur':''}"></div>`;
-  document.getElementById('ob-prog').innerHTML=dots;
-  const chips=q.chips.map(c=>`<div class="ob-chip" onclick="pickChip(this,'${c.replace(/'/g,"\\'")}','${q.key}')">${c}</div>`).join('');
-  const other=q.other?`<div class="ob-other-link" onclick="this.nextElementSibling.classList.add('show');this.nextElementSibling.focus();this.style.display='none'">Not listed? Type it ↓</div><input class="ob-other-inp" placeholder="${q.op||'Type here...'}" oninput="typeOther(this,'${q.key}')"/>`:'';
-  document.getElementById('ob-body').innerHTML=`
-    <div class="ob-q">${q.q}</div>
-    <div class="ob-hint">${q.hint}</div>
-    <div class="ob-chips">${chips}</div>
-    ${other}
-    <button class="ob-next" id="ob-next" onclick="obNext()" disabled>Continue →</button>`;
-}
-function pickChip(el,val,key){
-  document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');obAns[key]=val;document.getElementById('ob-next').disabled=false;
-  const oi=document.querySelector('.ob-other-inp');if(oi)oi.value='';
-}
-function typeOther(inp,key){
-  const v=inp.value.trim();
-  if(v){document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('sel'));obAns[key]=v;document.getElementById('ob-next').disabled=false;}
-}
-function obNext(){
-  if(!obAns[OBQ[obStep].key])return;
-  if(obStep===0)setTimeout(()=>showToast(`${obAns.field} — great field for AI right now!`),200);
-  obStep++;
-  if(obStep>=OBQ.length)finishOb();else renderOb();
-}
-async function finishOb(){
-  const lvl={"Never tried it":"beginner","Played around a bit":"beginner","Use it sometimes":"mid","Use it daily":"advanced"};
-  const tmap={"10 minutes":10,"15 minutes":15,"20-30 minutes":25,"45 minutes":45};
-  const profile={field:obAns.field,level:lvl[obAns.xp]||"beginner",language:obAns.lang,struggle:obAns.struggle,time_per_day:tmap[obAns.time]||15};
-  document.getElementById('ob-body').innerHTML=`
-    <div class="ob-q">Your AI Profile 🎯</div>
-    <div class="ob-hint">Based on your answers — here's your personalized plan</div>
-    <div class="profile-card">
-      <h3>Plan ready for you</h3>
-      <div class="profile-tags">
-        <div class="ptag">💼 ${profile.field}</div>
-        <div class="ptag">📊 ${profile.level}</div>
-        <div class="ptag">🌐 ${profile.language}</div>
-        <div class="ptag">⏱ ${obAns.time}/day</div>
-      </div>
-      <p>You're a <strong>${profile.field}</strong> who wants to <strong>${(profile.struggle||'').toLowerCase()}</strong>. Challenges start at ${obAns.time} and grow +5 min every 3 days. Day 21 = complete AI workflow for your exact job.</p>
-    </div>
-    <button class="ob-next" onclick="showSkillSelect()" style="opacity:1">Choose My Skill Program →</button>`;
-  if(userId)await post('/onboard',{user_id:userId,profile});
-  if(userProfile)Object.assign(userProfile,profile);
-}
+<div style="display:flex;gap:12px;margin:20px 0">
+  <div class="stat-box"><div class="stat-n">{day}</div><div class="stat-l">Days Done</div></div>
+  <div class="stat-box"><div class="stat-n" style="color:#f5a623">{total_points}</div><div class="stat-l">Points Earned</div></div>
+  <div class="stat-box"><div class="stat-n" style="color:#ff7a3d">{streak}🔥</div><div class="stat-l">Day Streak</div></div>
+</div>
 
-// SKILL SELECT
-function showSkillSelect(){
-  showScreen('sc-skill');
-  const field=(userProfile?.field||obAns.field||'').toLowerCase();
-  let skills=SKILL_MAP.default;
-  for(const k of Object.keys(SKILL_MAP)){if(k!=='default'&&field.includes(k)){skills=SKILL_MAP[k];break;}}
-  document.getElementById('skill-grid').innerHTML=skills.map(s=>`
-    <div class="skill-card" onclick="pickSkill(this,'${s.n.replace(/'/g,"\\'")}')">
-      <div class="sk-ico">${s.i}</div><div class="sk-name">${s.n}</div><div class="sk-desc">${s.d}</div>
-    </div>`).join('');
-}
-function pickSkill(el,name){
-  document.querySelectorAll('.skill-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');selSkill=name;document.getElementById('confirm-btn').disabled=false;
-}
-async function confirmSkill(){
-  if(!selSkill)return;
-  await post('/select-skill',{user_id:userId,skill:selSkill});
-  if(userProfile)userProfile.skill=selSkill;
-  runCurriculum();
-}
+<div class="card">
+  <h2>Week {week} — {week_names.get(week, "Complete")}</h2>
+  <p>{next_msg.get(week, "")}</p>
+</div>
 
-// CURRICULUM
-async function runCurriculum(){
-  showScreen('sc-curr-load');
-  const msgs=['Building your personalized 21-day curriculum...','Researching AI tools for your profession...','Designing linked daily challenges...','Almost ready...'];
-  let mi=0;
-  const iv=setInterval(()=>{document.getElementById('curr-msg').textContent=msgs[mi++%msgs.length];},2200);
-  try{
-    const d=await post('/generate-curriculum',{user_id:userId});
-    clearInterval(iv);
-    if(d.status==='success'){if(userProfile)userProfile.curriculum='set';showCurrPreview(d.curriculum);}
-    else goToLobby();
-  }catch(e){clearInterval(iv);goToLobby();}
-}
-function showCurrPreview(curr){
-  showScreen('sc-curr-preview');
-  document.getElementById('curr-sub').textContent=`21 linked daily challenges for ${userProfile?.field||'you'} — ${userProfile?.skill||'AI'}`;
-  const wnames=['Foundation','Application','Mastery'];
-  let html='';
-  [1,2,3].forEach((w,wi)=>{
-    const days=curr.filter(d=>w===1?d.day<=7:w===2?d.day>=8&&d.day<=14:d.day>=15);
-    html+=`<div class="curr-week"><div class="curr-week-h">Week ${w} — ${wnames[wi]}</div>`;
-    days.forEach(d=>{
-      html+=`<div class="curr-day-row ${d.is_milestone?'curr-milestone':''}">
-        <div class="curr-day-n">Day ${d.day}${d.is_milestone?' ⭐':''}</div>
-        <div class="curr-day-t">${esc(d.topic||'—')}</div>
-        <div class="curr-day-tool">${esc(d.tool||'ChatGPT')}</div>
-      </div>`;
-    });
-    html+='</div>';
-  });
-  document.getElementById('curr-weeks').innerHTML=html;
-}
+{"<p>Share what you built this week. Post your milestone project on LinkedIn and tell people what you learned. Tag me — I will reshare it.</p>" if week < 3 else "<p>You are different now. You use AI for real work. Share your 21-day journey on LinkedIn — your story will inspire others.</p>"}
 
-// LOBBY
-function goToLobby(){navTo('sc-lobby');refreshSidebar();}
-function updateLobbyText(){
-  const h=new Date().getHours();
-  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
-  document.getElementById('lobby-greet').textContent=g+'!';
-  document.getElementById('lobby-sub').textContent=`Day ${userProfile?.day||1}/21 · ${userProfile?.skill||'AI Basics'}`;
-}
+<a href="https://zubhai.vercel.app" class="btn">{"View My Certificate →" if week==3 else "Start Week " + str(week+1) + " →"}</a>"""
+    return send_email_html(
+        to_email,
+        f"{'🏆 You completed 21 days on Zubhai!' if week==3 else f'⭐ Week {week} done — ' + week_names.get(week,'')}",
+        email_base(content),
+        name
+    )
 
-async function refreshSidebar(){
-  if(!userId)return;
-  try{
-    const d=await fetch(API+'/auth/user/'+userId).then(r=>r.json());
-    if(d.status!=='success')return;
-    userProfile=d.user;const u=d.user;
-    const name=(u.email||'').split('@')[0];
-    const av=name.slice(0,2).toUpperCase();
-    document.getElementById('sb-av').textContent=av;
-    document.getElementById('sb-uname').textContent=name;
-    document.getElementById('sb-uplan').textContent=`${u.field||'Learner'} · Free plan`;
-    document.getElementById('ap-day').textContent=u.day||1;
-    document.getElementById('ap-pts').textContent=u.points||0;
-    document.getElementById('ap-streak').textContent=u.streak||0;
-    updateLobbyText();
-    loadSbChallenges();
-  }catch(e){}
-}
 
-async function loadSbChallenges(){
-  if(!userId)return;
-  try{
-    const d=await fetch(API+'/challenges/'+userId).then(r=>r.json());
-    if(d.status==='success'&&d.challenges.length){
-      const curDay=userProfile?.day||1;
-      document.getElementById('sb-recents').innerHTML=d.challenges.map(ch=>{
-        const isToday=ch.day_number===curDay,isDone=ch.status==='completed';
-        const badgeCls=isDone?'done':isToday?'today':'';
-        const badgeTxt=isDone?'✅':isToday?'Today':'📅';
-        return `<div class="sb-ch-item ${isToday?'active':''}" onclick="${isToday?'navTo(\'sc-challenge\');startChallenge()':''}">
-          <span class="sb-ch-icon">${ch.is_milestone?'⭐':'📄'}</span>
-          <span class="sb-ch-text">${esc(ch.topic||'Day '+ch.day_number)}</span>
-          <span class="sb-badge ${badgeCls}">${badgeTxt}</span>
-        </div>`;
-      }).join('');
+def get_tool_for_topic(topic, field):
+    t = (topic + " " + field).lower()
+    if any(w in t for w in ["code", "debug", "program", "developer", "software", "technical", "build app"]):
+        return ("Claude", "claude.ai Sonnet", "claude.ai", "Claude is more precise and reliable for coding tasks")
+    if any(w in t for w in ["image", "design", "logo", "visual", "graphic", "poster", "banner", "illustration"]):
+        return ("Midjourney or DALL-E", "GPT-4o / Midjourney v6", "midjourney.com", "Image generation needs visual AI, not text AI")
+    if any(w in t for w in ["research", "fact", "source", "cite", "evidence", "paper", "study"]):
+        return ("Perplexity", "perplexity.ai", "perplexity.ai", "Perplexity cites real verified sources — never guess on research tasks")
+    if any(w in t for w in ["medical", "doctor", "clinical", "patient", "health", "diagnosis", "drug", "treatment"]):
+        return ("Perplexity", "perplexity.ai", "perplexity.ai", "Perplexity cites real medical sources — essential for clinical accuracy")
+    if any(w in t for w in ["data", "spreadsheet", "analyse", "chart", "excel", "numbers", "statistics", "csv"]):
+        return ("ChatGPT Code Interpreter", "GPT-4o with Code", "chatgpt.com", "Code Interpreter runs real calculations on your actual data")
+    if any(w in t for w in ["presentation", "slide", "deck", "pitch"]):
+        return ("Gamma", "Gamma AI", "gamma.app", "Gamma auto-designs beautiful slides from plain text")
+    if any(w in t for w in ["hindi", "marathi", "tamil", "regional", "language", "vernacular"]):
+        return ("ChatGPT", "GPT-4o multilingual", "chatgpt.com", "GPT-4o has the best multilingual support for Indian languages")
+    if any(w in t for w in ["brainstorm", "idea", "creative", "concept", "strategy"]):
+        return ("Claude", "Claude Sonnet", "claude.ai", "Claude is stronger for creative thinking and strategic brainstorming")
+    return ("ChatGPT", "GPT-4o", "chatgpt.com", "Best general-purpose AI for this task")
+
+
+# ── STATIC ────────────────────────────────────────────────────────────
+
+@app.get("/")
+def root():
+    return FileResponse("/app/index.html")
+
+
+# ── AUTH ──────────────────────────────────────────────────────────────
+
+@app.post("/auth/signup")
+def signup(data: dict):
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        return {"status": "error", "message": "Email and password required"}
+    try:
+        result = supabase.auth.sign_up({"email": email, "password": password})
+        if not result.user:
+            return {"status": "error", "message": "Signup failed"}
+        user_id = result.user.id
+        try:
+            supabase.table("users").insert({
+                "id": user_id, "email": email,
+                "day": 1, "streak": 0, "points": 0, "time_per_day": 15
+            }).execute()
+        except Exception as e:
+            print(f"Insert warning: {e}")
+        # Send welcome email (basic — full personalized email after onboarding)
+        try:
+            name = email.split("@")[0]
+            send_email_html(
+                email,
+                "⚡ Welcome to Zubhai — you are in!",
+                email_base(f"""
+<div class="tag">Welcome</div>
+<h1>Hey {name}! You are in. ⚡</h1>
+<p>You just joined Zubhai. Complete your profile and choose your 21-day AI skill program.</p>
+<a href="https://zubhai.vercel.app" class="btn">Complete Your Profile →</a>
+<p style="font-size:13px;color:#4a6a7a;margin-top:16px">— Shubh, founder of Zubhai. Reply to this email anytime.</p>""")
+            )
+        except Exception as mail_err:
+            print(f"Welcome email error: {mail_err}")
+
+        return {
+            "status": "success", "user_id": user_id, "email": email,
+            "message": "Check your email to confirm" if result.session is None else "Signed up"
+        }
+    except Exception as e:
+        err = str(e)
+        if "already registered" in err or "already been registered" in err:
+            return {"status": "error", "message": "Email already registered. Please login instead."}
+        return {"status": "error", "message": err}
+
+
+@app.post("/auth/login")
+def login(data: dict):
+    email = data.get("email")
+    password = data.get("password")
+    if not email or not password:
+        return {"status": "error", "message": "Email and password required"}
+    try:
+        result = supabase.auth.sign_in_with_password({"email": email, "password": password})
+        if not result.user:
+            return {"status": "error", "message": "Login failed"}
+        user_id = result.user.id
+        profile = supabase.table("users").select("*").eq("id", user_id).execute()
+        if not profile.data:
+            supabase.table("users").insert({
+                "id": user_id, "email": email,
+                "day": 1, "streak": 0, "points": 0, "time_per_day": 15
+            }).execute()
+            user_data = {"id": user_id, "email": email, "day": 1, "streak": 0, "points": 0}
+        else:
+            user_data = profile.data[0]
+        return {"status": "success", "user_id": user_id, "user": user_data}
+    except Exception as e:
+        err = str(e)
+        if "Invalid login credentials" in err:
+            return {"status": "error", "message": "Wrong email or password"}
+        if "Email not confirmed" in err:
+            return {"status": "error", "message": "Please confirm your email first"}
+        return {"status": "error", "message": err}
+
+
+@app.get("/auth/user/{user_id}")
+def get_user(user_id: str):
+    try:
+        result = supabase.table("users").select("*").eq("id", user_id).execute()
+        if result.data:
+            return {"status": "success", "user": result.data[0]}
+        return {"status": "error", "message": "User not found"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+# ── ONBOARDING ────────────────────────────────────────────────────────
+
+@app.post("/onboard")
+def onboard(data: dict):
+    user_id = data.get("user_id")
+    profile = data.get("profile", {})
+    if not profile or not user_id:
+        return {"status": "error", "message": "Missing data"}
+    try:
+        supabase.table("users").update({
+            "field": profile.get("field"),
+            "level": profile.get("level"),
+            "language": profile.get("language", "english"),
+            "struggle": profile.get("struggle"),
+            "time_per_day": profile.get("time_per_day", 15)
+        }).eq("id", user_id).execute()
+        # Send personalized welcome email with full profile
+        try:
+            name = (profile.get("field") or "there").split()[0]
+            user_row = supabase.table("users").select("email").eq("id", user_id).execute().data
+            if user_row:
+                send_welcome_email(
+                    to_email=user_row[0]["email"],
+                    name=user_row[0]["email"].split("@")[0],
+                    field=profile.get("field", "your field"),
+                    language=profile.get("language", "English"),
+                    time_per_day=profile.get("time_per_day", 15)
+                )
+        except Exception as mail_err:
+            print(f"Onboard email error: {mail_err}")
+
+        return {"status": "success"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+# ── SKILL SELECTION ───────────────────────────────────────────────────
+
+@app.post("/select-skill")
+def select_skill(data: dict):
+    user_id = data.get("user_id")
+    skill = data.get("skill")
+    if not user_id or not skill:
+        return {"status": "error", "message": "Missing user_id or skill"}
+    try:
+        supabase.table("users").update({"skill": skill}).eq("id", user_id).execute()
+        return {"status": "success", "skill": skill}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+# ── CURRICULUM GENERATOR ──────────────────────────────────────────────
+
+@app.post("/generate-curriculum")
+def generate_curriculum(data: dict):
+    user_id = data.get("user_id")
+    if not user_id:
+        return {"status": "error", "message": "Missing user_id"}
+    user_data = supabase.table("users").select("*").eq("id", user_id).execute().data
+    if not user_data:
+        return {"status": "error", "message": "User not found"}
+    user = user_data[0]
+
+    field = user.get("field", "professional")
+    level = user.get("level", "beginner")
+    language = user.get("language", "english")
+    skill = user.get("skill", "AI Basics")
+    struggle = user.get("struggle", "saving time")
+    base_time = user.get("time_per_day", 15)
+    yr = current_year()
+
+    system = f"""You are an expert AI curriculum designer. Build a personalized 21-day AI learning plan.
+Today's date context: {yr}. All references to tools, trends, and examples must be current as of {yr}.
+
+Student profile:
+- Profession: {field}
+- Skill to learn: {skill}
+- Level: {level}
+- Language: {language}
+- Main struggle: {struggle}
+- Base time: {base_time} min/day (increases +5min every 3 days)
+- Week 1 (days 1-7): Foundation
+- Week 2 (days 8-14): Application
+- Week 3 (days 15-21): Mastery + publish real work
+- Day 7, 14, 21 are MILESTONE days with a complete shareable project
+
+Return ONLY a valid JSON array of 21 objects. Each:
+{{"day":1,"topic":"specific topic","task_summary":"one sentence what they do","tool":"ChatGPT","model":"GPT-4o","tool_url":"chatgpt.com","why_tool":"one sentence why","time_minutes":15,"links_to_days":[],"is_milestone":false,"week_project":null}}
+
+Rules:
+- Topics must be hyper-specific to {field} profession in {yr}
+- tool must be one of: ChatGPT, Claude, Perplexity, Midjourney, Canva AI, Gamma, ChatGPT Code Interpreter
+- time_minutes: days 1-3={base_time}, 4-6={base_time+5}, 7-9={base_time+10}, 10-12={base_time+15}, 13-15={base_time+20}, 16-18={base_time+25}, 19-21={base_time+30}
+- milestone days: is_milestone=true, week_project="description"
+- links_to_days: which previous days this builds on
+- Do NOT reference any year other than {yr}
+Return ONLY the JSON array. No markdown. No explanation."""
+
+    try:
+        response = claude_client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=4000,
+            system=system,
+            messages=[{"role": "user", "content": f"Build 21-day curriculum for {field} learning {skill} in {yr}"}]
+        )
+        raw = response.content[0].text.strip().replace("```json", "").replace("```", "").strip()
+        start = raw.find("[")
+        end = raw.rfind("]") + 1
+        curriculum = json.loads(raw[start:end])
+        supabase.table("users").update({"curriculum": json.dumps(curriculum)}).eq("id", user_id).execute()
+        return {"status": "success", "curriculum": curriculum}
+    except Exception as e:
+        print(f"Curriculum error: {e}")
+        return {"status": "error", "message": str(e)}
+
+
+# ── GENERATE CHALLENGE ────────────────────────────────────────────────
+
+@app.post("/generate-challenge")
+def generate_challenge(data: dict):
+    user_id = data.get("user_id")
+    if not user_id:
+        return {"status": "error", "message": "Missing user_id"}
+    user_data = supabase.table("users").select("*").eq("id", user_id).execute().data
+    if not user_data:
+        return {"status": "error", "message": "User not found"}
+    user = user_data[0]
+    today = date.today().isoformat()
+    yr = current_year()
+
+    # Daily lock — return existing pending
+    existing = supabase.table("challenges").select("id,status,challenge_text,day_number,recommended_tool,recommended_model,topic") \
+        .eq("user_id", user_id).eq("status", "pending") \
+        .gte("created_at", f"{today}T00:00:00").execute()
+    if existing.data:
+        ch = existing.data[0]
+        return {
+            "challenge": ch["challenge_text"], "day": ch["day_number"],
+            "challenge_id": ch["id"], "tool": ch.get("recommended_tool"),
+            "model": ch.get("recommended_model"), "topic": ch.get("topic"),
+            "already_generated": True
+        }
+
+    # Daily lock — already completed today
+    completed_today = supabase.table("challenges").select("id") \
+        .eq("user_id", user_id).eq("status", "completed") \
+        .gte("created_at", f"{today}T00:00:00").execute()
+    if completed_today.data:
+        return {"status": "locked", "message": "You already completed today's challenge! Come back tomorrow. 🔥"}
+
+    streak_info = calculate_streak(user.get("last_active"), user.get("streak", 0))
+
+    field = user.get("field", "professional")
+    level = user.get("level", "beginner")
+    language = user.get("language", "english")
+    skill = user.get("skill", "AI Basics")
+    day = user.get("day", 1)
+    memory = user.get("memory", "")
+    base_time = user.get("time_per_day", 15)
+    time_today = get_challenge_time(base_time, day)
+
+    tool_name, model_name, tool_url, why_tool = get_tool_for_topic(skill, field)
+    topic = f"{skill} — Day {day}"
+    is_milestone = day in [7, 14, 21]
+
+    # Get from curriculum if exists
+    curriculum = user.get("curriculum")
+    if curriculum:
+        try:
+            curr_list = json.loads(curriculum) if isinstance(curriculum, str) else curriculum
+            match = next((d for d in curr_list if d.get("day") == day), None)
+            if match:
+                tool_name = match.get("tool", tool_name)
+                model_name = match.get("model", model_name)
+                tool_url = match.get("tool_url", tool_url)
+                why_tool = match.get("why_tool", why_tool)
+                topic = match.get("topic", topic)
+                is_milestone = match.get("is_milestone", is_milestone)
+        except Exception as e:
+            print(f"Curriculum parse: {e}")
+
+    # Fetch real web context — current year only
+    web_context = fetch_web_context(field, topic)
+
+    system_prompt = f"""You write ready-to-paste AI prompts for professionals learning AI skills.
+Current date context: {yr}. All content, tools, trends, and examples must be from {yr} — never reference older years.
+
+Real world context about "{topic}" in {field} as of {yr}:
+---
+{web_context if web_context else f"Use your knowledge about {topic} in {field} as of {yr}."}
+---
+
+User: {level} {field}. Day {day}/21. Skill: {skill}. Tool today: {tool_name} at {tool_url}.
+Time available: {time_today} minutes.
+Memory of past days: {memory or "Day 1 — fresh start."}
+Milestone day: {is_milestone}
+
+Write ONE copy-paste prompt for {tool_name}. STRICT RULES:
+1. ZERO placeholders like [your name] or [your company] — have the AI ask the user directly
+2. The AI inside {tool_name} must ask the user 1-3 questions ONE AT A TIME before producing output
+3. The prompt must tell {tool_name} to search the web for CURRENT {yr} real data first before responding
+4. Must be a real {field} task — not theory, builds on previous days
+5. Takes exactly {time_today} minutes
+6. If milestone: final output must be something shareable (LinkedIn post, live URL, document, email)
+7. Do NOT write any year other than {yr} anywhere in the prompt
+8. End with: -{language}
+
+Output ONLY the prompt text. No title. No preamble. No explanation."""
+
+    challenge_text = ""
+    try:
+        resp = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": f"Write Day {day} challenge for {field} professional on: {topic}"}
+            ]
+        )
+        challenge_text = resp.choices[0].message.content.strip()
+    except Exception as e:
+        print(f"DeepSeek error: {e}, falling back to GPT-4o-mini")
+        try:
+            resp = openai_client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": f"Write Day {day} challenge for {field} on: {topic}"}
+                ]
+            )
+            challenge_text = resp.choices[0].message.content.strip()
+        except Exception as e2:
+            return {"status": "error", "message": f"Generation failed: {e2}"}
+
+    result = supabase.table("challenges").insert({
+        "user_id": user_id, "challenge_text": challenge_text,
+        "day_number": day, "skill": skill, "topic": topic,
+        "status": "pending", "week_number": (day - 1) // 7 + 1,
+        "is_milestone": is_milestone, "recommended_tool": tool_name,
+        "recommended_model": model_name,
+    }).execute()
+    challenge_id = result.data[0]["id"] if result.data else None
+
+    supabase.table("users").update({
+        "streak": streak_info["streak"], "last_active": today
+    }).eq("id", user_id).execute()
+
+    return {
+        "challenge": challenge_text, "day": day, "challenge_id": challenge_id,
+        "topic": topic, "tool": tool_name, "model": model_name,
+        "tool_url": tool_url, "why_tool": why_tool,
+        "time_minutes": time_today, "is_milestone": is_milestone,
+        "streak": streak_info["streak"],
+        "streak_broken": streak_info.get("streak_broken", False),
+        "is_rest_day": streak_info.get("is_rest_day", False)
     }
-  }catch(e){}
-}
 
-// CHALLENGE
-async function startChallenge(){
-  navTo('sc-challenge');
-  document.getElementById('ch-content').innerHTML='<div class="spin-wrap"><div class="spinner"></div><p>Generating your challenge...</p></div>';
-  try{
-    const d=await post('/generate-challenge',{user_id:userId});
-    if(d.status==='locked'){
-      document.getElementById('ch-content').innerHTML=`
-        <div style="text-align:center;padding:48px 0">
-          <div style="font-size:52px;margin-bottom:14px">🔒</div>
-          <div class="pg-title">Come back tomorrow</div>
-          <p style="color:var(--muted);font-size:13px;margin-top:7px">${d.message}</p>
-          <button class="score-back-btn" style="max-width:240px;margin:20px auto;display:block" onclick="goToLobby()">Back to Home</button>
-        </div>`;
-      return;
+
+# ── GRADE — STRICT RUBRIC ─────────────────────────────────────────────
+
+@app.post("/grade")
+def grade(data: dict):
+    user_id = data.get("user_id")
+    challenge_id = data.get("challenge_id")
+    submitted_url = data.get("url", "").strip()
+    challenge_text = data.get("challenge_text", "").strip()
+    submitted_text = data.get("text", "").strip()
+
+    if not user_id:
+        return {"status": "error", "message": "Missing user_id"}
+    if not challenge_text:
+        return {"status": "error", "message": "Missing challenge text"}
+
+    is_milestone = False
+    if challenge_id:
+        ch = supabase.table("challenges").select("status, is_milestone").eq("id", challenge_id).execute().data
+        if ch and ch[0]["status"] == "completed":
+            return {"status": "error", "message": "Challenge already graded"}
+        is_milestone = bool(ch[0].get("is_milestone")) if ch else False
+
+    # Read submitted content
+    submitted_content = ""
+    if submitted_url:
+        try:
+            res = requests.get(f"https://r.jina.ai/{submitted_url}", timeout=15)
+            if res.status_code == 200 and len(res.text) > 50:
+                submitted_content = res.text[:3500]
+            else:
+                submitted_content = f"URL returned status {res.status_code} or empty content."
+        except Exception as e:
+            submitted_content = f"Could not read URL: {e}"
+    if submitted_text:
+        submitted_content = (submitted_content + "\n\n" + submitted_text).strip()
+
+    if not submitted_content:
+        return {"status": "error", "message": "Please paste your work or a valid URL"}
+
+    # Strict grading prompt — GPT-4o-mini
+    grade_prompt = f"""You are a strict AI skills grader. Grade the submitted work honestly and accurately.
+
+CHALLENGE GIVEN TO USER:
+{challenge_text}
+
+USER'S SUBMITTED WORK:
+{submitted_content}
+
+{"NOTE: This is a MILESTONE challenge — the output must be complete, polished, and shareable. Grade harder." if is_milestone else ""}
+
+GRADING CRITERIA — score each 1-10 then average:
+1. RELEVANCE: Does the submitted work actually address the challenge given? If it is completely unrelated, gibberish, or copy-pasted nonsense → score 1-2.
+2. COMPLETENESS: Did the user complete all parts of the challenge? Partial work → score 3-5.
+3. QUALITY: Is the output high quality, specific, and professional? Generic or vague → score 3-5. Excellent and detailed → score 8-10.
+4. EFFORT: Did the user clearly put real effort in, not just copy-paste a template? Low effort → score 2-3.
+5. APPLICATION: Did the user apply it to their real situation, not just generic examples? → bonus points.
+
+IMPORTANT RULES:
+- If work is clearly fake, gibberish, or totally unrelated → score MUST be 2, points MUST be 20
+- If work is very low effort (one line, copied template) → score MUST be 3, points MUST be 30
+- If work is decent but incomplete → score 5-6, points 50-60
+- If work is solid and complete → score 7-8, points 70-80
+- If work is exceptional, detailed, and creative → score 9-10, points 90-100
+- Do NOT give 7/70 as a default — actually read and evaluate the work
+- Points = score * 10 exactly
+
+Reply with ONLY valid JSON. No markdown. No explanation outside JSON:
+{{"score": 7, "feedback": "2-3 sentences of specific feedback mentioning exactly what they did", "points": 70, "what_was_good": "one specific thing that was done well", "what_to_improve": "one specific actionable improvement"}}"""
+
+    grade_result = None
+    raw = ""
+    try:
+        grade_resp = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": grade_prompt}],
+            temperature=0.2,
+            max_tokens=400
+        )
+        raw = grade_resp.choices[0].message.content.strip()
+        print(f"Grade raw response: {raw}")
+        grade_result = extract_json(raw)
+    except Exception as e:
+        print(f"Grade API error: {e}")
+
+    # Only use fallback if extraction completely failed
+    if not grade_result:
+        print(f"JSON extraction failed. Raw: {raw}")
+        grade_result = {
+            "score": 3,
+            "feedback": "We could not fully evaluate your submission. Please make sure you paste your actual AI output or a valid share link.",
+            "points": 30,
+            "what_was_good": "You submitted something",
+            "what_to_improve": "Paste the full ChatGPT or AI output, not just a description"
+        }
+
+    # Validate score and points are consistent
+    score = int(grade_result.get("score", 3))
+    score = max(1, min(10, score))  # clamp 1-10
+    points = score * 10  # always recalculate from score — no gaming
+
+    # Get user data
+    user_row = supabase.table("users").select("points, day, memory, streak").eq("id", user_id).execute().data
+    if not user_row:
+        return {"status": "error", "message": "User not found"}
+    user = user_row[0]
+
+    streak_bonus = 50 if user.get("streak", 0) >= 6 else 0
+    milestone_bonus = 100 if is_milestone else 0
+    total_earned = points + streak_bonus + milestone_bonus
+    new_points = user["points"] + total_earned
+    new_day = min(user["day"] + 1, 21)
+
+    old_memory = user.get("memory") or ""
+    new_memory = f"{old_memory} | Day {user['day']}: {score}/10 — {grade_result.get('feedback', '')}".strip()[-600:]
+
+    supabase.table("users").update({
+        "points": new_points, "day": new_day, "memory": new_memory
+    }).eq("id", user_id).execute()
+
+    if challenge_id:
+        supabase.table("challenges").update({
+            "status": "completed", "submitted_url": submitted_url,
+            "quality_score": score, "feedback": grade_result.get("feedback"),
+            "points_awarded": total_earned
+        }).eq("id", challenge_id).execute()
+
+    # Motivational message via DeepSeek (cheap)
+    motivation = ""
+    try:
+        mot = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": f"User scored {score}/10 on an AI learning challenge. Write ONE genuine motivational sentence under 18 words. Not generic — relate to the score."}]
+        )
+        motivation = mot.choices[0].message.content.strip()
+    except:
+        if score >= 8:
+            motivation = "Outstanding work — this is the level that separates learners from doers."
+        elif score >= 6:
+            motivation = "Solid effort — keep this up and Day 21 will be a different person."
+        else:
+            motivation = "Every attempt teaches you something — tomorrow push deeper."
+
+    # Send score email
+    try:
+        user_full = supabase.table("users").select("email, field").eq("id", user_id).execute().data
+        if user_full:
+            uf = user_full[0]
+            uname = uf["email"].split("@")[0]
+            send_score_email(
+                to_email=uf["email"],
+                name=uname,
+                day=user["day"],
+                score=score,
+                points=points,
+                total_points=new_points,
+                feedback=grade_result.get("feedback", ""),
+                what_was_good=grade_result.get("what_was_good", ""),
+                what_to_improve=grade_result.get("what_to_improve", ""),
+                motivation=motivation,
+                is_milestone=is_milestone
+            )
+            # Milestone email
+            if is_milestone:
+                week_num = user["day"] // 7
+                send_milestone_email(
+                    to_email=uf["email"],
+                    name=uname,
+                    week=week_num,
+                    day=user["day"],
+                    total_points=new_points,
+                    streak=user.get("streak", 0)
+                )
+    except Exception as mail_err:
+        print(f"Score email error: {mail_err}")
+
+    return {
+        "score": score,
+        "feedback": grade_result.get("feedback", ""),
+        "what_was_good": grade_result.get("what_was_good", ""),
+        "what_to_improve": grade_result.get("what_to_improve", ""),
+        "points_awarded": points,
+        "streak_bonus": streak_bonus,
+        "milestone_bonus": milestone_bonus,
+        "total_earned": total_earned,
+        "total_points": new_points,
+        "next_day": new_day,
+        "motivation": motivation
     }
-    if(d.streak_broken)setTimeout(()=>showToast('😢 Streak broken! Fresh start today.'),600);
-    else if((d.streak||0)>1)setTimeout(()=>showToast(`🔥 ${d.streak}-day streak! Keep going!`),600);
-    if(d.is_rest_day)setTimeout(()=>showToast('🌟 Bonus day! +50 pts for completing.'),900);
-    curChallenge=d.challenge||'';curChallengeId=d.challenge_id||'';curToolUrl=d.tool_url||'chatgpt.com';
-    const milestone=d.is_milestone?`<div class="milestone-banner">⭐ MILESTONE DAY — Complete for +100 bonus points. This is your week's full project.</div>`:'';
-    const toolWhy=d.why_tool?`<div class="tool-badge-why">💡 ${esc(d.why_tool)}</div>`:'';
-    document.getElementById('ch-content').innerHTML=`
-      <div class="day-pill">Day ${d.day}/21 · ${d.time_minutes||15} min</div>
-      ${milestone}
-      <div class="tool-badge">
-        <div class="tool-badge-ico">🛠️</div>
-        <div class="tool-badge-info">
-          <div class="tool-badge-name">${esc(d.tool||'ChatGPT')} · ${esc(d.model||'GPT-4o')}</div>
-          <div class="tool-badge-model"><a href="https://${curToolUrl}" target="_blank" class="tool-badge-link">Open ${curToolUrl} →</a></div>
-          ${toolWhy}
-        </div>
-      </div>
-      <div class="c-card"><span class="c-lbl">📋 Copy and paste into ${esc((d.tool||'ChatGPT').toUpperCase())}</span>${esc(d.challenge)}</div>
-      <div class="sub-label">Submit Your Work</div>
-      <input class="sub-inp" id="s-url" placeholder="Paste your share link (ChatGPT, Claude, etc)..."/>
-      <div class="sub-or">— OR paste your output below —</div>
-      <textarea class="sub-ta" id="s-text" placeholder="Paste your AI output here..."></textarea>
-      <button class="sub-btn" id="sub-btn" onclick="submitWork()">Submit & Get Score ✅</button>`;
-  }catch(e){
-    document.getElementById('ch-content').innerHTML=`<div style="text-align:center;padding:32px;color:var(--muted)">Error loading challenge. Please try again.</div>`;
-  }
-}
 
-async function submitWork(){
-  const url=(document.getElementById('s-url')?.value||'').trim();
-  const text=(document.getElementById('s-text')?.value||'').trim();
-  if(!url&&!text){showToast('Please paste a link or your work first!');return;}
-  const btn=document.getElementById('sub-btn');
-  btn.disabled=true;btn.textContent='Grading your work... ⏳';
-  try{
-    const d=await post('/grade',{user_id:userId,challenge_id:curChallengeId,challenge_text:curChallenge,url,text});
-    if(d.status==='error'){showToast(d.message||'Error grading');btn.disabled=false;btn.textContent='Submit & Get Score ✅';return;}
-    document.getElementById('sc-n').textContent=d.score||0;
-    document.getElementById('sc-fb').textContent=d.feedback||'';
-    const good=document.getElementById('sc-good'),imp=document.getElementById('sc-improve');
-    if(d.what_was_good){good.innerHTML='✅ '+esc(d.what_was_good);good.style.display='block';}else good.style.display='none';
-    if(d.what_to_improve){imp.innerHTML='💡 '+esc(d.what_to_improve);imp.style.display='block';}else imp.style.display='none';
-    let pts=`+${d.points_awarded||0} pts`;
-    if(d.streak_bonus>0)pts+=` +${d.streak_bonus} streak bonus`;
-    if(d.milestone_bonus>0)pts+=` +${d.milestone_bonus} milestone bonus`;
-    pts+=` = ${d.total_earned||0} earned 🎉`;
-    document.getElementById('sc-pts').textContent=pts;
-    document.getElementById('sc-mot').textContent=d.motivation||'';
-    document.getElementById('ap-pts').textContent=d.total_points||0;
-    showScreen('sc-score');refreshSidebar();
-  }catch(e){showToast('Network error. Try again.');btn.disabled=false;btn.textContent='Submit & Get Score ✅';}
-}
 
-// LEADERBOARD
-async function loadLb(){
-  document.getElementById('lb-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div></div>';
-  const d=await fetch(API+'/leaderboard').then(r=>r.json());
-  const medals=['🥇','🥈','🥉'];
-  document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
-    <div class="lb-item">
-      <div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div>
-      <div class="lb-info">
-        <div class="lb-name">${esc((u.email||'').split('@')[0]||'Anonymous')}</div>
-        <div class="lb-meta">${esc(u.field||'')} · Day ${u.day||1}/21 · 🔥${u.streak||0}</div>
-      </div>
-      <div class="lb-pts">${u.points||0}</div>
-    </div>`).join('');
-}
+# ── SUBMIT REAL WORLD RESULT ──────────────────────────────────────────
 
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();
-});
-</script>
-</body>
-</html>
+@app.post("/submit-result")
+def submit_result(data: dict):
+    user_id = data.get("user_id")
+    challenge_id = data.get("challenge_id")
+    result_type = data.get("result_type", "views")
+    result_value = data.get("result_value", "")
+    result_metric = data.get("result_metric", 0)
+    if not user_id or not challenge_id:
+        return {"status": "error", "message": "Missing fields"}
+    supabase.table("challenges").update({
+        "real_world_result": f"{result_type}: {result_value}",
+        "result_metric": result_metric
+    }).eq("id", challenge_id).execute()
+    try:
+        msg = deepseek_client.chat.completions.create(
+            model="deepseek-chat",
+            messages=[{"role": "user", "content": f"A learner got {result_metric} {result_type} from their AI-powered work. Write 2 sentences celebrating this. Be specific about the number. Make them feel proud."}]
+        )
+        celebration = msg.choices[0].message.content.strip()
+    except:
+        celebration = f"{result_metric} {result_type} — you are already getting real results from AI."
+    return {"status": "success", "celebration": celebration}
+
+
+# ── PAST CHALLENGES ───────────────────────────────────────────────────
+
+@app.get("/challenges/{user_id}")
+def get_challenges(user_id: str):
+    try:
+        result = supabase.table("challenges") \
+            .select("id, day_number, topic, skill, status, quality_score, points_awarded, is_milestone, created_at") \
+            .eq("user_id", user_id).order("day_number", desc=False).execute()
+        return {"status": "success", "challenges": result.data}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+# ── STREAK ────────────────────────────────────────────────────────────
+
+@app.get("/streak/{user_id}")
+def get_streak(user_id: str):
+    try:
+        user = supabase.table("users").select("streak, last_active, day, points").eq("id", user_id).execute().data
+        if not user:
+            return {"status": "error", "message": "User not found"}
+        u = user[0]
+        si = calculate_streak(u.get("last_active"), u.get("streak", 0))
+        return {
+            "streak": u["streak"], "day": u["day"], "points": u["points"],
+            "last_active": u.get("last_active"), "is_rest_day": si.get("is_rest_day", False)
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
+# ── LEADERBOARD ───────────────────────────────────────────────────────
+
+@app.get("/leaderboard")
+def leaderboard():
+    result = supabase.table("users").select("email, points, level, field, streak, day") \
+        .order("points", desc=True).limit(20).execute()
+    return {"leaderboard": result.data}
+
+
+# ── WAITLIST ──────────────────────────────────────────────────────────
+
+@app.post("/join-waitlist")
+def join_waitlist(data: dict):
+    name = data.get("name")
+    email = data.get("email")
+    try:
+        supabase.table("waitlist").insert({
+            "name": name, "email": email,
+            "field": data.get("field", ""), "language": data.get("language", "")
+        }).execute()
+    except Exception as e:
+        return {"error": str(e)}
+    try:
+        html = f"""<html><body style="background:#070d12;color:#e8f4f0;font-family:sans-serif;padding:40px;max-width:560px;margin:0 auto">
+<h1 style="color:#00d4aa">⚡ Zubhai</h1><h2>Hey {name}! You are in.</h2>
+<div style="background:#0f1e2b;border:1px solid #00d4aa33;border-radius:16px;padding:24px;margin:24px 0">
+<p style="margin:8px 0">⚡ 500 bonus points on launch</p>
+<p style="margin:8px 0">🎯 Priority access before public launch</p>
+<p style="margin:8px 0">🔒 Free beta access locked in forever</p>
+</div>
+<p style="color:#6a8fa8">Shubh — <a href="mailto:shubzz429@gmail.com" style="color:#00d4aa">shubzz429@gmail.com</a></p>
+</body></html>"""
+        send_email_html(email, "You are on the Zubhai waitlist!", html)
+    except Exception as e:
+        print(f"Email: {e}")
+    return {"status": "success"}
+
+
+@app.post("/submit-feedback")
+def submit_feedback(data: dict):
+    try:
+        supabase.table("feedback").insert({
+            "name": data.get("name", ""), "field": data.get("field", ""),
+            "challenge": data.get("challenge", ""), "feature": data.get("feature", "")
+        }).execute()
+    except Exception as e:
+        print(f"Feedback: {e}")
+    return {"status": "received"}
