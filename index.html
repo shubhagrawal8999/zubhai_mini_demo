@@ -3,612 +3,593 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zubhai — Master AI Skills</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<title>Zubhai — Learn AI by Doing</title>
+<link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
 :root{
-  --bg:#070d12;
-  --bg2:#0b1520;
-  --surface:#0f1e2b;
-  --card:#122030;
-  --card2:#162840;
-  --teal:#00d4aa;
-  --teal2:#00ffcc;
-  --teal-dim:rgba(0,212,170,.12);
-  --teal-border:rgba(0,212,170,.22);
-  --purple:#7c5cfc;
-  --purple2:#9d82ff;
-  --orange:#ff7a3d;
-  --gold:#f5a623;
-  --green:#00e676;
-  --red:#ff5252;
-  --white:#e8f4f0;
-  --muted:#6a8fa8;
-  --border:rgba(0,212,170,.1);
-  --border2:rgba(255,255,255,.07);
-  --f:'Inter',sans-serif;
-  --fm:'DM Mono',monospace;
-  --sidebar:268px;
+  --bg:#05080f;
+  --s1:#090d17;
+  --s2:#0d1220;
+  --card:#101828;
+  --card2:#141e2e;
+  --b1:#1e2a3f;
+  --b2:#263348;
+  --accent:#3b82f6;
+  --accent2:#60a5fa;
+  --accent3:#93c5fd;
+  --gold:#f59e0b;
+  --gold2:#fcd34d;
+  --green:#10b981;
+  --red:#ef4444;
+  --orange:#f97316;
+  --cyan:#06b6d4;
+  --white:#f8fafc;
+  --muted:#64748b;
+  --muted2:#94a3b8;
+  --fh:'Cabinet Grotesk',sans-serif;
+  --fb:'Satoshi',sans-serif;
+  --fm:'JetBrains Mono',monospace;
+  --sw:260px;
+  --r8:8px;
+  --r12:12px;
+  --r16:16px;
+  --r24:24px;
+  --r100:100px;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--white);font-family:var(--f);overflow-x:hidden}
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--teal-border);border-radius:4px}
+body{background:var(--bg);color:var(--white);font-family:var(--fb);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:.3;pointer-events:none}
+.z2{position:relative;z-index:2}
+.wrap{max-width:1100px;margin:0 auto;padding:0 32px}
 
-/* ── LANDING NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0;transition:.3s}
-nav.solid{background:rgba(7,13,18,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:16px 40px;display:flex;align-items:center;justify-content:space-between}
-.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
-.nav-logo-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.nav-logo-text{font-size:20px;font-weight:800;color:var(--white);letter-spacing:.5px}
-.nav-links{display:flex;gap:32px}
-.nav-links a{color:var(--muted);font-size:14px;font-weight:500;text-decoration:none;transition:.2s}
-.nav-links a:hover{color:var(--white)}
-.nav-actions{display:flex;gap:10px}
-.btn-ghost{border:1px solid var(--border2);color:var(--white);padding:9px 22px;border-radius:100px;font-size:14px;font-weight:500;cursor:pointer;background:none;transition:.2s;font-family:var(--f)}
-.btn-ghost:hover{border-color:var(--teal);color:var(--teal)}
-.btn-teal{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:10px 24px;border-radius:100px;font-size:14px;font-weight:700;cursor:pointer;border:none;transition:.2s;font-family:var(--f)}
-.btn-teal:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
+/* ──────── LANDING NAV ──────── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 0;transition:.3s}
+nav.solid{background:rgba(5,8,15,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--b1)}
+.nav-i{display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-family:var(--fh);font-size:20px;font-weight:900;color:var(--white);letter-spacing:-.5px;text-decoration:none;display:flex;align-items:center;gap:8px}
+.nav-logo span{color:var(--accent)}
+.nav-r{display:flex;gap:10px}
+.btn-ghost{border:1px solid var(--b2);color:var(--muted2);padding:8px 20px;border-radius:var(--r100);font-size:13px;cursor:pointer;background:none;transition:.2s;font-family:var(--fb);font-weight:500}
+.btn-ghost:hover{border-color:var(--accent);color:var(--white)}
+.btn-solid{background:var(--accent);color:#fff;padding:9px 22px;border-radius:var(--r100);font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;border:none;transition:.2s;letter-spacing:.2px}
+.btn-solid:hover{background:var(--accent2);transform:translateY(-1px)}
 
-/* ── HERO ── */
-.hero{min-height:100vh;display:flex;align-items:center;padding-top:80px;position:relative;overflow:hidden}
-.hero::before{content:'';position:absolute;top:-200px;right:-200px;width:700px;height:700px;background:radial-gradient(circle,rgba(0,212,170,.08) 0%,transparent 65%);pointer-events:none}
-.hero::after{content:'';position:absolute;bottom:-100px;left:-100px;width:500px;height:500px;background:radial-gradient(circle,rgba(124,92,252,.06) 0%,transparent 65%);pointer-events:none}
-.hero-inner{max-width:1200px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;position:relative;z-index:2}
-.hero-tag{display:inline-flex;align-items:center;gap:8px;background:var(--teal-dim);border:1px solid var(--teal-border);padding:6px 16px;border-radius:100px;font-size:12px;color:var(--teal);font-family:var(--fm);margin-bottom:24px;letter-spacing:.5px}
-.hero-tag-dot{width:6px;height:6px;background:var(--teal);border-radius:50%;animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.8)}}
-.hero-title{font-size:clamp(42px,5vw,68px);font-weight:900;line-height:1.05;margin-bottom:20px;letter-spacing:-1px}
-.hero-title .line1{color:var(--white)}
-.hero-title .line2{background:linear-gradient(135deg,var(--teal),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.hero-title .line3{color:var(--white);opacity:.85}
-.hero-sub{font-size:16px;color:var(--muted);line-height:1.8;margin-bottom:36px;font-weight:400;max-width:460px}
-.hero-sub strong{color:var(--white);font-weight:600}
+/* ──────── HERO ──────── */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:80px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.hero-kicker{display:inline-flex;align-items:center;gap:7px;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);padding:5px 14px;border-radius:var(--r100);font-size:11px;color:var(--accent2);font-family:var(--fm);margin-bottom:24px;letter-spacing:.5px}
+.hero-kicker::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.15}}
+.hero-title{font-family:var(--fh);font-size:clamp(42px,5vw,68px);font-weight:900;line-height:1.04;margin-bottom:20px;letter-spacing:-1.5px}
+.hero-title .hl{color:var(--accent)}
+.hero-title .hl2{color:var(--cyan)}
+.hero-sub{font-size:16px;color:var(--muted2);line-height:1.8;margin-bottom:36px;max-width:440px;font-weight:400}
+.hero-sub strong{color:var(--white);font-weight:500}
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap}
-.btn-hero-primary{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:15px 32px;border-radius:100px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:.25s;font-family:var(--f);display:inline-flex;align-items:center;gap:8px}
-.btn-hero-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px rgba(0,212,170,.35)}
-.btn-hero-ghost{border:1px solid var(--border2);color:var(--white);padding:15px 32px;border-radius:100px;font-size:15px;font-weight:500;cursor:pointer;background:none;transition:.25s;font-family:var(--f)}
-.btn-hero-ghost:hover{border-color:var(--teal);color:var(--teal)}
-
-/* HERO VISUAL — 3D card stack */
-.hero-visual{position:relative;height:480px}
-.hero-card-main{position:absolute;top:40px;left:50%;transform:translateX(-50%);width:300px;background:linear-gradient(135deg,var(--card2),var(--surface));border:1px solid var(--teal-border);border-radius:20px;padding:24px;box-shadow:0 32px 64px rgba(0,0,0,.4),0 0 0 1px var(--border);animation:float1 4s ease-in-out infinite}
-@keyframes float1{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-12px)}}
-.hero-card-back1{position:absolute;top:20px;left:calc(50% + 30px);width:280px;background:linear-gradient(135deg,rgba(124,92,252,.15),rgba(0,212,170,.08));border:1px solid rgba(124,92,252,.2);border-radius:20px;padding:20px;transform:rotate(6deg);z-index:-1;animation:float2 4s ease-in-out infinite .5s}
-@keyframes float2{0%,100%{transform:rotate(6deg) translateY(0)}50%{transform:rotate(6deg) translateY(-8px)}}
-.hero-card-back2{position:absolute;top:30px;left:calc(50% - 80px);width:280px;background:linear-gradient(135deg,rgba(255,122,61,.1),rgba(245,166,35,.08));border:1px solid rgba(255,122,61,.18);border-radius:20px;padding:20px;transform:rotate(-5deg);z-index:-1;animation:float3 4s ease-in-out infinite 1s}
-@keyframes float3{0%,100%{transform:rotate(-5deg) translateY(0)}50%{transform:rotate(-5deg) translateY(-6px)}}
-.hero-card-label{font-size:9px;color:var(--teal);font-family:var(--fm);letter-spacing:1.5px;margin-bottom:12px;text-transform:uppercase}
-.hero-card-day{font-size:22px;font-weight:800;margin-bottom:4px}
-.hero-card-topic{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5}
-.hero-tool-badge{display:inline-flex;align-items:center;gap:6px;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:100px;padding:5px 12px;font-size:11px;color:var(--teal);font-weight:600;margin-bottom:14px}
-.hero-prompt-preview{background:rgba(0,0,0,.3);border-radius:10px;padding:10px 12px;font-size:10px;color:rgba(232,244,240,.6);line-height:1.6;font-family:var(--fm);margin-bottom:14px}
-.hero-score-row{display:flex;gap:8px}
-.hero-score-chip{flex:1;background:rgba(0,0,0,.2);border-radius:8px;padding:8px;text-align:center}
-.hero-score-v{font-size:18px;font-weight:800;color:var(--teal)}
-.hero-score-l{font-size:8px;color:var(--muted);margin-top:1px}
-.hero-float-badge{position:absolute;background:var(--card2);border:1px solid var(--teal-border);border-radius:12px;padding:10px 14px;font-size:11px;font-weight:600;display:flex;align-items:center;gap:7px;animation:floatbadge 3s ease-in-out infinite}
-@keyframes floatbadge{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
-.fb1{top:0;right:0;color:var(--green);border-color:rgba(0,230,118,.2);animation-delay:.3s}
-.fb2{bottom:60px;left:0;color:var(--orange);border-color:rgba(255,122,61,.2);animation-delay:.8s}
-.fb3{bottom:0;right:30px;color:var(--purple2);border-color:rgba(124,92,252,.2);animation-delay:1.3s}
-.fb-dot{width:7px;height:7px;border-radius:50%;background:currentColor}
-
-/* ── STATS BAR ── */
-.stats-bar{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:32px 0}
-.stats-inner{max-width:1200px;margin:0 auto;padding:0 40px;display:grid;grid-template-columns:repeat(4,1fr)}
-.stat-item{text-align:center;padding:0 20px;border-right:1px solid var(--border2)}
-.stat-item:last-child{border:none}
-.stat-n{font-size:36px;font-weight:900;background:linear-gradient(135deg,var(--teal),var(--purple2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1}
-.stat-l{font-size:13px;color:var(--muted);margin-top:4px}
-
-/* ── SHARED ── */
-.section{padding:96px 0}
-.section-inner{max-width:1200px;margin:0 auto;padding:0 40px}
-.s-tag{display:inline-block;font-family:var(--fm);font-size:11px;color:var(--teal);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;background:var(--teal-dim);border:1px solid var(--teal-border);padding:4px 12px;border-radius:100px}
-.s-title{font-size:clamp(30px,3.5vw,46px);font-weight:800;line-height:1.1;margin-bottom:14px;letter-spacing:-.5px}
-.s-sub{font-size:15px;color:var(--muted);line-height:1.75;max-width:520px;font-weight:400}
+.btn-lg{padding:15px 34px;border-radius:var(--r100);font-size:15px;font-weight:700;font-family:var(--fh);text-decoration:none;transition:.25s;display:inline-block;cursor:pointer;border:none;letter-spacing:.2px}
+.btn-lg.p{background:var(--accent);color:#fff}
+.btn-lg.p:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 16px 36px rgba(59,130,246,.25)}
+.btn-lg.g{border:1px solid var(--b2);color:var(--muted2);background:none}
+.btn-lg.g:hover{border-color:var(--accent);color:var(--white)}
 .reveal{opacity:0;transform:translateY(24px);transition:all .65s cubic-bezier(.25,.46,.45,.94)}
 .reveal.on{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
 
-/* ── FEATURES GRID ── */
-.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:56px}
-.feat-card{background:var(--card);border:1px solid var(--border2);border-radius:18px;padding:26px;transition:.3s;position:relative;overflow:hidden;cursor:default}
-.feat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--teal),transparent);opacity:0;transition:.3s}
-.feat-card:hover{border-color:var(--teal-border);transform:translateY(-4px);box-shadow:0 16px 40px rgba(0,0,0,.3)}
-.feat-card:hover::before{opacity:1}
-.feat-card.hi{border-color:var(--teal-border);background:linear-gradient(135deg,rgba(0,212,170,.05),var(--card))}
-.feat-ico-wrap{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px;background:var(--teal-dim);border:1px solid var(--teal-border)}
-.feat-ico-wrap.purple{background:rgba(124,92,252,.12);border-color:rgba(124,92,252,.22)}
-.feat-ico-wrap.orange{background:rgba(255,122,61,.12);border-color:rgba(255,122,61,.22)}
-.feat-ico-wrap.gold{background:rgba(245,166,35,.12);border-color:rgba(245,166,35,.22)}
-.feat-ico-wrap.green{background:rgba(0,230,118,.12);border-color:rgba(0,230,118,.22)}
-.feat-h{font-size:15px;font-weight:700;margin-bottom:7px}
-.feat-p{font-size:13px;color:var(--muted);line-height:1.7}
+/* PHONE MOCKUP */
+.phone{width:100%;max-width:290px;margin:0 auto;background:var(--card);border:1px solid var(--b2);border-radius:26px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.6);animation:float 4s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.ph-bar{background:var(--s2);padding:11px 15px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--b1)}
+.ph-logo{font-family:var(--fh);font-size:12px;font-weight:800;color:var(--accent)}
+.ph-pts{font-size:10px;color:var(--gold);font-family:var(--fm)}
+.ph-body{padding:14px}
+.ph-ai{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.15);border-radius:10px 10px 10px 2px;padding:9px 11px;font-size:11px;color:var(--accent2);margin-bottom:7px;line-height:1.5}
+.ph-user{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.18);border-radius:10px 10px 2px 10px;padding:9px 11px;font-size:11px;color:var(--gold2);margin-bottom:10px;text-align:right;line-height:1.5}
+.ph-task{background:var(--s2);border:1px solid var(--accent);border-radius:10px;padding:11px;margin-bottom:7px}
+.ph-task-lbl{font-size:8px;color:var(--accent);font-family:var(--fm);letter-spacing:1px;margin-bottom:5px}
+.ph-task-txt{font-size:10px;color:var(--white);line-height:1.5}
+.ph-chips{display:flex;gap:5px}
+.ph-chip{flex:1;background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.15);border-radius:7px;padding:6px;text-align:center}
+.ph-chip-v{font-size:15px;font-weight:800;color:var(--accent);font-family:var(--fh)}
+.ph-chip-l{font-size:8px;color:var(--muted);margin-top:2px}
 
-/* ── HOW IT WORKS ── */
-.how-bg{background:var(--bg2)}
-.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:56px}
-.step-card{background:var(--card);border:1px solid var(--border2);padding:30px 26px;transition:.3s;position:relative}
-.step-card:first-child{border-radius:18px 0 0 18px}
-.step-card:nth-child(3){border-radius:0 18px 18px 0}
-.step-card:hover{border-color:var(--teal-border);transform:translateY(-3px);position:relative;z-index:2}
-.step-num{font-family:var(--fm);font-size:10px;color:var(--teal);letter-spacing:2px;margin-bottom:16px;display:block}
-.step-ico-num{width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,var(--teal),#00a880);display:flex;align-items:center;justify-content:center;font-size:16px;margin-bottom:14px;font-weight:800;color:#000}
-.step-h{font-size:16px;font-weight:700;margin-bottom:8px}
-.step-p{font-size:12px;color:var(--muted);line-height:1.7}
+/* ──────── STATS BAR ──────── */
+.stats-bar{background:var(--s1);border-top:1px solid var(--b1);border-bottom:1px solid var(--b1);padding:32px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{text-align:center;padding:0 16px;border-right:1px solid var(--b1)}
+.stat:last-child{border:none}
+.stat-n{font-family:var(--fh);font-size:34px;font-weight:900;color:var(--accent);line-height:1;letter-spacing:-1px}
+.stat-l{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500}
 
-/* ── TOOLS SECTION ── */
-.tools-grid{display:flex;flex-wrap:wrap;gap:12px;margin-top:32px}
-.tool-pill{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border2);border-radius:100px;padding:10px 18px;font-size:13px;font-weight:500;transition:.2s}
-.tool-pill:hover{border-color:var(--teal-border);color:var(--teal)}
-.tool-pill-dot{width:8px;height:8px;border-radius:50%}
+/* ──────── SECTIONS ──────── */
+section.pad{padding:96px 0}
+.stag{font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:2.5px;text-transform:uppercase;margin-bottom:14px;display:block}
+.stitle{font-family:var(--fh);font-size:clamp(30px,3.5vw,46px);font-weight:900;line-height:1.08;margin-bottom:14px;letter-spacing:-1px}
+.ssub{font-size:15px;color:var(--muted2);line-height:1.8;max-width:520px;font-weight:400}
 
-/* ── REVIEWS ── */
-.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
-.rev-card{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:24px;transition:.2s}
-.rev-card:hover{border-color:var(--teal-border)}
-.rev-stars{color:var(--gold);font-size:13px;margin-bottom:12px;letter-spacing:2px}
-.rev-text{font-size:13px;color:var(--muted);line-height:1.75;margin-bottom:16px;font-style:italic}
-.rev-author{display:flex;align-items:center;gap:10px}
-.rev-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000}
-.rev-name{font-size:13px;font-weight:600}
-.rev-role{font-size:11px;color:var(--muted)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:60px;border:1px solid var(--b1);border-radius:var(--r16);overflow:hidden}
+.feat{background:var(--s1);padding:28px;transition:.25s;position:relative}
+.feat:hover{background:var(--card)}
+.feat-ico{font-size:22px;margin-bottom:12px;display:block}
+.feat h3{font-family:var(--fh);font-size:15px;font-weight:700;margin-bottom:6px;color:var(--white)}
+.feat p{font-size:12px;color:var(--muted);line-height:1.7}
 
-/* ── CTA ── */
-.cta-box{background:linear-gradient(135deg,var(--surface),var(--bg2));border:1px solid var(--teal-border);border-radius:24px;padding:64px 48px;text-align:center;position:relative;overflow:hidden}
-.cta-box::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:300px;background:radial-gradient(ellipse,rgba(0,212,170,.08),transparent 70%);pointer-events:none}
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:60px}
+.step{background:var(--card);border:1px solid var(--b1);border-radius:var(--r16);padding:28px;transition:.25s}
+.step:hover{border-color:rgba(59,130,246,.3);transform:translateY(-3px)}
+.step-n{font-family:var(--fm);font-size:9px;color:var(--accent);letter-spacing:2px;margin-bottom:14px;display:block}
+.step-ico{font-size:22px;margin-bottom:14px;display:block}
+.step h3{font-family:var(--fh);font-size:16px;font-weight:700;margin-bottom:7px}
+.step p{font-size:12px;color:var(--muted);line-height:1.7}
+
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:44px}
+.rev{background:var(--card);border:1px solid var(--b1);border-radius:var(--r16);padding:22px}
+.rev-stars{color:var(--gold);font-size:12px;margin-bottom:10px}
+.rev-text{font-size:12px;color:var(--muted2);line-height:1.8;margin-bottom:14px;font-style:italic}
+.rev-author{display:flex;align-items:center;gap:9px}
+.rev-av{width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--accent);font-family:var(--fh)}
+.rev-name{font-size:12px;font-weight:500}
+.rev-role{font-size:10px;color:var(--muted)}
+
+.cta-box{background:var(--card);border:1px solid var(--b2);border-radius:var(--r24);padding:56px 44px;text-align:center}
 .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:28px}
 
-/* ── FOOTER ── */
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 28px}
-.foot-inner{max-width:1200px;margin:0 auto;padding:0 40px}
-.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px;margin-bottom:32px}
-.foot-logo-wrap{display:flex;align-items:center;gap:8px;margin-bottom:10px}
-.foot-logo-icon{width:28px;height:28px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px}
-.foot-logo-text{font-size:17px;font-weight:800}
-.foot-desc{font-size:12px;color:var(--muted);line-height:1.75;max-width:220px}
-.foot-col h4{font-size:12px;font-weight:600;color:var(--white);margin-bottom:12px;letter-spacing:.3px}
-.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:8px}
+footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:44px;margin-bottom:32px}
+.foot-logo{font-family:var(--fh);font-size:17px;font-weight:900;color:var(--white);display:block;margin-bottom:7px;letter-spacing:-.3px}
+.foot-logo span{color:var(--accent)}
+.foot-desc{font-size:11px;color:var(--muted);line-height:1.75;max-width:200px}
+.foot-col h4{font-size:11px;font-weight:700;color:var(--muted2);margin-bottom:12px;font-family:var(--fh);letter-spacing:.5px;text-transform:uppercase}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:7px}
 .foot-col a{font-size:12px;color:var(--muted);text-decoration:none;transition:.2s}
-.foot-col a:hover{color:var(--teal)}
-.foot-bottom{border-top:1px solid var(--border2);padding-top:20px;display:flex;justify-content:space-between}
+.foot-col a:hover{color:var(--white)}
+.foot-bottom{border-top:1px solid var(--b1);padding-top:20px;display:flex;justify-content:space-between}
 .foot-bottom p{font-size:11px;color:var(--muted)}
 
-/* ══ APP SHELL ══════════════════════════════════════════ */
+/* ══════════ APP SHELL ══════════ */
 #app{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:row}
 #app.open{display:flex}
 
-/* ── SIDEBAR (Claude-style) ── */
-.sb{width:var(--sidebar);min-width:var(--sidebar);background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.sb-top{padding:16px 12px 8px}
-.sb-logo-row{display:flex;align-items:center;gap:8px;padding:4px 8px;margin-bottom:8px}
-.sb-logo-icon{width:26px;height:26px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
-.sb-logo-text{font-size:16px;font-weight:800;color:var(--white)}
-.sb-new-btn{display:flex;align-items:center;gap:8px;width:100%;background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:10px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--teal);cursor:pointer;transition:.2s;font-family:var(--f)}
-.sb-new-btn:hover{background:rgba(0,212,170,.18)}
-.sb-search{display:flex;align-items:center;gap:8px;width:100%;background:none;border:1px solid var(--border2);border-radius:10px;padding:9px 14px;font-size:13px;color:var(--muted);cursor:pointer;transition:.2s;font-family:var(--f);margin-top:6px}
-.sb-search:hover{border-color:var(--teal-border);color:var(--white)}
-.sb-divider{height:1px;background:var(--border2);margin:10px 12px}
-.sb-section-label{font-size:10px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:4px 20px 6px;font-family:var(--fm)}
-.sb-nav-item{display:flex;align-items:center;gap:10px;padding:9px 20px;font-size:13px;cursor:pointer;transition:.15s;color:#8ab0c8;border-radius:8px;margin:0 8px}
-.sb-nav-item:hover{background:rgba(255,255,255,.04);color:var(--white)}
-.sb-nav-item.active{background:var(--teal-dim);color:var(--teal);font-weight:500}
-.sb-nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
-.sb-nav-right{margin-left:auto}
-.sb-badge{background:var(--border2);border-radius:100px;padding:2px 7px;font-size:9px;font-family:var(--fm);color:var(--muted)}
-.sb-badge.done{background:rgba(0,230,118,.1);color:var(--green)}
-.sb-badge.today{background:var(--teal-dim);color:var(--teal)}
-.sb-recents-scroll{flex:1;overflow-y:auto;padding-bottom:8px}
-.sb-ch-item{display:flex;align-items:center;gap:9px;padding:8px 20px;font-size:12px;cursor:pointer;transition:.15s;color:#8ab0c8;margin:0 8px;border-radius:8px}
-.sb-ch-item:hover{background:rgba(255,255,255,.04);color:var(--white)}
-.sb-ch-item.active{background:var(--teal-dim);color:var(--teal)}
-.sb-ch-icon{font-size:12px;width:16px;text-align:center;flex-shrink:0}
-.sb-ch-text{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-user-section{border-top:1px solid var(--border2);padding:12px}
-.sb-user-row{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:10px;cursor:pointer;transition:.2s}
-.sb-user-row:hover{background:rgba(255,255,255,.04)}
-.sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--teal),var(--purple));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:#000;flex-shrink:0}
-.sb-user-info{flex:1;min-width:0}
-.sb-user-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-user-plan{font-size:11px;color:var(--muted)}
-.sb-logout-btn{background:none;border:none;cursor:pointer;color:var(--muted);font-size:16px;padding:4px;transition:.2s;border-radius:6px}
-.sb-logout-btn:hover{color:var(--red);background:rgba(255,82,82,.08)}
+/* ──────── SIDEBAR ──────── */
+.sb{width:var(--sw);min-width:var(--sw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.sb-header{padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1)}
+.sb-logo-text{font-family:var(--fh);font-size:16px;font-weight:900;color:var(--white);letter-spacing:-.3px}
+.sb-logo-text span{color:var(--accent)}
+.sb-user{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1)}
+.sb-av{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:12px;color:var(--accent);flex-shrink:0}
+.sb-uname{font-size:12px;font-weight:600;line-height:1.2;color:var(--white)}
+.sb-ufield{font-size:10px;color:var(--muted);margin-top:1px}
+.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--b1);gap:1px}
+.sb-stat{background:var(--s1);padding:10px 5px;text-align:center}
+.sb-stat-v{font-family:var(--fh);font-size:14px;font-weight:800;line-height:1}
+.sb-stat-l{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--fm)}
+.sb-nav{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:none}
+.sb-nav::-webkit-scrollbar{display:none}
+.sb-sec{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 16px 3px;font-family:var(--fm)}
+.sb-link{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;cursor:pointer;transition:.15s;color:var(--muted2);margin:1px 8px;border-radius:var(--r8)}
+.sb-link:hover{background:rgba(59,130,246,.08);color:var(--white)}
+.sb-link.on{background:rgba(59,130,246,.12);color:var(--accent);font-weight:600}
+.sb-link-ico{font-size:13px;width:15px;text-align:center;flex-shrink:0}
+.sb-badge{margin-left:auto;border-radius:var(--r100);padding:2px 6px;font-size:9px;font-family:var(--fm);background:var(--b1);color:var(--muted)}
+.sb-badge.done{background:rgba(16,185,129,.1);color:var(--green)}
+.sb-badge.today{background:rgba(59,130,246,.12);color:var(--accent)}
+.sb-ch-list{max-height:200px;overflow-y:auto;scrollbar-width:none}
+.sb-ch-list::-webkit-scrollbar{display:none}
+.sb-bottom{padding:10px;border-top:1px solid var(--b1)}
+.sb-bottom-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r8);transition:.15s;cursor:pointer}
+.sb-bottom-user:hover{background:rgba(255,255,255,.04)}
+.sb-bottom-av{width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:11px;color:var(--accent);flex-shrink:0}
+.sb-bottom-info{flex:1;min-width:0}
+.sb-bottom-name{font-size:12px;font-weight:600;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-bottom-plan{font-size:10px;color:var(--muted)}
+.sb-bottom-icon{font-size:14px;color:var(--muted);cursor:pointer;padding:4px;border-radius:5px;transition:.15s;flex-shrink:0}
+.sb-bottom-icon:hover{color:var(--red);background:rgba(239,68,68,.08)}
 
-/* ── MAIN CONTENT AREA ── */
+/* User menu dropdown */
+.user-menu{position:fixed;bottom:60px;left:10px;width:240px;background:var(--card2);border:1px solid var(--b2);border-radius:var(--r12);padding:8px;z-index:600;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.user-menu.show{display:block}
+.user-menu-email{font-size:11px;color:var(--muted);padding:6px 10px 10px;border-bottom:1px solid var(--b1);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;color:var(--muted2);cursor:pointer;border-radius:var(--r8);transition:.15s}
+.user-menu-item:hover{background:rgba(255,255,255,.05);color:var(--white)}
+.user-menu-item.danger{color:rgba(239,68,68,.8)}
+.user-menu-item.danger:hover{background:rgba(239,68,68,.08);color:var(--red)}
+.user-menu-sep{height:1px;background:var(--b1);margin:6px 0}
+
+/* ──────── HAMBURGER MENU (top right of sidebar) ──────── */
+.ham-btn{width:30px;height:30px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);border-radius:var(--r8);transition:.15s;flex-shrink:0}
+.ham-btn:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.ham-btn svg{width:16px;height:16px}
+.ham-panel{position:fixed;top:0;left:var(--sw);bottom:0;width:260px;background:var(--card2);border-right:1px solid var(--b2);z-index:550;transform:translateX(-100%);transition:transform .25s ease;padding:20px 16px}
+.ham-panel.open{transform:translateX(0)}
+.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1)}
+.ham-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r12);cursor:pointer;transition:.15s;margin-bottom:4px}
+.ham-item:hover{background:rgba(59,130,246,.08)}
+.ham-item-ico{font-size:18px;width:22px;text-align:center;flex-shrink:0}
+.ham-item-info{flex:1}
+.ham-item-name{font-size:13px;font-weight:600;color:var(--white);margin-bottom:1px}
+.ham-item-sub{font-size:10px;color:var(--muted)}
+.ham-item-badge{font-size:9px;background:var(--b1);color:var(--muted);padding:2px 8px;border-radius:var(--r100);font-family:var(--fm)}
+.ham-sep{height:1px;background:var(--b1);margin:12px 0}
+.ham-overlay{position:fixed;inset:0;z-index:540;display:none}
+.ham-overlay.open{display:block}
+
+/* ──────── MAIN AREA ──────── */
 .app-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.app-topbar{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:rgba(7,13,18,.9);backdrop-filter:blur(12px);flex-shrink:0}
-.app-topbar-title{font-size:14px;font-weight:700;color:var(--white)}
-.app-stats-row{display:flex;gap:8px}
-.app-stat{display:flex;align-items:center;gap:5px;background:var(--surface);border:1px solid var(--border2);border-radius:100px;padding:5px 12px;font-size:12px;font-weight:600;font-family:var(--fm)}
-.app-stat.teal{color:var(--teal);border-color:var(--teal-border)}
-.app-stat.gold{color:var(--gold);border-color:rgba(245,166,35,.25)}
-.app-stat.orange{color:var(--orange);border-color:rgba(255,122,61,.25)}
-.app-body{flex:1;overflow-y:auto;padding:28px 32px}
-.screen{display:none;max-width:620px;margin:0 auto}
+.app-top{padding:11px 22px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between;background:rgba(5,8,15,.9);backdrop-filter:blur(12px);flex-shrink:0}
+.app-top-title{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--white)}
+.app-badges{display:flex;gap:6px}
+.abadge{padding:4px 11px;border-radius:var(--r100);font-size:10px;font-weight:700;border:1px solid;font-family:var(--fm)}
+.ag{color:var(--gold);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.05)}
+.ao{color:var(--orange);border-color:rgba(249,115,22,.25);background:rgba(249,115,22,.05)}
+.ab{color:var(--accent);border-color:rgba(59,130,246,.25);background:rgba(59,130,246,.05)}
+.app-body{flex:1;overflow-y:auto;padding:24px 26px;scrollbar-width:thin;scrollbar-color:var(--b2) transparent}
+.screen{display:none;max-width:580px;margin:0 auto}
 .screen.on{display:block}
 
-/* ── AUTH ── */
-.auth-center{min-height:calc(100vh - 110px);display:flex;align-items:center;justify-content:center}
-.auth-card{background:var(--card);border:1px solid var(--border2);border-radius:22px;padding:40px 36px;text-align:center;width:100%;max-width:420px;position:relative;overflow:hidden}
-.auth-glow{position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:200px;height:200px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%);pointer-events:none}
-.auth-logo{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:6px}
-.auth-logo-icon{width:36px;height:36px;background:linear-gradient(135deg,var(--teal),var(--purple));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px}
-.auth-logo-text{font-size:22px;font-weight:900;color:var(--white)}
-.auth-sub{color:var(--muted);font-size:13px;margin-bottom:28px;line-height:1.6}
-.inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:13px 15px;color:var(--white);font-size:14px;margin-bottom:11px;transition:.2s;font-family:var(--f)}
-.inp:focus{outline:none;border-color:var(--teal)}
+/* ──────── AUTH ──────── */
+.auth-center{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px)}
+.auth-card{background:var(--card);border:1px solid var(--b2);border-radius:var(--r24);padding:36px 32px;width:100%;max-width:400px}
+.auth-logo{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--white);margin-bottom:4px;letter-spacing:-.5px}
+.auth-logo span{color:var(--accent)}
+.auth-sub{color:var(--muted);font-size:12px;margin-bottom:26px;line-height:1.6}
+.inp{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r8);padding:12px 14px;color:var(--white);font-size:13px;margin-bottom:10px;transition:.2s;font-family:var(--fb)}
+.inp:focus{outline:none;border-color:var(--accent);background:var(--card)}
 .inp::placeholder{color:var(--muted)}
-.auth-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;margin-top:3px}
-.auth-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-.auth-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
-.auth-err{color:var(--red);font-size:12px;margin-top:7px;min-height:16px}
-.auth-sw{color:var(--muted);font-size:12px;margin-top:12px}
-.auth-sw span{color:var(--teal);cursor:pointer;font-weight:500}
+.auth-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:.2s;margin-top:3px}
+.auth-btn:hover{background:var(--accent2)}
+.auth-btn:disabled{opacity:.45;cursor:not-allowed}
+.auth-err{color:var(--red);font-size:11px;margin-top:6px;min-height:14px}
+.auth-sw{color:var(--muted);font-size:11px;margin-top:12px;text-align:center}
+.auth-sw span{color:var(--accent);cursor:pointer}
 
-/* ── ONBOARDING ── */
-.ob-prog{display:flex;gap:5px;margin-bottom:22px}
-.ob-dot{flex:1;height:3px;border-radius:100px;background:var(--border2);transition:.4s}
-.ob-dot.done{background:var(--teal)}
-.ob-dot.cur{background:rgba(0,212,170,.4)}
-.ob-q{font-size:18px;font-weight:800;margin-bottom:5px;letter-spacing:-.2px}
-.ob-hint{font-size:13px;color:var(--muted);margin-bottom:18px}
-.ob-chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
-.ob-chip{padding:9px 17px;border:1px solid var(--border2);border-radius:100px;font-size:13px;cursor:pointer;transition:.2s;color:#8ab0c8;background:var(--card);font-family:var(--f)}
-.ob-chip:hover{border-color:var(--teal-border);color:var(--white)}
-.ob-chip.sel{border-color:var(--teal);background:var(--teal-dim);color:var(--teal);font-weight:600}
-.ob-other-link{font-size:11px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block}
-.ob-other-inp{width:100%;background:var(--surface);border:1px solid var(--border2);border-radius:10px;padding:11px 14px;color:var(--white);font-size:13px;font-family:var(--f);margin-bottom:10px;display:none}
+/* ──────── ONBOARD ──────── */
+.ob-prog{display:flex;gap:3px;margin-bottom:22px}
+.ob-dot{flex:1;height:2px;border-radius:var(--r100);background:var(--b2);transition:.3s}
+.ob-dot.done{background:var(--accent)}
+.ob-dot.cur{background:rgba(59,130,246,.4)}
+.ob-q{font-family:var(--fh);font-size:18px;font-weight:700;margin-bottom:4px;letter-spacing:-.3px}
+.ob-sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+.ob-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.ob-chip{padding:8px 16px;border:1px solid var(--b2);border-radius:var(--r100);font-size:12px;cursor:pointer;transition:.2s;color:var(--muted2);background:var(--card);font-weight:500}
+.ob-chip:hover{border-color:var(--accent);color:var(--white)}
+.ob-chip.on{border-color:var(--accent);background:rgba(59,130,246,.08);color:var(--accent);font-weight:600}
+.ob-other-link{font-size:10px;color:var(--muted);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block}
+.ob-other-inp{width:100%;background:var(--s2);border:1px solid var(--b2);border-radius:var(--r8);padding:10px 13px;color:var(--white);font-size:12px;font-family:var(--fb);margin-bottom:9px;display:none}
 .ob-other-inp.show{display:block}
-.ob-other-inp:focus{outline:none;border-color:var(--teal)}
-.ob-next{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;margin-top:6px}
-.ob-next:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.25)}
-.ob-next:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+.ob-other-inp:focus{outline:none;border-color:var(--accent)}
+.ob-next{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:.2s;margin-top:5px}
+.ob-next:hover{background:var(--accent2)}
+.ob-next:disabled{opacity:.3;cursor:not-allowed}
 
-/* PROFILE CARD */
-.profile-card{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--teal-border);border-radius:18px;padding:22px;margin:14px 0;position:relative;overflow:hidden}
-.profile-card::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%)}
-.profile-card h3{font-size:13px;color:var(--teal);margin-bottom:11px;font-weight:700;letter-spacing:.3px}
-.profile-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
-.ptag{background:var(--teal-dim);border:1px solid var(--teal-border);border-radius:100px;padding:4px 11px;font-size:11px;color:var(--teal);font-weight:500}
-.profile-card p{font-size:13px;color:var(--muted);line-height:1.7}
-.profile-card p strong{color:var(--white);font-weight:600}
+/* Profile summary */
+.profile-card{background:var(--card);border:1px solid rgba(59,130,246,.2);border-radius:var(--r16);padding:22px;margin:14px 0}
+.profile-card h3{font-family:var(--fh);font-size:13px;color:var(--accent);margin-bottom:10px;font-weight:700}
+.profile-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
+.ptag{background:rgba(59,130,246,.07);border:1px solid rgba(59,130,246,.15);border-radius:var(--r100);padding:3px 10px;font-size:10px;color:var(--accent2)}
+.profile-card p{font-size:12px;color:var(--muted2);line-height:1.75}
 
-/* SKILL SELECT */
-.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.skill-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px;cursor:pointer;transition:.2s}
-.skill-card:hover{border-color:var(--teal-border);transform:translateY(-2px)}
-.skill-card.sel{border-color:var(--teal);background:var(--teal-dim)}
-.sk-ico{font-size:22px;margin-bottom:8px}
-.sk-name{font-size:13px;font-weight:700;margin-bottom:3px}
-.sk-desc{font-size:11px;color:var(--muted);line-height:1.5}
+/* ──────── SKILL SELECT ──────── */
+.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
+.skill-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:14px;cursor:pointer;transition:.2s}
+.skill-card:hover{border-color:rgba(59,130,246,.3);transform:translateY(-1px)}
+.skill-card.on{border-color:var(--accent);background:rgba(59,130,246,.06)}
+.sk-ico{font-size:18px;margin-bottom:6px}
+.sk-name{font-family:var(--fh);font-size:12px;font-weight:700;margin-bottom:2px}
+.sk-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.confirm-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;margin-top:14px;transition:.2s}
+.confirm-btn:hover{background:var(--accent2)}
+.confirm-btn:disabled{opacity:.3;cursor:not-allowed}
 
-/* CURRICULUM */
-.spin-wrap{text-align:center;padding:56px 0}
-.spinner{width:36px;height:36px;border:3px solid var(--border2);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto}
+/* ──────── CURRICULUM ──────── */
+.spin-wrap{text-align:center;padding:52px 0}
+.spinner{width:32px;height:32px;border:2px solid var(--b2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto}
 @keyframes spin{to{transform:rotate(360deg)}}
-.spin-wrap p{color:var(--muted);font-size:13px;margin-top:12px}
-.curr-week{margin-bottom:18px}
-.curr-week-h{font-size:10px;color:var(--teal);font-weight:700;margin-bottom:8px;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--fm)}
-.curr-day-row{display:flex;align-items:center;gap:9px;padding:8px 11px;background:var(--card);border:1px solid var(--border2);border-radius:9px;margin-bottom:5px;font-size:12px;transition:.2s}
-.curr-day-row:hover{border-color:var(--teal-border)}
-.curr-day-n{font-family:var(--fm);font-size:9px;color:var(--muted);width:32px;flex-shrink:0}
+.spin-wrap p{color:var(--muted);font-size:12px;margin-top:11px}
+.curr-week{margin-bottom:16px}
+.curr-week-title{font-family:var(--fh);font-size:10px;color:var(--accent);font-weight:700;margin-bottom:7px;letter-spacing:1px;text-transform:uppercase}
+.curr-day{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--card);border:1px solid var(--b1);border-radius:var(--r8);margin-bottom:4px;font-size:11px}
+.curr-day-n{font-family:var(--fm);font-size:8px;color:var(--muted);width:30px;flex-shrink:0}
 .curr-day-t{flex:1;color:var(--white)}
-.curr-day-tool{font-size:9px;color:var(--teal);background:var(--teal-dim);border-radius:100px;padding:2px 8px}
-.curr-milestone{border-color:rgba(245,166,35,.2);background:rgba(245,166,35,.02)}
-.curr-milestone .curr-day-n{color:var(--gold)}
+.curr-day-tool{font-size:8px;color:var(--accent);background:rgba(59,130,246,.08);border-radius:var(--r100);padding:2px 6px}
+.curr-day.milestone{border-color:rgba(245,158,11,.2);background:rgba(245,158,11,.02)}
+.curr-day.milestone .curr-day-n{color:var(--gold)}
 
-/* LOBBY */
-.pg-title{font-size:19px;font-weight:800;margin-bottom:4px;letter-spacing:-.2px}
-.pg-sub{color:var(--muted);font-size:13px;margin-bottom:20px}
-.lobby-hero{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--teal-border);border-radius:18px;padding:22px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:relative;overflow:hidden}
-.lobby-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;background:radial-gradient(circle,rgba(0,212,170,.1),transparent 70%)}
-.lobby-h2{font-size:20px;font-weight:800;margin-bottom:3px}
-.lobby-p{font-size:12px;color:var(--muted)}
-.lobby-start-btn{background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:12px;padding:12px 22px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s;white-space:nowrap;flex-shrink:0}
-.lobby-start-btn:hover{transform:translateY(-1px);box-shadow:0 8px 20px rgba(0,212,170,.3)}
-.lobby-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.lobby-card{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:18px;cursor:pointer;text-align:center;transition:.2s}
-.lobby-card:hover{border-color:var(--teal-border);transform:translateY(-2px)}
-.lobby-card-ico{font-size:26px;margin-bottom:7px}
-.lobby-card-lbl{font-size:13px;font-weight:700}
-.lobby-card-sub{font-size:10px;color:var(--muted);margin-top:2px}
+/* ──────── LOBBY ──────── */
+.pg-title{font-family:var(--fh);font-size:18px;font-weight:800;color:var(--white);margin-bottom:3px;letter-spacing:-.3px}
+.pg-sub{color:var(--muted);font-size:12px;margin-bottom:18px}
+.lobby-hero{background:var(--card);border:1px solid var(--b2);border-radius:var(--r16);padding:20px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+.lobby-info h2{font-family:var(--fh);font-size:18px;font-weight:800;margin-bottom:2px;letter-spacing:-.3px}
+.lobby-info p{font-size:11px;color:var(--muted)}
+.lobby-start{background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:11px 20px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:.2s;white-space:nowrap}
+.lobby-start:hover{background:var(--accent2)}
+.lobby-cards{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.lobby-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:16px;cursor:pointer;text-align:center;transition:.2s}
+.lobby-card:hover{border-color:rgba(59,130,246,.2);transform:translateY(-2px)}
+.lobby-card-ico{font-size:24px;margin-bottom:6px}
+.lobby-card-lbl{font-family:var(--fh);font-size:12px;font-weight:700}
+.lobby-card-sub{font-size:10px;color:var(--muted);margin-top:1px}
 
-/* CHALLENGE */
-.day-pill{display:inline-block;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;padding:4px 14px;border-radius:100px;font-weight:700;font-size:11px;font-family:var(--fm);margin-bottom:12px}
-.milestone-banner{background:rgba(245,166,35,.06);border:1px solid rgba(245,166,35,.2);border-radius:11px;padding:11px 14px;margin-bottom:14px;display:flex;align-items:center;gap:9px;font-size:12px;color:var(--gold);font-weight:500}
-.tool-badge{display:flex;align-items:flex-start;gap:12px;background:linear-gradient(135deg,rgba(0,212,170,.05),rgba(124,92,252,.05));border:1px solid var(--teal-border);border-radius:13px;padding:14px 16px;margin-bottom:14px}
-.tool-badge-ico{font-size:24px;flex-shrink:0;margin-top:2px}
-.tool-badge-info{flex:1}
-.tool-badge-name{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:2px}
-.tool-badge-model{font-size:11px;color:var(--muted)}
-.tool-badge-link{font-size:11px;color:var(--teal);text-decoration:none;font-weight:500}
-.tool-badge-link:hover{text-decoration:underline}
-.tool-badge-why{font-size:11px;color:var(--muted);margin-top:7px;padding-top:7px;border-top:1px solid var(--border2);line-height:1.5}
-.c-card{background:var(--card);border:1px solid var(--teal-border);border-radius:14px;padding:20px;margin-bottom:18px;line-height:1.9;font-size:13px;color:var(--white);white-space:pre-wrap;word-break:break-word;position:relative}
-.c-lbl{font-size:8px;color:var(--teal);font-family:var(--fm);letter-spacing:1.5px;margin-bottom:10px;display:block;text-transform:uppercase}
-.sub-label{font-size:13px;font-weight:700;color:var(--teal);margin-bottom:11px;font-family:var(--f)}
-.sub-inp{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--white);font-size:13px;margin-bottom:8px;font-family:var(--f);transition:.2s}
-.sub-inp:focus{outline:none;border-color:var(--teal)}
-.sub-or{text-align:center;color:var(--muted);font-size:11px;margin:7px 0}
-.sub-ta{width:100%;background:var(--card);border:1px solid var(--border2);border-radius:10px;padding:12px 14px;color:var(--white);font-size:13px;height:110px;resize:none;font-family:var(--f);transition:.2s}
-.sub-ta:focus{outline:none;border-color:var(--teal)}
-.sub-btn{width:100%;background:linear-gradient(135deg,var(--green),#00c85a);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:12px;transition:.2s}
-.sub-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,230,118,.25)}
-.sub-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;box-shadow:none}
+/* ──────── CHALLENGE ──────── */
+.day-pill{display:inline-block;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.25);color:var(--accent);padding:3px 12px;border-radius:var(--r100);font-weight:700;font-size:10px;font-family:var(--fm);margin-bottom:10px;letter-spacing:.5px}
+.milestone-banner{background:rgba(245,158,11,.05);border:1px solid rgba(245,158,11,.2);border-radius:var(--r8);padding:10px 13px;margin-bottom:12px;display:flex;align-items:center;gap:8px;font-size:11px;color:var(--gold)}
+.tool-badge{display:flex;align-items:flex-start;gap:9px;background:rgba(59,130,246,.04);border:1px solid rgba(59,130,246,.15);border-radius:var(--r12);padding:11px 13px;margin-bottom:12px}
+.tool-badge-main{flex:1}
+.tool-badge-name{font-family:var(--fh);font-size:12px;font-weight:700;color:var(--accent)}
+.tool-badge-model{font-size:10px;color:var(--muted);margin-top:1px}
+.tool-badge-why{font-size:10px;color:var(--muted);margin-top:5px;padding-top:5px;border-top:1px solid var(--b1)}
+.tool-link{font-size:10px;color:var(--accent);text-decoration:none}
+.tool-link:hover{text-decoration:underline}
+.c-card{background:var(--card);border:1px solid rgba(59,130,246,.12);border-radius:var(--r12);padding:18px;margin-bottom:16px;line-height:1.9;font-size:12px;color:var(--white);white-space:pre-wrap;word-break:break-word}
+.c-lbl{font-size:8px;color:var(--accent);font-family:var(--fm);letter-spacing:1px;margin-bottom:9px;display:block;text-transform:uppercase}
+.sub-ttl{font-family:var(--fh);font-size:13px;font-weight:700;color:var(--cyan);margin-bottom:10px}
+.sub-inp{width:100%;background:var(--card);border:1px solid var(--b2);border-radius:var(--r8);padding:11px 13px;color:var(--white);font-size:12px;margin-bottom:7px;font-family:var(--fb)}
+.sub-or{text-align:center;color:var(--muted);font-size:10px;margin:5px 0}
+.sub-ta{width:100%;background:var(--card);border:1px solid var(--b2);border-radius:var(--r8);padding:11px 13px;color:var(--white);font-size:12px;height:100px;resize:none;font-family:var(--fb)}
+.sub-inp:focus,.sub-ta:focus{outline:none;border-color:var(--accent)}
+.sub-btn{width:100%;background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;margin-top:10px;transition:.2s}
+.sub-btn:hover{filter:brightness(1.1)}
+.sub-btn:disabled{opacity:.45;cursor:not-allowed}
 
-/* SCORE */
-.score-center{text-align:center;padding:8px 0}
-.score-ring{width:130px;height:130px;border-radius:50%;border:3px solid var(--teal);margin:0 auto 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(circle,rgba(0,212,170,.05),transparent);box-shadow:0 0 30px rgba(0,212,170,.15)}
-.score-n{font-size:48px;font-weight:900;color:var(--teal);line-height:1}
-.score-d{color:var(--muted);font-size:12px}
-.score-fb{background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:16px;text-align:left;line-height:1.7;font-size:13px;margin-bottom:10px;color:var(--white)}
-.score-good{background:rgba(0,230,118,.04);border:1px solid rgba(0,230,118,.12);border-radius:9px;padding:11px 14px;font-size:12px;color:var(--green);margin-bottom:8px;text-align:left}
-.score-improve{background:rgba(255,122,61,.04);border:1px solid rgba(255,122,61,.12);border-radius:9px;padding:11px 14px;font-size:12px;color:var(--orange);margin-bottom:12px;text-align:left}
-.score-pts-row{font-size:18px;font-weight:800;color:var(--teal);margin-bottom:6px}
-.score-mot{font-size:12px;color:var(--muted);font-style:italic;margin-bottom:16px}
-.score-back-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;transition:.2s}
-.score-back-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
+/* ──────── SCORE ──────── */
+.score-wrap{text-align:center;padding:8px 0}
+.score-ring{width:120px;height:120px;border-radius:50%;border:2px solid var(--accent);margin:0 auto 18px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-n{font-family:var(--fh);font-size:44px;font-weight:900;color:var(--accent);line-height:1}
+.score-d{color:var(--muted);font-size:11px}
+.score-fb{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:14px;text-align:left;line-height:1.75;font-size:12px;margin-bottom:8px}
+.score-good{background:rgba(16,185,129,.04);border:1px solid rgba(16,185,129,.12);border-radius:var(--r8);padding:10px 13px;font-size:11px;color:var(--green);margin-bottom:7px;text-align:left}
+.score-improve{background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.12);border-radius:var(--r8);padding:10px 13px;font-size:11px;color:var(--orange);margin-bottom:10px;text-align:left}
+.score-pts{font-family:var(--fh);font-size:16px;color:var(--green);font-weight:800;margin-bottom:5px}
+.score-mot{font-size:11px;color:var(--muted);font-style:italic;margin-bottom:14px}
+.score-back{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:.2s}
+.score-back:hover{background:var(--accent2)}
 
-/* LEADERBOARD */
-.lb-item{display:flex;align-items:center;background:var(--card);border:1px solid var(--border2);border-radius:12px;padding:12px 15px;margin-bottom:8px;transition:.2s}
-.lb-item:hover{border-color:var(--teal-border)}
-.lb-rank{font-size:15px;font-weight:900;width:32px;color:var(--muted);font-family:var(--fm)}
+/* ──────── LEADERBOARD ──────── */
+.lb-row{display:flex;align-items:center;background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:11px 14px;margin-bottom:7px;transition:.15s}
+.lb-row:hover{border-color:var(--b2)}
+.lb-rank{font-family:var(--fh);font-size:14px;font-weight:800;width:32px;color:var(--muted)}
 .lb-rank.top{color:var(--gold)}
 .lb-info{flex:1}
-.lb-name{font-size:13px;font-weight:600}
-.lb-meta{font-size:10px;color:var(--muted);margin-top:1px}
-.lb-pts{font-size:14px;font-weight:800;color:var(--teal);font-family:var(--fm)}
+.lb-name{font-size:12px;font-weight:600}
+.lb-sub{font-size:10px;color:var(--muted);margin-top:1px}
+.lb-pts{font-family:var(--fh);font-weight:800;color:var(--accent);font-size:13px}
 
-/* TOAST */
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--teal-border);color:var(--white);padding:11px 20px;border-radius:100px;font-size:13px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;font-weight:500}
+/* ──────── COMMUNITY ──────── */
+.community-soon{text-align:center;padding:48px 24px}
+.community-soon h2{font-family:var(--fh);font-size:20px;font-weight:800;margin-bottom:10px;letter-spacing:-.3px}
+.community-soon p{font-size:13px;color:var(--muted2);line-height:1.75;max-width:320px;margin:0 auto 20px}
+.community-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:16px;text-align:left;margin-bottom:10px}
+.community-card h3{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:5px}
+.community-card p{font-size:11px;color:var(--muted);line-height:1.6}
 
-/* CONFIRM BTN */
-.confirm-btn{width:100%;background:linear-gradient(135deg,var(--teal),#00a880);color:#000;border:none;border-radius:10px;padding:14px;font-size:14px;font-weight:700;font-family:var(--f);cursor:pointer;margin-top:14px;transition:.2s}
-.confirm-btn:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(0,212,170,.3)}
-.confirm-btn:disabled{opacity:.35;cursor:not-allowed;transform:none;box-shadow:none}
+/* ──────── TOAST ──────── */
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--b2);color:var(--white);padding:10px 18px;border-radius:var(--r100);font-size:12px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;font-weight:500}
 
+/* ──────── MOBILE ──────── */
 @media(max-width:768px){
   .sb{display:none}
-  .nav-inner{padding:14px 20px}
-  .nav-links{display:none}
-  .hero-inner{grid-template-columns:1fr;gap:40px;padding:0 20px}
+  .wrap{padding:0 18px}
+  .hero-grid{grid-template-columns:1fr}
   .hero-visual{display:none}
-  .stats-inner{grid-template-columns:1fr 1fr;padding:0 20px}
-  .stat-item{border:none;padding-bottom:12px}
-  .section-inner{padding:0 20px}
+  .stats-grid{grid-template-columns:1fr 1fr}
   .feat-grid,.steps-grid,.rev-grid{grid-template-columns:1fr}
-  .foot-grid{grid-template-columns:1fr;gap:24px}
-  .foot-bottom{flex-direction:column;gap:6px}
+  .foot-grid{grid-template-columns:1fr;gap:22px}
+  .foot-bottom{flex-direction:column;gap:5px}
 }
 </style>
 </head>
 <body>
+<canvas id="bg"></canvas>
 
-<!-- ═══ LANDING NAV ═══ -->
+<!-- ════════════════ LANDING ════════════════ -->
 <nav id="nav">
-  <div class="nav-inner">
-    <a href="#" class="nav-logo">
-      <div class="nav-logo-icon">⚡</div>
-      <span class="nav-logo-text">Zubhai</span>
-    </a>
-    <div class="nav-links">
-      <a href="#how">How it works</a>
-      <a href="#features">Features</a>
-      <a href="#reviews">Reviews</a>
-    </div>
-    <div class="nav-actions">
-      <button class="btn-ghost" onclick="openApp('login')">Login</button>
-      <button class="btn-teal" onclick="openApp('signup')">Get Started →</button>
+  <div class="wrap">
+    <div class="nav-i">
+      <a href="#" class="nav-logo">⚡ Zub<span>hai</span></a>
+      <div class="nav-r">
+        <button class="btn-ghost" onclick="openApp('login')">Login</button>
+        <button class="btn-solid" onclick="openApp('signup')">Start Free →</button>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- ═══ HERO ═══ -->
-<section class="hero">
-  <div class="hero-inner">
-    <div>
-      <div class="hero-tag"><span class="hero-tag-dot"></span>Now live — any profession, any language</div>
-      <h1 class="hero-title">
-        <div class="line1">Master AI Skills</div>
-        <div class="line2">Built for Your Job.</div>
-        <div class="line3">Verified by AI.</div>
-      </h1>
-      <p class="hero-sub">Zubhai gives you <strong>21 daily AI challenges</strong> built for your exact profession — doctor, developer, teacher, lawyer or anything else. Use ChatGPT, Claude, Perplexity, Midjourney — wherever the task needs. AI verifies your work. You actually learn.</p>
-      <div class="hero-btns">
-        <button class="btn-hero-primary" onclick="openApp('signup')">Start Learning Free ⚡</button>
-        <button class="btn-hero-ghost" onclick="openApp('login')">Login →</button>
-      </div>
-    </div>
-    <div class="hero-visual">
-      <div class="hero-card-back2">
-        <div style="font-size:10px;color:var(--orange);font-family:var(--fm);letter-spacing:1px;margin-bottom:8px">DAY 14 · MILESTONE ⭐</div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px">Week 2 Project</div>
-        <div style="font-size:11px;color:var(--muted)">Publish your LinkedIn post</div>
-      </div>
-      <div class="hero-card-back1">
-        <div style="font-size:10px;color:var(--purple2);font-family:var(--fm);letter-spacing:1px;margin-bottom:8px">TOOL · PERPLEXITY</div>
-        <div style="font-size:13px;font-weight:700;margin-bottom:4px">Search real data first</div>
-        <div style="font-size:11px;color:var(--muted)">AI cites real sources</div>
-      </div>
-      <div class="hero-card-main">
-        <div class="hero-card-label">DAY 7 · SALES · MILESTONE</div>
-        <div class="hero-card-day">Week 1 Complete</div>
-        <div class="hero-card-topic">AI Lead Generation — Publish your outreach system on LinkedIn</div>
-        <div class="hero-tool-badge">🛠️ Perplexity + ChatGPT</div>
-        <div class="hero-prompt-preview">Search for top AI lead gen tools 2025. Then ask me 2 questions. Build my outreach plan...</div>
-        <div class="hero-score-row">
-          <div class="hero-score-chip"><div class="hero-score-v">9</div><div class="hero-score-l">Score</div></div>
-          <div class="hero-score-chip"><div class="hero-score-v" style="color:var(--gold)">+190</div><div class="hero-score-l">Points</div></div>
-          <div class="hero-score-chip"><div class="hero-score-v" style="color:var(--orange)">7🔥</div><div class="hero-score-l">Streak</div></div>
+<section class="hero z2">
+  <div class="wrap">
+    <div class="hero-grid">
+      <div>
+        <div class="hero-kicker reveal">🚀 Now live · 25 learners enrolled</div>
+        <h1 class="hero-title reveal d1">Stop watching.<br/><span class="hl">Start doing.</span><br/><span class="hl2">Get verified.</span></h1>
+        <p class="hero-sub reveal d2">Zubhai gives you <strong>personalized AI challenges</strong> built for your exact job. Do them in ChatGPT, Claude, or Perplexity. AI grades your real work. You actually learn.</p>
+        <div class="hero-btns reveal d3">
+          <button class="btn-lg p" onclick="openApp('signup')">Start Learning Free ⚡</button>
+          <button class="btn-lg g" onclick="openApp('login')">Login →</button>
         </div>
       </div>
-      <div class="hero-float-badge fb1"><span class="fb-dot"></span>200 LinkedIn views</div>
-      <div class="hero-float-badge fb2"><span class="fb-dot"></span>Day 21 complete</div>
-      <div class="hero-float-badge fb3"><span class="fb-dot"></span>1,240 pts earned</div>
+      <div class="hero-visual reveal d2">
+        <div class="phone">
+          <div class="ph-bar"><span class="ph-logo">⚡ ZUBHAI</span><span class="ph-pts">🏆 340 pts · Day 7</span></div>
+          <div class="ph-body">
+            <div class="ph-ai">Milestone day! Use Perplexity first, then paste back here 🔍</div>
+            <div class="ph-task">
+              <div class="ph-task-lbl">DAY 7 · SALES · MILESTONE ⭐</div>
+              <div class="ph-task-txt">Search for top AI lead gen tools 2026. Ask 2 questions. Build my outreach plan.</div>
+            </div>
+            <div class="ph-user">Done! Here's my LinkedIn post ✅</div>
+            <div class="ph-chips">
+              <div class="ph-chip"><div class="ph-chip-v">9</div><div class="ph-chip-l">Score</div></div>
+              <div class="ph-chip"><div class="ph-chip-v">+190</div><div class="ph-chip-l">Points</div></div>
+              <div class="ph-chip"><div class="ph-chip-v">7🔥</div><div class="ph-chip-l">Streak</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ STATS ═══ -->
-<div class="stats-bar">
-  <div class="stats-inner">
-    <div class="stat-item reveal"><div class="stat-n">21</div><div class="stat-l">Linked daily challenges</div></div>
-    <div class="stat-item reveal d1"><div class="stat-n">₹0</div><div class="stat-l">To get started</div></div>
-    <div class="stat-item reveal d2"><div class="stat-n">10+</div><div class="stat-l">AI tools taught</div></div>
-    <div class="stat-item reveal d3"><div class="stat-n">∞</div><div class="stat-l">Professions supported</div></div>
+<div class="stats-bar z2">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="stat-n">21</div><div class="stat-l">Linked daily challenges</div></div>
+      <div class="stat reveal d1"><div class="stat-n">₹0</div><div class="stat-l">To get started</div></div>
+      <div class="stat reveal d2"><div class="stat-n">10+</div><div class="stat-l">AI tools taught</div></div>
+      <div class="stat reveal d3"><div class="stat-n">∞</div><div class="stat-l">Professions supported</div></div>
+    </div>
   </div>
 </div>
 
-<!-- ═══ FEATURES ═══ -->
-<section class="section" id="features">
-  <div class="section-inner">
-    <span class="s-tag reveal">Features</span>
-    <h2 class="s-title reveal">Everything built around<br/>your exact profession.</h2>
-    <p class="s-sub reveal">Not generic AI tips. A doctor gets different challenges than a developer. A chef gets different than a lawyer. Every day, every tool, every challenge — built for you.</p>
+<section class="pad z2">
+  <div class="wrap">
+    <span class="stag reveal">Why Zubhai</span>
+    <h2 class="stitle reveal">Everything you need.<br/>Nothing you don't.</h2>
     <div class="feat-grid">
-      <div class="feat-card hi reveal"><div class="feat-ico-wrap">🎯</div><div class="feat-h">Any Profession</div><div class="feat-p">Doctor, lawyer, chef, teacher, developer, CA — AI builds your 21-day curriculum from scratch. No hardcoded templates.</div></div>
-      <div class="feat-card reveal d1"><div class="feat-ico-wrap purple">🛠️</div><div class="feat-h">Right Tool Each Day</div><div class="feat-p">ChatGPT, Claude, Perplexity, Midjourney, Gamma — each challenge tells you which AI to use and exactly why.</div></div>
-      <div class="feat-card reveal d2"><div class="feat-ico-wrap orange">🔗</div><div class="feat-h">21 Linked Days</div><div class="feat-p">Each day builds on the last. Day 7 = milestone project. Day 21 = your complete AI workflow. Nothing is isolated.</div></div>
-      <div class="feat-card reveal"><div class="feat-ico-wrap gold">🔥</div><div class="feat-h">Growing Challenges</div><div class="feat-p">Start at your time. Add 5 min every 3 days. By Day 21 you're doing serious work — and it feels natural, not forced.</div></div>
-      <div class="feat-card reveal d1"><div class="feat-ico-wrap green">✅</div><div class="feat-h">Real Verification</div><div class="feat-p">AI reads your actual output. Scores 1–10. Tells you what was good and what to improve. No fake certificates.</div></div>
-      <div class="feat-card hi reveal d2"><div class="feat-ico-wrap purple">🌐</div><div class="feat-h">Your Language</div><div class="feat-p">Hindi, Marathi, Tamil, Bengali, English. Every challenge responds in the language you think best in.</div></div>
+      <div class="feat reveal"><span class="feat-ico">🎯</span><h3>Any Profession</h3><p>Doctor, developer, teacher, chef — AI builds your curriculum for your exact job, not generic tips.</p></div>
+      <div class="feat reveal d1"><span class="feat-ico">🛠️</span><h3>Right Tool Each Day</h3><p>ChatGPT, Claude, Perplexity, Midjourney — each challenge tells you exactly which AI to use and why.</p></div>
+      <div class="feat reveal d2"><span class="feat-ico">🔗</span><h3>21 Linked Days</h3><p>Each day builds on the last. Day 7 is a milestone project. Day 21 is your complete AI workflow.</p></div>
+      <div class="feat reveal"><span class="feat-ico">🔥</span><h3>Streak System</h3><p>Start at your time. Add 5 min every 3 days. By Day 21 you're doing serious work naturally.</p></div>
+      <div class="feat reveal d1"><span class="feat-ico">🏆</span><h3>Real Verification</h3><p>AI reads your actual output. Scores it 1–10. Tells you what was good and what to improve.</p></div>
+      <div class="feat reveal d2"><span class="feat-ico">🌐</span><h3>Your Language</h3><p>Hindi, Marathi, Tamil, Bengali, Hinglish, English — learn best in your own language.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ HOW IT WORKS ═══ -->
-<section class="section how-bg" id="how">
-  <div class="section-inner">
-    <span class="s-tag reveal">How it works</span>
-    <h2 class="s-title reveal">From signup to<br/>real AI skills in 21 days.</h2>
+<section class="pad z2" style="background:var(--s1)">
+  <div class="wrap">
+    <span class="stag reveal">How it works</span>
+    <h2 class="stitle reveal">6 steps to AI mastery</h2>
     <div class="steps-grid">
-      <div class="step-card reveal"><span class="step-num">01 /</span><div class="step-ico-num">🤖</div><div class="step-h">Tell us who you are</div><div class="step-p">5 chip questions. Profession, AI experience, biggest struggle, language, and time per day. 60 seconds.</div></div>
-      <div class="step-card reveal d1"><span class="step-num">02 /</span><div class="step-ico-num">⚡</div><div class="step-h">Get your 21-day plan</div><div class="step-p">AI builds your personalized linked curriculum. Every day flows into the next. Stored and ready instantly.</div></div>
-      <div class="step-card reveal d2"><span class="step-num">03 /</span><div class="step-ico-num">🛠️</div><div class="step-h">Use the right AI tool</div><div class="step-p">Open the tool we recommend. Copy and paste your challenge. The AI inside guides you step by step.</div></div>
-      <div class="step-card reveal"><span class="step-num">04 /</span><div class="step-ico-num">✅</div><div class="step-h">AI grades your work</div><div class="step-p">Paste your link or output. AI reads it, scores 1–10, and gives specific feedback — not generic praise.</div></div>
-      <div class="step-card reveal d1"><span class="step-num">05 /</span><div class="step-ico-num">🏆</div><div class="step-h">Real milestone results</div><div class="step-p">Day 7, 14, 21 are project days. LinkedIn posts, live URLs, client emails. Something real every week.</div></div>
-      <div class="step-card reveal d2" style="border-radius:0 18px 18px 0;border-color:var(--teal-border)"><span class="step-num">∞ /</span><div class="step-ico-num">🧠</div><div class="step-h">It compounds</div><div class="step-p">Every challenge remembers your past work. Day 21 is built on everything you learned. It gets sharper daily.</div></div>
+      <div class="step reveal"><span class="step-n">01 /</span><span class="step-ico">🤖</span><h3>Tell us who you are</h3><p>5 chip questions. Your profession, level, struggle, language, and time. 60 seconds.</p></div>
+      <div class="step reveal d1"><span class="step-n">02 /</span><span class="step-ico">⚡</span><h3>Get your 21-day plan</h3><p>AI builds a personalized linked curriculum. Every day flows into the next. Stored and ready.</p></div>
+      <div class="step reveal d2"><span class="step-n">03 /</span><span class="step-ico">🛠️</span><h3>Use the right AI tool</h3><p>Each challenge specifies which tool — ChatGPT, Perplexity, Claude, Midjourney. Copy. Paste. Run.</p></div>
+      <div class="step reveal"><span class="step-n">04 /</span><span class="step-ico">✅</span><h3>AI grades your work</h3><p>Jina reads your URL or text. Scores 1–10. Tells you exactly what was good and what to improve.</p></div>
+      <div class="step reveal d1"><span class="step-n">05 /</span><span class="step-ico">🏆</span><h3>Real results on Day 7</h3><p>Milestone days produce something shareable — a LinkedIn post, a live URL, or a client email.</p></div>
+      <div class="step reveal d2"><span class="step-n">∞ /</span><span class="step-ico">🧠</span><h3>It compounds daily</h3><p>Each challenge remembers your past work. Every day is smarter and more relevant.</p></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ TOOLS ═══ -->
-<section class="section">
-  <div class="section-inner">
-    <span class="s-tag reveal">AI Tools</span>
-    <h2 class="s-title reveal">Not just ChatGPT.<br/>The right tool for every task.</h2>
-    <p class="s-sub reveal">Each challenge tells you which AI tool to use and why. We teach across the full AI ecosystem.</p>
-    <div class="tools-grid reveal">
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#10a37f"></span>ChatGPT · GPT-4o</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--teal)"></span>Claude · Sonnet</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#6b6ef9"></span>Perplexity AI</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#ff4088"></span>Midjourney</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--orange)"></span>DALL-E 3</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--purple)"></span>Gamma.app</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--gold)"></span>Canva AI</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#4285f4"></span>Gemini Pro</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:var(--green)"></span>Code Interpreter</div>
-      <div class="tool-pill"><span class="tool-pill-dot" style="background:#ff6b6b"></span>ElevenLabs</div>
-    </div>
-  </div>
-</section>
-
-<!-- ═══ REVIEWS ═══ -->
-<section class="section how-bg" id="reviews">
-  <div class="section-inner">
-    <span class="s-tag reveal">Reviews</span>
-    <h2 class="s-title reveal">Real results from<br/>real learners.</h2>
+<section class="pad z2" style="background:var(--s1)">
+  <div class="wrap">
+    <span class="stag reveal">Reviews</span>
+    <h2 class="stitle reveal">Real feedback from<br/>real learners.</h2>
     <div class="rev-grid">
-      <div class="rev-card reveal"><div class="rev-stars">★★★★★</div><div class="rev-text">"I tried 3 AI courses. None made me DO anything. Day 1 on Zubhai I built something real for my marketing job. The streak system is addictive."</div><div class="rev-author"><div class="rev-av">P</div><div><div class="rev-name">Priya Sharma</div><div class="rev-role">Marketing Manager · Mumbai</div></div></div></div>
-      <div class="rev-card reveal d1"><div class="rev-stars">★★★★★</div><div class="rev-text">"Doctor hoon aur AI se darr lagta tha. Zubhai ne Perplexity use karaya medical research ke liye — ab main papers 10 minute mein summarise karta hoon."</div><div class="rev-author"><div class="rev-av" style="background:linear-gradient(135deg,var(--purple),var(--teal))">R</div><div><div class="rev-name">Dr. Rahul Mehta</div><div class="rev-role">Physician · Delhi</div></div></div></div>
-      <div class="rev-card reveal d2"><div class="rev-stars">★★★★★</div><div class="rev-text">"The tool recommendations changed everything. Day 4 it told me to use Claude instead of ChatGPT for code review. I never went back to my old way."</div><div class="rev-author"><div class="rev-av" style="background:linear-gradient(135deg,var(--orange),var(--gold))">A</div><div><div class="rev-name">Ananya Krishnan</div><div class="rev-role">Developer · Bangalore</div></div></div></div>
+      <div class="rev reveal"><div class="rev-stars">★★★★★</div><div class="rev-text">"I tried 3 AI courses. None made me actually DO anything. Day 1 on Zubhai I already built something real for my job. The streak is addictive."</div><div class="rev-author"><div class="rev-av">P</div><div><div class="rev-name">Priya Sharma</div><div class="rev-role">Marketing Manager · Mumbai</div></div></div></div>
+      <div class="rev reveal d1"><div class="rev-stars">★★★★★</div><div class="rev-text">"Doctor hoon aur mujhe AI se darr lagta tha. Zubhai ne Perplexity use karaya medical research ke liye — ab main papers 10 minute mein summarise karta hoon."</div><div class="rev-author"><div class="rev-av">R</div><div><div class="rev-name">Dr. Rahul Mehta</div><div class="rev-role">Physician · Delhi</div></div></div></div>
+      <div class="rev reveal d2"><div class="rev-stars">★★★★★</div><div class="rev-text">"The tool recommendations are what make it different. Day 4 told me to use Claude over ChatGPT for code review. Changed how I work permanently."</div><div class="rev-author"><div class="rev-av">A</div><div><div class="rev-name">Ananya Krishnan</div><div class="rev-role">Developer · Bangalore</div></div></div></div>
     </div>
   </div>
 </section>
 
-<!-- ═══ CTA ═══ -->
-<section class="section">
-  <div class="section-inner">
-    <div class="cta-box reveal">
-      <span class="s-tag" style="display:inline-block">Start today</span>
-      <h2 class="s-title" style="max-width:500px;margin:0 auto 12px">Ready to actually<br/>master AI?</h2>
-      <p class="s-sub" style="margin:0 auto;text-align:center">Free forever. Built for Indian professionals. Works in your language. No credit card needed.</p>
+<section class="pad z2">
+  <div class="wrap">
+    <div class="cta-box">
+      <span class="stag">Start today</span>
+      <h2 class="stitle">Ready to actually<br/><span style="color:var(--accent)">learn AI?</span></h2>
+      <p class="ssub" style="margin:0 auto;text-align:center">Free. Built for India. Works in your language.</p>
       <div class="cta-btns">
-        <button class="btn-hero-primary" onclick="openApp('signup')">Start Learning Free ⚡</button>
-        <button class="btn-hero-ghost" onclick="openApp('login')">Already have account →</button>
+        <button class="btn-lg p" onclick="openApp('signup')">Start Learning Free ⚡</button>
+        <button class="btn-lg g" onclick="openApp('login')">Already have account →</button>
       </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
-<footer>
-  <div class="foot-inner">
+<footer class="z2">
+  <div class="wrap">
     <div class="foot-grid">
-      <div>
-        <div class="foot-logo-wrap"><div class="foot-logo-icon">⚡</div><span class="foot-logo-text">Zubhai</span></div>
-        <p class="foot-desc">Personalized AI challenges for every profession. Real verification. Real results. Built in India.</p>
-      </div>
-      <div class="foot-col"><h4>Product</h4><ul><li><a href="#how">How it works</a></li><li><a href="#features">Features</a></li><li><a href="#" onclick="openApp('signup')">Sign Up</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
-      <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:shubzz429@gmail.com">Email us</a></li></ul></div>
+      <div><span class="foot-logo">⚡ Zub<span>hai</span></span><p class="foot-desc">Personalized AI challenges for every profession. Real verification. Real results.</p></div>
+      <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Sign Up</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
+      <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:shubzz429@gmail.com">Email</a></li></ul></div>
     </div>
-    <div class="foot-bottom"><p>© 2025 Zubhai. Built in India 🇮🇳</p><p>Built with ♥ by Shubh Agrawal</p></div>
+    <div class="foot-bottom"><p>© 2026 Zubhai. Built in India 🇮🇳</p><p>Built with ♥ by Shubh Agrawal</p></div>
   </div>
 </footer>
 
-<!-- ═══════════════ APP SHELL ═══════════════ -->
+<!-- ════════════════ APP SHELL ════════════════ -->
 <div id="app">
 
   <!-- SIDEBAR -->
   <div class="sb" id="sb">
-    <div class="sb-top">
-      <div class="sb-logo-row">
-        <div class="sb-logo-icon">⚡</div>
-        <span class="sb-logo-text">Zubhai</span>
-      </div>
-      <button class="sb-new-btn" onclick="navTo('sc-challenge');startChallenge()">
-        <span>+</span> New Challenge
-      </button>
-      <button class="sb-search">
-        <span>🔍</span> Search challenges...
+    <!-- Top header with logo + hamburger -->
+    <div class="sb-header">
+      <div class="sb-logo-text">⚡ Zub<span>hai</span></div>
+      <button class="ham-btn" onclick="toggleHam()" aria-label="Menu">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+          <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
+        </svg>
       </button>
     </div>
-    <div class="sb-divider"></div>
-    <div class="sb-section-label">Navigation</div>
-    <div class="sb-nav-item active" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-nav-icon">🏠</span>Home</div>
-    <div class="sb-nav-item" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-nav-icon">⚡</span>Today's Challenge</div>
-    <div class="sb-nav-item" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-nav-icon">🏆</span>Leaderboard</div>
-    <div class="sb-nav-item" onclick="showToast('Community coming soon! 🚀')"><span class="sb-nav-icon">💬</span>Community<span class="sb-nav-right sb-badge">Soon</span></div>
-    <div class="sb-divider"></div>
-    <div class="sb-section-label">Past Challenges</div>
-    <div class="sb-recents-scroll" id="sb-recents">
-      <div style="padding:8px 20px;font-size:11px;color:var(--muted)">No challenges yet</div>
+
+    <!-- Main nav -->
+    <div class="sb-nav">
+      <div class="sb-sec">Navigation</div>
+      <div class="sb-link on" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-link-ico">🏠</span>Home</div>
+      <div class="sb-link" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-link-ico">⚡</span>Today's Challenge</div>
+      <div class="sb-link" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-link-ico">🏆</span>Leaderboard</div>
+      <div class="sb-link" id="nav-comm" onclick="navTo('sc-community')"><span class="sb-link-ico">💬</span>Community<span class="sb-badge">Soon</span></div>
+      <div class="sb-sec" style="margin-top:4px">Past Challenges</div>
+      <div class="sb-ch-list" id="sb-ch-list"><div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div></div>
     </div>
-    <div class="sb-user-section">
-      <div class="sb-user-row">
-        <div class="sb-avatar" id="sb-av">?</div>
-        <div class="sb-user-info">
-          <div class="sb-user-name" id="sb-uname">—</div>
-          <div class="sb-user-plan" id="sb-uplan">Free plan</div>
+
+    <!-- Bottom user row (Claude-style) -->
+    <div class="sb-bottom">
+      <div class="sb-bottom-user" onclick="toggleUserMenu()">
+        <div class="sb-bottom-av" id="sb-bottom-av">?</div>
+        <div class="sb-bottom-info">
+          <div class="sb-bottom-name" id="sb-bottom-name">—</div>
+          <div class="sb-bottom-plan" id="sb-bottom-plan">Free plan</div>
         </div>
-        <button class="sb-logout-btn" onclick="logout()" title="Logout">↗</button>
+        <div class="sb-bottom-icon" title="Logout" onclick="event.stopPropagation();logout()">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <path d="M10 3h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3"/><polyline points="7 11 10 8 7 5"/><line x1="10" y1="8" x2="2" y2="8"/>
+          </svg>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
+  <!-- HAMBURGER PANEL (slides out from sidebar) -->
+  <div class="ham-overlay" id="ham-overlay" onclick="closeHam()"></div>
+  <div class="ham-panel" id="ham-panel">
+    <div class="ham-panel-title">Menu</div>
+    <div class="ham-item" onclick="closeHam();navTo('sc-lobby')">
+      <div class="ham-item-ico">🏠</div>
+      <div class="ham-item-info"><div class="ham-item-name">Home</div><div class="ham-item-sub">Your dashboard</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();navTo('sc-challenge');startChallenge()">
+      <div class="ham-item-ico">⚡</div>
+      <div class="ham-item-info"><div class="ham-item-name">Today's Challenge</div><div class="ham-item-sub">Generate & submit</div></div>
+    </div>
+    <div class="ham-sep"></div>
+    <div class="ham-item" onclick="closeHam();navTo('sc-lb');loadLb()">
+      <div class="ham-item-ico">🏆</div>
+      <div class="ham-item-info"><div class="ham-item-name">Leaderboard</div><div class="ham-item-sub">Your global rank</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();navTo('sc-community')">
+      <div class="ham-item-ico">💬</div>
+      <div class="ham-item-info"><div class="ham-item-name">Community</div><div class="ham-item-sub">Connect with learners</div></div>
+      <div class="ham-item-badge">Soon</div>
+    </div>
+    <div class="ham-sep"></div>
+    <div class="ham-item" onclick="closeHam();showToast('Settings coming soon!')">
+      <div class="ham-item-ico">⚙️</div>
+      <div class="ham-item-info"><div class="ham-item-name">Settings</div><div class="ham-item-sub">Profile & preferences</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();logout()">
+      <div class="ham-item-ico">🚪</div>
+      <div class="ham-item-info"><div class="ham-item-name" style="color:var(--red)">Logout</div><div class="ham-item-sub">Sign out of Zubhai</div></div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
   <div class="app-main">
-    <div class="app-topbar">
-      <div class="app-topbar-title" id="top-title">⚡ Zubhai</div>
-      <div class="app-stats-row">
-        <div class="app-stat orange">🔥 <span id="ap-streak">0</span></div>
-        <div class="app-stat gold">🏆 <span id="ap-pts">0</span> pts</div>
-        <div class="app-stat teal">Day <span id="ap-day">1</span>/21</div>
+    <div class="app-top">
+      <div class="app-top-title" id="top-title">⚡ Zubhai</div>
+      <div class="app-badges">
+        <div class="abadge ao">🔥 <span id="ap-streak">0</span></div>
+        <div class="abadge ag">🏆 <span id="ap-pts">0</span> pts</div>
+        <div class="abadge ab">Day <span id="ap-day">1</span>/21</div>
       </div>
     </div>
     <div class="app-body">
@@ -617,9 +598,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <div class="screen on" id="sc-auth">
         <div class="auth-center">
           <div class="auth-card">
-            <div class="auth-glow"></div>
-            <div class="auth-logo"><div class="auth-logo-icon">⚡</div><span class="auth-logo-text">Zubhai</span></div>
-            <div class="auth-sub">Master AI skills built for your profession</div>
+            <div class="auth-logo">⚡ Zub<span>hai</span></div>
+            <div class="auth-sub" id="auth-sub-text">Learn AI by doing. Get verified. Earn points.</div>
             <input class="inp" type="email" id="a-email" placeholder="Your email address"/>
             <input class="inp" type="password" id="a-pass" placeholder="Password (min 6 characters)"/>
             <button class="auth-btn" id="auth-btn" onclick="handleAuth()"><span id="auth-lbl">Sign Up Free →</span></button>
@@ -653,7 +633,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 
       <!-- CURRICULUM PREVIEW -->
       <div class="screen" id="sc-curr-preview">
-        <div class="pg-title">Your 21-Day Plan is Ready ⚡</div>
+        <div class="pg-title">Your 21-Day Plan ⚡</div>
         <div class="pg-sub" id="curr-sub"></div>
         <div id="curr-weeks"></div>
         <button class="confirm-btn" style="margin-top:6px" onclick="goToLobby()">Start Day 1 →</button>
@@ -662,34 +642,44 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
       <!-- LOBBY -->
       <div class="screen" id="sc-lobby">
         <div class="lobby-hero">
-          <div>
-            <div class="lobby-h2" id="lobby-greet">Welcome back!</div>
-            <div class="lobby-p" id="lobby-sub">Ready for today's challenge?</div>
+          <div class="lobby-info">
+            <h2 id="lobby-greet">Welcome back!</h2>
+            <p id="lobby-sub">Ready for today's challenge?</p>
           </div>
-          <button class="lobby-start-btn" onclick="navTo('sc-challenge');startChallenge()">Start Challenge ⚡</button>
+          <button class="lobby-start" onclick="navTo('sc-challenge');startChallenge()">Start Challenge ⚡</button>
         </div>
         <div class="lobby-cards">
-          <div class="lobby-card" onclick="navTo('sc-lb');loadLb()"><div class="lobby-card-ico">🏆</div><div class="lobby-card-lbl">Leaderboard</div><div class="lobby-card-sub">Your global rank</div></div>
-          <div class="lobby-card" onclick="showToast('Community coming soon! 🚀')"><div class="lobby-card-ico">💬</div><div class="lobby-card-lbl">Community</div><div class="lobby-card-sub">Coming soon</div></div>
+          <div class="lobby-card" onclick="navTo('sc-lb');loadLb()">
+            <div class="lobby-card-ico">🏆</div>
+            <div class="lobby-card-lbl">Leaderboard</div>
+            <div class="lobby-card-sub">Your global rank</div>
+          </div>
+          <div class="lobby-card" onclick="navTo('sc-community')">
+            <div class="lobby-card-ico">💬</div>
+            <div class="lobby-card-lbl">Community</div>
+            <div class="lobby-card-sub">Coming soon</div>
+          </div>
         </div>
       </div>
 
       <!-- CHALLENGE -->
       <div class="screen" id="sc-challenge">
-        <div id="ch-content"><div class="spin-wrap"><div class="spinner"></div><p>Generating your challenge...</p></div></div>
+        <div id="ch-content">
+          <div class="spin-wrap"><div class="spinner"></div><p>Generating your challenge...</p></div>
+        </div>
       </div>
 
       <!-- SCORE -->
       <div class="screen" id="sc-score">
         <div class="pg-title">Your Results</div>
-        <div class="score-center">
+        <div class="score-wrap">
           <div class="score-ring"><div class="score-n" id="sc-n">0</div><div class="score-d">/10</div></div>
           <div class="score-fb" id="sc-fb"></div>
           <div class="score-good" id="sc-good" style="display:none"></div>
           <div class="score-improve" id="sc-improve" style="display:none"></div>
-          <div class="score-pts-row" id="sc-pts"></div>
+          <div class="score-pts" id="sc-pts"></div>
           <div class="score-mot" id="sc-mot"></div>
-          <button class="score-back-btn" onclick="goToLobby()">Back to Home 🚀</button>
+          <button class="score-back" onclick="goToLobby()">Back to Home 🚀</button>
         </div>
       </div>
 
@@ -700,6 +690,23 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
         <div id="lb-list"></div>
       </div>
 
+      <!-- COMMUNITY -->
+      <div class="screen" id="sc-community">
+        <div class="community-soon">
+          <div style="font-size:48px;margin-bottom:16px">💬</div>
+          <h2>Community is coming</h2>
+          <p>Connect with other Zubhai learners, share your Day 7 projects, and get help on challenges. Launching soon.</p>
+          <div class="community-card">
+            <h3>💡 What's planned</h3>
+            <p>Daily challenge discussion threads, peer feedback, LinkedIn collaboration, and a WhatsApp group for each skill track.</p>
+          </div>
+          <div class="community-card">
+            <h3>📬 Want early access?</h3>
+            <p>Reply to your welcome email with "Community" and Shubh will personally add you to the beta WhatsApp group.</p>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -708,76 +715,108 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:48px 0 2
 const API="https://zubhai-zubhai-backened.hf.space";
 let userId=null,userProfile=null,authMode="signup";
 let selSkill="",curChallenge="",curChallengeId="",curToolUrl="";
+
 const SKILL_MAP={
   marketing:[{i:"✍️",n:"AI for Content Creation",d:"Blogs, captions, campaigns"},{i:"📊",n:"AI for Social Media",d:"Build social strategies"},{i:"📧",n:"AI for Email Marketing",d:"Write converting emails"}],
   sales:[{i:"🎯",n:"AI for Lead Generation",d:"Find and qualify leads"},{i:"💬",n:"AI for Sales Scripts",d:"Write winning pitches"},{i:"📈",n:"AI for CRM",d:"Automate follow-ups"}],
   developer:[{i:"🔍",n:"AI for Code Review",d:"Review and improve code"},{i:"📝",n:"AI for Documentation",d:"Write clean docs"},{i:"🧪",n:"AI for Testing",d:"Generate test cases"}],
-  doctor:[{i:"📋",n:"AI for Clinical Notes",d:"Summarise notes faster"},{i:"🔬",n:"AI for Medical Research",d:"Cite real sources with Perplexity"},{i:"💊",n:"AI for Patient Comms",d:"Write clear instructions"}],
+  doctor:[{i:"📋",n:"AI for Clinical Notes",d:"Summarise notes faster"},{i:"🔬",n:"AI for Medical Research",d:"Read papers with Perplexity"},{i:"💊",n:"AI for Patient Comms",d:"Write clear instructions"}],
   teacher:[{i:"📚",n:"AI for Lesson Planning",d:"Build lesson plans fast"},{i:"📝",n:"AI for Assessments",d:"Create tests and rubrics"},{i:"💬",n:"AI for Student Feedback",d:"Write personalised feedback"}],
-  student:[{i:"📚",n:"AI for Study Planning",d:"Build revision schedules"},{i:"🔬",n:"AI for Research",d:"Summarise papers fast"},{i:"✏️",n:"AI for Academic Writing",d:"Essays and reports"}],
+  student:[{i:"📚",n:"AI for Study Planning",d:"Build revision schedules"},{i:"🔬",n:"AI for Research",d:"Summarise papers"},{i:"✏️",n:"AI for Academic Writing",d:"Essays and reports"}],
   hr:[{i:"🎯",n:"AI for Recruitment",d:"Screen candidates faster"},{i:"📋",n:"AI for Performance Reviews",d:"Write fair reviews"},{i:"🎓",n:"AI for Training",d:"Build training programs"}],
-  lawyer:[{i:"📄",n:"AI for Legal Drafting",d:"Draft contracts and briefs"},{i:"🔍",n:"AI for Legal Research",d:"Find cases and precedents"},{i:"📋",n:"AI for Client Comms",d:"Write clear client letters"}],
-  default:[{i:"⚡",n:"AI Basics",d:"Foundations of AI effectively"},{i:"🚀",n:"AI for Productivity",d:"Save hours every day"},{i:"💡",n:"AI for Communication",d:"Write better with AI"}]
+  default:[{i:"⚡",n:"AI Basics",d:"Foundations of AI"},{i:"🚀",n:"AI for Productivity",d:"Save hours every day"},{i:"💡",n:"AI for Communication",d:"Write better with AI"}]
 };
+
 const OBQ=[
-  {key:"field",q:"What do you do?",hint:"We build your entire program around your profession",
-   chips:["Doctor","Teacher","Sales","Developer","Student","Marketing","HR","Finance","Lawyer","Engineer","Nurse","Architect","Chef","Journalist","Pharmacist","CA / Accountant"],
-   other:true,op:"Type your profession..."},
-  {key:"xp",q:"How much have you actually used AI?",hint:"Be honest — this sets where we start",
-   chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
-  {key:"struggle",q:"What's the real reason you're here?",hint:"The more honest you are the better your challenges",
-   chips:["I waste time on repetitive work","I don't know where to start","I want to get ahead of colleagues","I need to learn fast or fall behind","My job now requires AI knowledge"],other:false},
-  {key:"lang",q:"Which language do you think best in?",hint:"Your AI challenges respond in this language",
-   chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali","Telugu","Punjabi","Gujarati","Kannada"],
-   other:true,op:"Type your language..."},
-  {key:"time",q:"How much time can you give Zubhai per day?",hint:"Challenges start here and grow +5 min every 3 days automatically",
-   chips:["10 minutes","15 minutes","20-30 minutes","45 minutes"],other:false}
+  {key:"field",q:"What do you do?",hint:"We build your entire program around your profession",chips:["Doctor","Teacher","Sales","Developer","Student","Marketing","HR","Finance","Lawyer","Engineer","Nurse","Architect","Chef","Journalist","Pharmacist","CA / Accountant"],other:true,op:"Type your profession..."},
+  {key:"xp",q:"How much have you actually used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
+  {key:"struggle",q:"What's the real reason you're here?",hint:"The more honest you are the better your challenges",chips:["I waste time on repetitive work","I don't know where to start","I want to get ahead of colleagues","I need to learn fast or fall behind","My job requires AI knowledge now"],other:false},
+  {key:"lang",q:"Which language do you think best in?",hint:"Your AI challenges respond in this language",chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali","Telugu","Punjabi","Gujarati","Kannada"],other:true,op:"Type your language..."},
+  {key:"time",q:"How much time can you give Zubhai per day?",hint:"Challenges start here and grow +5 min every 3 days",chips:["10 minutes","15 minutes","20–30 minutes","45 minutes"],other:false}
 ];
 let obStep=0,obAns={};
-// REVEAL
+
+// THREE.JS BG
+(()=>{
+  const c=document.getElementById('bg'),r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+  r.setSize(innerWidth,innerHeight);r.setPixelRatio(Math.min(devicePixelRatio,2));
+  const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
+  cam.position.z=30;
+  const N=60,pts=[],pa=new Float32Array(N*3);
+  for(let i=0;i<N;i++){const p={x:(Math.random()-.5)*80,y:(Math.random()-.5)*60,z:(Math.random()-.5)*40,vx:(Math.random()-.5)*.012,vy:(Math.random()-.5)*.012,vz:(Math.random()-.5)*.006};pts.push(p);pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pa,3));
+  sc.add(new THREE.Points(g,new THREE.PointsMaterial({color:0x3b82f6,size:.16,transparent:true,opacity:.7})));
+  const la=new Float32Array(N*N*6),lg=new THREE.BufferGeometry();
+  sc.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0x3b82f6,transparent:true,opacity:.035})));
+  let mx=0,my=0;
+  addEventListener('mousemove',e=>{mx=(e.clientX/innerWidth-.5)*.2;my=-(e.clientY/innerHeight-.5)*.2;});
+  addEventListener('resize',()=>{r.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
+  (function an(){requestAnimationFrame(an);
+    pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;if(Math.abs(p.x)>40)p.vx*=-1;if(Math.abs(p.y)>30)p.vy*=-1;if(Math.abs(p.z)>20)p.vz*=-1;pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;});
+    g.attributes.position.needsUpdate=true;
+    let li=0;for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dz=pts[i].z-pts[j].z;if(Math.sqrt(dx*dx+dy*dy+dz*dz)<18){la[li++]=pts[i].x;la[li++]=pts[i].y;la[li++]=pts[i].z;la[li++]=pts[j].x;la[li++]=pts[j].y;la[li++]=pts[j].z;}}
+    lg.setAttribute('position',new THREE.BufferAttribute(la.slice(0,li),3));
+    cam.position.x+=(mx*5-cam.position.x)*.03;cam.position.y+=(my*5-cam.position.y)*.03;cam.lookAt(sc.position);r.render(sc,cam);
+  })();
+})();
+
 const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
+
 // UTILS
 function showToast(msg){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
   const t=document.createElement('div');t.className='toast';t.textContent=msg;
-  document.body.appendChild(t);
-  setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},3000);
+  document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},3000);
 }
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-async function post(path,body){
-  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-  return r.json();
+function post(path,body){return fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());}
+
+// HAMBURGER
+function toggleHam(){
+  document.getElementById('ham-panel').classList.toggle('open');
+  document.getElementById('ham-overlay').classList.toggle('open');
 }
-// SCREENS
+function closeHam(){
+  document.getElementById('ham-panel').classList.remove('open');
+  document.getElementById('ham-overlay').classList.remove('open');
+}
+
+// USER MENU
+function toggleUserMenu(){
+  // Since logout icon handles logout, we just toggle a small menu
+  showToast('Use the → icon to logout');
+}
+
+// NAV
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
-  const T={'sc-auth':'⚡ Zubhai','sc-onboard':'Build Your Profile','sc-skill':'Choose Program',
-    'sc-curr-load':'Building Plan...','sc-curr-preview':'Your 21-Day Plan',
-    'sc-lobby':'Home','sc-challenge':"Today's Challenge",'sc-score':'Your Results','sc-lb':'Leaderboard'};
-  document.getElementById('top-title').textContent=T[id]||'⚡ Zubhai';
+  const titles={'sc-auth':'⚡ Zubhai','sc-onboard':'Build Your Profile','sc-skill':'Choose Program','sc-curr-load':'Building Plan...','sc-curr-preview':'Your 21-Day Plan','sc-lobby':'Home','sc-challenge':"Today's Challenge",'sc-score':'Your Results','sc-lb':'Leaderboard','sc-community':'Community'};
+  document.getElementById('top-title').textContent=titles[id]||'⚡ Zubhai';
 }
 function navTo(id){
-  showScreen(id);
-  ['nav-home','nav-ch','nav-lb'].forEach(n=>document.getElementById(n)?.classList.remove('active'));
-  if(id==='sc-lobby')document.getElementById('nav-home')?.classList.add('active');
-  if(id==='sc-challenge')document.getElementById('nav-ch')?.classList.add('active');
-  if(id==='sc-lb')document.getElementById('nav-lb')?.classList.add('active');
+  showScreen(id);closeHam();
+  ['nav-home','nav-ch','nav-lb','nav-comm'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
+  if(id==='sc-lobby')document.getElementById('nav-home')?.classList.add('on');
+  if(id==='sc-challenge')document.getElementById('nav-ch')?.classList.add('on');
+  if(id==='sc-lb')document.getElementById('nav-lb')?.classList.add('on');
+  if(id==='sc-community')document.getElementById('nav-comm')?.classList.add('on');
 }
+
 // OPEN APP
 function openApp(mode){
   authMode=mode;updateAuthUI();
   document.getElementById('app').classList.add('open');
   document.getElementById('sb').style.display='none';
   showScreen('sc-auth');
-  const uid=localStorage.getItem('z_uid');
+  const uid=localStorage.getItem('zubhai_uid');
   if(uid&&!userId){
     userId=uid;
     fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
       if(d.status==='success'){userProfile=d.user;afterLogin();}
-      else{userId=null;localStorage.removeItem('z_uid');}
+      else{userId=null;localStorage.removeItem('zubhai_uid');}
     }).catch(()=>{userId=null;});
   }
 }
@@ -785,9 +824,16 @@ function updateAuthUI(){
   document.getElementById('auth-lbl').textContent=authMode==='login'?'Login →':'Sign Up Free →';
   document.getElementById('auth-sw-txt').textContent=authMode==='login'?'New to Zubhai?':'Already have an account?';
   document.getElementById('auth-sw-act').textContent=authMode==='login'?'Sign up free':'Login instead';
+  document.getElementById('auth-sub-text').textContent=authMode==='login'?'Welcome back! Login to continue.':'Learn AI by doing. Get verified. Earn points.';
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
-function logout(){userId=null;userProfile=null;localStorage.removeItem('z_uid');document.getElementById('app').classList.remove('open');document.getElementById('sb').style.display='none';}
+function logout(){
+  userId=null;userProfile=null;localStorage.removeItem('zubhai_uid');
+  document.getElementById('app').classList.remove('open');
+  document.getElementById('sb').style.display='none';
+  showToast('Logged out. See you tomorrow! 👋');
+}
+
 // AUTH
 async function handleAuth(){
   const email=document.getElementById('a-email').value.trim();
@@ -802,23 +848,22 @@ async function handleAuth(){
     const d=await post(authMode==='login'?'/auth/login':'/auth/signup',{email,password:pass});
     if(d.status==='success'){
       userId=d.user_id;userProfile=d.user||{id:userId,email};
-      localStorage.setItem('z_uid',userId);afterLogin();
-    } else {
+      localStorage.setItem('zubhai_uid',userId);afterLogin();
+    } else{
       err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();
     }
-  } catch(e){
-    err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();
-  }
+  }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();}
 }
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
   document.getElementById('sb').style.display='flex';
   refreshSidebar();
   if(userProfile?.field){
-    if(userProfile.skill){userProfile.curriculum?goToLobby():runCurriculum();}
+    if(userProfile.skill){if(userProfile.curriculum)goToLobby();else runCurriculum();}
     else showSkillSelect();
   } else startOnboarding();
 }
+
 // ONBOARDING
 function startOnboarding(){obStep=0;obAns={};showScreen('sc-onboard');renderOb();}
 function renderOb(){
@@ -827,50 +872,45 @@ function renderOb(){
   for(let i=0;i<OBQ.length;i++) dots+=`<div class="ob-dot ${i<obStep?'done':i===obStep?'cur':''}"></div>`;
   document.getElementById('ob-prog').innerHTML=dots;
   const chips=q.chips.map(c=>`<div class="ob-chip" onclick="pickChip(this,'${c.replace(/'/g,"\\'")}','${q.key}')">${c}</div>`).join('');
-  const other=q.other?`<div class="ob-other-link" onclick="this.nextElementSibling.classList.add('show');this.nextElementSibling.focus();this.style.display='none'">Not listed? Type it ↓</div><input class="ob-other-inp" placeholder="${q.op||'Type here...'}" oninput="typeOther(this,'${q.key}')"/>`:'';
-  document.getElementById('ob-body').innerHTML=`
-    <div class="ob-q">${q.q}</div>
-    <div class="ob-hint">${q.hint}</div>
-    <div class="ob-chips">${chips}</div>
-    ${other}
-    <button class="ob-next" id="ob-next" onclick="obNext()" disabled>Continue →</button>`;
+  const other=q.other?`<div class="ob-other-link" onclick="revealOther(this)">Not listed? Type it ↓</div><input class="ob-other-inp" id="ob-other" placeholder="${q.op||'Type here...'}" oninput="typeOther(this,'${q.key}')"/>`:'';
+  document.getElementById('ob-body').innerHTML=`<div class="ob-q">${q.q}</div><div class="ob-sub">${q.hint}</div><div class="ob-chips">${chips}</div>${other}<button class="ob-next" id="ob-next" onclick="obAdvance()" disabled>Continue →</button>`;
 }
+function revealOther(el){const i=document.getElementById('ob-other');i.classList.add('show');i.focus();}
+function typeOther(inp,key){const v=inp.value.trim();if(v){document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));obAns[key]=v;document.getElementById('ob-next').disabled=false;}}
 function pickChip(el,val,key){
-  document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');obAns[key]=val;document.getElementById('ob-next').disabled=false;
-  const oi=document.querySelector('.ob-other-inp');if(oi)oi.value='';
+  document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');obAns[key]=val;
+  document.getElementById('ob-next').disabled=false;
+  const oi=document.getElementById('ob-other');if(oi)oi.value='';
 }
-function typeOther(inp,key){
-  const v=inp.value.trim();
-  if(v){document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('sel'));obAns[key]=v;document.getElementById('ob-next').disabled=false;}
-}
-function obNext(){
+function obAdvance(){
   if(!obAns[OBQ[obStep].key])return;
-  if(obStep===0)setTimeout(()=>showToast(`${obAns.field} — great field for AI right now!`),200);
   obStep++;
   if(obStep>=OBQ.length)finishOb();else renderOb();
 }
 async function finishOb(){
-  const lvl={"Never tried it":"beginner","Played around a bit":"beginner","Use it sometimes":"mid","Use it daily":"advanced"};
-  const tmap={"10 minutes":10,"15 minutes":15,"20-30 minutes":25,"45 minutes":45};
-  const profile={field:obAns.field,level:lvl[obAns.xp]||"beginner",language:obAns.lang,struggle:obAns.struggle,time_per_day:tmap[obAns.time]||15};
+  const lvlMap={"Never tried it":"beginner","Played around a bit":"beginner","Use it sometimes":"mid","Use it daily":"advanced"};
+  const timeMap={"10 minutes":10,"15 minutes":15,"20–30 minutes":25,"45 minutes":45};
+  const profile={field:obAns.field,level:lvlMap[obAns.xp]||"beginner",language:obAns.lang,struggle:obAns.struggle,time_per_day:timeMap[obAns.time]||15};
   document.getElementById('ob-body').innerHTML=`
     <div class="ob-q">Your AI Profile 🎯</div>
-    <div class="ob-hint">Based on your answers — here's your personalized plan</div>
+    <div class="ob-sub">Built for you based on your answers</div>
     <div class="profile-card">
-      <h3>Plan ready for you</h3>
+      <h3>Personalized plan ready</h3>
       <div class="profile-tags">
         <div class="ptag">💼 ${profile.field}</div>
         <div class="ptag">📊 ${profile.level}</div>
         <div class="ptag">🌐 ${profile.language}</div>
         <div class="ptag">⏱ ${obAns.time}/day</div>
       </div>
-      <p>You're a <strong>${profile.field}</strong> who wants to <strong>${(profile.struggle||'').toLowerCase()}</strong>. Challenges start at ${obAns.time} and grow +5 min every 3 days. Day 21 = complete AI workflow for your exact job.</p>
+      <p>You are a <strong style="color:var(--white)">${profile.field}</strong> who wants to <strong style="color:var(--white)">${(profile.struggle||'').toLowerCase()}</strong>. Challenges start at ${obAns.time} and grow +5 min every 3 days.</p>
     </div>
-    <button class="ob-next" onclick="showSkillSelect()" style="opacity:1">Choose My Skill Program →</button>`;
-  if(userId)await post('/onboard',{user_id:userId,profile});
+    <button class="ob-next" onclick="goToSkillAfterOb()" style="opacity:1">Choose My Skill Program →</button>`;
+  if(userId) await post('/onboard',{user_id:userId,profile});
   if(userProfile)Object.assign(userProfile,profile);
 }
+function goToSkillAfterOb(){showSkillSelect();}
+
 // SKILL SELECT
 function showSkillSelect(){
   showScreen('sc-skill');
@@ -883,8 +923,8 @@ function showSkillSelect(){
     </div>`).join('');
 }
 function pickSkill(el,name){
-  document.querySelectorAll('.skill-card').forEach(c=>c.classList.remove('sel'));
-  el.classList.add('sel');selSkill=name;document.getElementById('confirm-btn').disabled=false;
+  document.querySelectorAll('.skill-card').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');selSkill=name;document.getElementById('confirm-btn').disabled=false;
 }
 async function confirmSkill(){
   if(!selSkill)return;
@@ -892,12 +932,12 @@ async function confirmSkill(){
   if(userProfile)userProfile.skill=selSkill;
   runCurriculum();
 }
+
 // CURRICULUM
 async function runCurriculum(){
   showScreen('sc-curr-load');
   const msgs=['Building your personalized 21-day curriculum...','Researching AI tools for your profession...','Designing linked daily challenges...','Almost ready...'];
-  let mi=0;
-  const iv=setInterval(()=>{document.getElementById('curr-msg').textContent=msgs[mi++%msgs.length];},2200);
+  let mi=0;const iv=setInterval(()=>{document.getElementById('curr-msg').textContent=msgs[mi++%msgs.length];},2200);
   try{
     const d=await post('/generate-curriculum',{user_id:userId});
     clearInterval(iv);
@@ -907,23 +947,18 @@ async function runCurriculum(){
 }
 function showCurrPreview(curr){
   showScreen('sc-curr-preview');
-  document.getElementById('curr-sub').textContent=`21 linked daily challenges for ${userProfile?.field||'you'} — ${userProfile?.skill||'AI'}`;
-  const wnames=['Foundation','Application','Mastery'];
+  document.getElementById('curr-sub').textContent=`21 linked daily challenges for ${userProfile?.field||'you'} — learning ${userProfile?.skill||'AI'}`;
+  const labels=['Foundation','Application','Mastery'];
   let html='';
   [1,2,3].forEach((w,wi)=>{
-    const days=curr.filter(d=>w===1?d.day<=7:w===2?d.day>=8&&d.day<=14:d.day>=15);
-    html+=`<div class="curr-week"><div class="curr-week-h">Week ${w} — ${wnames[wi]}</div>`;
-    days.forEach(d=>{
-      html+=`<div class="curr-day-row ${d.is_milestone?'curr-milestone':''}">
-        <div class="curr-day-n">Day ${d.day}${d.is_milestone?' ⭐':''}</div>
-        <div class="curr-day-t">${esc(d.topic||'—')}</div>
-        <div class="curr-day-tool">${esc(d.tool||'ChatGPT')}</div>
-      </div>`;
-    });
+    const days=curr.slice((w-1)*7,w*7);
+    html+=`<div class="curr-week"><div class="curr-week-title">Week ${w} — ${labels[wi]}</div>`;
+    days.forEach(d=>{html+=`<div class="curr-day ${d.is_milestone?'milestone':''}"><div class="curr-day-n">Day ${d.day}${d.is_milestone?' ⭐':''}</div><div class="curr-day-t">${d.topic||'—'}</div><div class="curr-day-tool">${d.tool||'ChatGPT'}</div></div>`;});
     html+='</div>';
   });
   document.getElementById('curr-weeks').innerHTML=html;
 }
+
 // LOBBY
 function goToLobby(){navTo('sc-lobby');refreshSidebar();}
 function updateLobbyText(){
@@ -939,10 +974,11 @@ async function refreshSidebar(){
     if(d.status!=='success')return;
     userProfile=d.user;const u=d.user;
     const name=(u.email||'').split('@')[0];
-    const av=name.slice(0,2).toUpperCase();
-    document.getElementById('sb-av').textContent=av;
-    document.getElementById('sb-uname').textContent=name;
-    document.getElementById('sb-uplan').textContent=`${u.field||'Learner'} · Free plan`;
+    // top sidebar
+    document.getElementById('sb-bottom-av').textContent=name.slice(0,2).toUpperCase();
+    document.getElementById('sb-bottom-name').textContent=name;
+    document.getElementById('sb-bottom-plan').textContent=(u.field||'Free plan');
+    // top bar badges
     document.getElementById('ap-day').textContent=u.day||1;
     document.getElementById('ap-pts').textContent=u.points||0;
     document.getElementById('ap-streak').textContent=u.streak||0;
@@ -956,19 +992,22 @@ async function loadSbChallenges(){
     const d=await fetch(API+'/challenges/'+userId).then(r=>r.json());
     if(d.status==='success'&&d.challenges.length){
       const curDay=userProfile?.day||1;
-      document.getElementById('sb-recents').innerHTML=d.challenges.map(ch=>{
+      document.getElementById('sb-ch-list').innerHTML=d.challenges.map(ch=>{
         const isToday=ch.day_number===curDay,isDone=ch.status==='completed';
-        const badgeCls=isDone?'done':isToday?'today':'';
-        const badgeTxt=isDone?'✅':isToday?'Today':'📅';
-        return `<div class="sb-ch-item ${isToday?'active':''}" onclick="${isToday?'navTo(\'sc-challenge\');startChallenge()':''}">
-          <span class="sb-ch-icon">${ch.is_milestone?'⭐':'📄'}</span>
-          <span class="sb-ch-text">${esc(ch.topic||'Day '+ch.day_number)}</span>
-          <span class="sb-badge ${badgeCls}">${badgeTxt}</span>
+        const badge=isDone?'done':isToday?'today':'';
+        const lbl=isDone?'✅':isToday?'Today':'📅';
+        return `<div class="sb-link ${isToday?'on':''}" style="font-size:11px" onclick="${isToday?'navTo(\'sc-challenge\');startChallenge()':'showToast(\'Past challenge — view only\')'}">
+          <span class="sb-link-ico">${ch.is_milestone?'⭐':'📅'}</span>
+          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ch.topic||'Day '+ch.day_number}</span>
+          <span class="sb-badge ${badge}">${lbl}</span>
         </div>`;
       }).join('');
+    }else{
+      document.getElementById('sb-ch-list').innerHTML='<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No challenges yet</div>';
     }
   }catch(e){}
 }
+
 // CHALLENGE
 async function startChallenge(){
   navTo('sc-challenge');
@@ -977,41 +1016,41 @@ async function startChallenge(){
     const d=await post('/generate-challenge',{user_id:userId});
     if(d.status==='locked'){
       document.getElementById('ch-content').innerHTML=`
-        <div style="text-align:center;padding:48px 0">
-          <div style="font-size:52px;margin-bottom:14px">🔒</div>
+        <div style="text-align:center;padding:44px 0">
+          <div style="font-size:44px;margin-bottom:12px">🔒</div>
           <div class="pg-title">Come back tomorrow</div>
-          <p style="color:var(--muted);font-size:13px;margin-top:7px">${d.message}</p>
-          <button class="score-back-btn" style="max-width:240px;margin:20px auto;display:block" onclick="goToLobby()">Back to Home</button>
+          <p style="color:var(--muted);font-size:12px;margin-top:6px">${d.message}</p>
+          <button class="score-back" style="max-width:240px;margin:18px auto;display:block" onclick="goToLobby()">Back to Home</button>
         </div>`;
       return;
     }
-    if(d.streak_broken)setTimeout(()=>showToast('😢 Streak broken! Fresh start today.'),600);
+    if(d.streak_broken)setTimeout(()=>showToast('😢 Streak broken! Fresh start.'),600);
     else if((d.streak||0)>1)setTimeout(()=>showToast(`🔥 ${d.streak}-day streak! Keep going!`),600);
-    if(d.is_rest_day)setTimeout(()=>showToast('🌟 Bonus day! +50 pts for completing.'),900);
     curChallenge=d.challenge||'';curChallengeId=d.challenge_id||'';curToolUrl=d.tool_url||'chatgpt.com';
-    const milestone=d.is_milestone?`<div class="milestone-banner">⭐ MILESTONE DAY — Complete for +100 bonus points. This is your week's full project.</div>`:'';
+    const milestone=d.is_milestone?`<div class="milestone-banner">⭐ MILESTONE DAY — Complete for +100 bonus points.</div>`:'';
     const toolWhy=d.why_tool?`<div class="tool-badge-why">💡 ${esc(d.why_tool)}</div>`:'';
     document.getElementById('ch-content').innerHTML=`
-      <div class="day-pill">Day ${d.day}/21 · ${d.time_minutes||15} min</div>
+      <div class="day-pill">DAY ${d.day}/21 · ${d.time_minutes||15} MIN</div>
       ${milestone}
       <div class="tool-badge">
-        <div class="tool-badge-ico">🛠️</div>
-        <div class="tool-badge-info">
+        <span style="font-size:20px">🛠️</span>
+        <div class="tool-badge-main">
           <div class="tool-badge-name">${esc(d.tool||'ChatGPT')} · ${esc(d.model||'GPT-4o')}</div>
-          <div class="tool-badge-model"><a href="https://${curToolUrl}" target="_blank" class="tool-badge-link">Open ${curToolUrl} →</a></div>
+          <div class="tool-badge-model"><a href="https://${curToolUrl}" target="_blank" class="tool-link">Open ${curToolUrl} →</a></div>
           ${toolWhy}
         </div>
       </div>
       <div class="c-card"><span class="c-lbl">📋 Copy and paste into ${esc((d.tool||'ChatGPT').toUpperCase())}</span>${esc(d.challenge)}</div>
-      <div class="sub-label">Submit Your Work</div>
+      <div class="sub-ttl">Submit Your Work</div>
       <input class="sub-inp" id="s-url" placeholder="Paste your share link (ChatGPT, Claude, etc)..."/>
       <div class="sub-or">— OR paste your output below —</div>
       <textarea class="sub-ta" id="s-text" placeholder="Paste your AI output here..."></textarea>
       <button class="sub-btn" id="sub-btn" onclick="submitWork()">Submit & Get Score ✅</button>`;
   }catch(e){
-    document.getElementById('ch-content').innerHTML=`<div style="text-align:center;padding:32px;color:var(--muted)">Error loading challenge. Please try again.</div>`;
+    document.getElementById('ch-content').innerHTML=`<div style="text-align:center;padding:32px;color:var(--muted)">Error loading challenge. Try again.</div>`;
   }
 }
+
 async function submitWork(){
   const url=(document.getElementById('s-url')?.value||'').trim();
   const text=(document.getElementById('s-text')?.value||'').trim();
@@ -1027,8 +1066,8 @@ async function submitWork(){
     if(d.what_was_good){good.innerHTML='✅ '+esc(d.what_was_good);good.style.display='block';}else good.style.display='none';
     if(d.what_to_improve){imp.innerHTML='💡 '+esc(d.what_to_improve);imp.style.display='block';}else imp.style.display='none';
     let pts=`+${d.points_awarded||0} pts`;
-    if(d.streak_bonus>0)pts+=` +${d.streak_bonus} streak bonus`;
-    if(d.milestone_bonus>0)pts+=` +${d.milestone_bonus} milestone bonus`;
+    if(d.streak_bonus>0)pts+=` +${d.streak_bonus} streak`;
+    if(d.milestone_bonus>0)pts+=` +${d.milestone_bonus} milestone`;
     pts+=` = ${d.total_earned||0} earned 🎉`;
     document.getElementById('sc-pts').textContent=pts;
     document.getElementById('sc-mot').textContent=d.motivation||'';
@@ -1036,24 +1075,24 @@ async function submitWork(){
     showScreen('sc-score');refreshSidebar();
   }catch(e){showToast('Network error. Try again.');btn.disabled=false;btn.textContent='Submit & Get Score ✅';}
 }
+
 // LEADERBOARD
 async function loadLb(){
   document.getElementById('lb-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div></div>';
   const d=await fetch(API+'/leaderboard').then(r=>r.json());
   const medals=['🥇','🥈','🥉'];
   document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
-    <div class="lb-item">
+    <div class="lb-row">
       <div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div>
       <div class="lb-info">
         <div class="lb-name">${esc((u.email||'').split('@')[0]||'Anonymous')}</div>
-        <div class="lb-meta">${esc(u.field||'')} · Day ${u.day||1}/21 · 🔥${u.streak||0}</div>
+        <div class="lb-sub">${esc(u.field||'')} · Day ${u.day||1}/21 · 🔥${u.streak||0}</div>
       </div>
-      <div class="lb-pts">${u.points||0}</div>
+      <div class="lb-pts">${u.points||0} pts</div>
     </div>`).join('');
 }
-document.addEventListener('keydown',e=>{
-  if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();
-});
+
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
 </script>
 </body>
 </html>
