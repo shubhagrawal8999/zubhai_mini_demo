@@ -150,12 +150,28 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 /* ══════════ APP SHELL ══════════ */
 #app{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:row}
 #app.open{display:flex}
+#app.auth-screen{display:none}
+#app.open.auth-screen{display:flex}
+#app.auth-screen .sb,
+#app.auth-screen .app-top,
+#app.auth-screen .ham-overlay,
+#app.auth-screen .ham-panel,
+#app.auth-screen .sidebar-open-btn{display:none}
+#app.auth-screen .app-main{width:100%;flex:1}
+#app.auth-screen .app-body{padding:0;display:flex;align-items:center;justify-content:center}
+#app.auth-screen #sc-auth{width:100%;max-width:none}
 
 /* ──────── SIDEBAR ──────── */
 .sb{width:var(--sw);min-width:var(--sw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden}
 .sb-header{padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1)}
 .sb-logo-text{font-family:var(--fh);font-size:16px;font-weight:900;color:var(--white);letter-spacing:-.3px}
 .sb-logo-text span{color:var(--accent)}
+.sb-actions{display:flex;align-items:center;gap:4px}
+#app.sidebar-collapsed .sb{display:none!important}
+#app.sidebar-collapsed .ham-panel{left:0}
+#app.sidebar-collapsed .sidebar-open-btn{display:flex}
+#app.sidebar-collapsed .app-top-title{padding-left:38px}
+#app.auth-screen.sidebar-collapsed .sidebar-open-btn{display:none}
 .sb-user{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1)}
 .sb-av{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:12px;color:var(--accent);flex-shrink:0}
 .sb-uname{font-size:12px;font-weight:600;line-height:1.2;color:var(--white)}
@@ -200,9 +216,12 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 .ham-btn{width:30px;height:30px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);border-radius:var(--r8);transition:.15s;flex-shrink:0}
 .ham-btn:hover{background:rgba(255,255,255,.06);color:var(--white)}
 .ham-btn svg{width:16px;height:16px}
+.sidebar-open-btn{position:fixed;top:11px;left:12px;z-index:560;width:34px;height:30px;border:1px solid var(--b2);border-radius:var(--r8);background:rgba(16,24,40,.92);color:var(--muted2);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.15s;backdrop-filter:blur(12px)}
+.sidebar-open-btn:hover{border-color:var(--accent);color:var(--white);background:var(--card2)}
+.sidebar-open-btn svg{width:16px;height:16px}
 .ham-panel{position:fixed;top:0;left:var(--sw);bottom:0;width:260px;background:var(--card2);border-right:1px solid var(--b2);z-index:550;transform:translateX(-100%);transition:transform .25s ease;padding:20px 16px}
 .ham-panel.open{transform:translateX(0)}
-.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1)}
+.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
 .ham-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r12);cursor:pointer;transition:.15s;margin-bottom:4px}
 .ham-item:hover{background:rgba(59,130,246,.08)}
 .ham-item-ico{font-size:18px;width:22px;text-align:center;flex-shrink:0}
@@ -228,7 +247,8 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 .screen.on{display:block}
 
 /* ──────── AUTH ──────── */
-.auth-center{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px)}
+.auth-center{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px);width:100%}
+#app.auth-screen .auth-center{min-height:100vh;padding:24px}
 .auth-card{background:var(--card);border:1px solid var(--b2);border-radius:var(--r24);padding:36px 32px;width:100%;max-width:400px}
 .auth-logo{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--white);margin-bottom:4px;letter-spacing:-.5px}
 .auth-logo span{color:var(--accent)}
@@ -514,11 +534,14 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
     <!-- Top header with logo + hamburger -->
     <div class="sb-header">
       <div class="sb-logo-text">⚡ Zub<span>hai</span></div>
-      <button class="ham-btn" onclick="toggleHam()" aria-label="Menu">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
-        </svg>
-      </button>
+      <div class="sb-actions">
+        <button class="ham-btn" onclick="toggleHam()" aria-label="Open menu" title="Open menu">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
+          </svg>
+        </button>
+        <button class="ham-btn" onclick="collapseSidebar()" aria-label="Close side menu" title="Close side menu">⋯</button>
+      </div>
     </div>
 
     <!-- Main nav -->
@@ -549,10 +572,19 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
     </div>
   </div>
 
+  <button class="sidebar-open-btn" onclick="expandSidebar()" aria-label="Open side menu" title="Open side menu">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+      <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
+    </svg>
+  </button>
+
   <!-- HAMBURGER PANEL (slides out from sidebar) -->
   <div class="ham-overlay" id="ham-overlay" onclick="closeHam()"></div>
   <div class="ham-panel" id="ham-panel">
-    <div class="ham-panel-title">Menu</div>
+    <div class="ham-panel-title">
+      <span>Menu</span>
+      <button class="ham-btn" onclick="closeHam()" aria-label="Close menu" title="Close menu">⋯</button>
+    </div>
     <div class="ham-item" onclick="closeHam();navTo('sc-lobby')">
       <div class="ham-item-ico">🏠</div>
       <div class="ham-item-info"><div class="ham-item-name">Home</div><div class="ham-item-sub">Your dashboard</div></div>
@@ -782,6 +814,13 @@ function closeHam(){
   document.getElementById('ham-panel').classList.remove('open');
   document.getElementById('ham-overlay').classList.remove('open');
 }
+function collapseSidebar(){
+  closeHam();
+  document.getElementById('app').classList.add('sidebar-collapsed');
+}
+function expandSidebar(){
+  document.getElementById('app').classList.remove('sidebar-collapsed');
+}
 
 // USER MENU
 function toggleUserMenu(){
@@ -793,6 +832,9 @@ function toggleUserMenu(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
+  const isAuth=id==='sc-auth';
+  document.getElementById('app').classList.toggle('auth-screen',isAuth);
+  if(isAuth)closeHam();
   const titles={'sc-auth':'⚡ Zubhai','sc-onboard':'Build Your Profile','sc-skill':'Choose Program','sc-curr-load':'Building Plan...','sc-curr-preview':'Your 21-Day Plan','sc-lobby':'Home','sc-challenge':"Today's Challenge",'sc-score':'Your Results','sc-lb':'Leaderboard','sc-community':'Community'};
   document.getElementById('top-title').textContent=titles[id]||'⚡ Zubhai';
 }
@@ -808,6 +850,7 @@ function navTo(id){
 // OPEN APP
 function openApp(mode){
   authMode=mode;updateAuthUI();
+  closeHam();
   document.getElementById('app').classList.add('open');
   document.getElementById('sb').style.display='none';
   showScreen('sc-auth');
@@ -856,6 +899,7 @@ async function handleAuth(){
 }
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
+  expandSidebar();
   document.getElementById('sb').style.display='flex';
   refreshSidebar();
   if(userProfile?.field){
