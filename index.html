@@ -150,6 +150,15 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 /* ══════════ APP SHELL ══════════ */
 #app{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:row}
 #app.open{display:flex}
+#app.auth-screen{display:none}
+#app.open.auth-screen{display:flex}
+#app.auth-screen .sb,
+#app.auth-screen .app-top,
+#app.auth-screen .ham-overlay,
+#app.auth-screen .ham-panel{display:none}
+#app.auth-screen .app-main{width:100%;flex:1}
+#app.auth-screen .app-body{padding:0;display:flex;align-items:center;justify-content:center}
+#app.auth-screen #sc-auth{width:100%;max-width:none}
 
 /* ──────── SIDEBAR ──────── */
 .sb{width:var(--sw);min-width:var(--sw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden}
@@ -228,7 +237,8 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 .screen.on{display:block}
 
 /* ──────── AUTH ──────── */
-.auth-center{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px)}
+.auth-center{display:flex;align-items:center;justify-content:center;min-height:calc(100vh - 100px);width:100%}
+#app.auth-screen .auth-center{min-height:100vh;padding:24px}
 .auth-card{background:var(--card);border:1px solid var(--b2);border-radius:var(--r24);padding:36px 32px;width:100%;max-width:400px}
 .auth-logo{font-family:var(--fh);font-size:22px;font-weight:900;color:var(--white);margin-bottom:4px;letter-spacing:-.5px}
 .auth-logo span{color:var(--accent)}
@@ -793,6 +803,9 @@ function toggleUserMenu(){
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id).classList.add('on');
+  const isAuth=id==='sc-auth';
+  document.getElementById('app').classList.toggle('auth-screen',isAuth);
+  if(isAuth)closeHam();
   const titles={'sc-auth':'⚡ Zubhai','sc-onboard':'Build Your Profile','sc-skill':'Choose Program','sc-curr-load':'Building Plan...','sc-curr-preview':'Your 21-Day Plan','sc-lobby':'Home','sc-challenge':"Today's Challenge",'sc-score':'Your Results','sc-lb':'Leaderboard','sc-community':'Community'};
   document.getElementById('top-title').textContent=titles[id]||'⚡ Zubhai';
 }
@@ -808,6 +821,7 @@ function navTo(id){
 // OPEN APP
 function openApp(mode){
   authMode=mode;updateAuthUI();
+  closeHam();
   document.getElementById('app').classList.add('open');
   document.getElementById('sb').style.display='none';
   showScreen('sc-auth');
