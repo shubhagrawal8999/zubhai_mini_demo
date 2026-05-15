@@ -19,6 +19,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Zubhai — Learn AI by Doing</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link rel="shortcut icon" href="favicon.svg"/>
+<link rel="apple-touch-icon" href="favicon.svg"/>
+<meta name="theme-color" content="#05080f"/>
 <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -176,57 +180,75 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 #app.auth-screen #sc-auth{width:100%;max-width:none}
 
 /* ──────── SIDEBAR ──────── */
-.sb{width:var(--sw);min-width:var(--sw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.sb-header{padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1)}
-.sb-logo-text{font-family:var(--fh);font-size:16px;font-weight:900;color:var(--white);letter-spacing:-.3px}
+.sb{width:var(--sw);min-width:var(--sw);background:#0f1726;border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:visible;transition:margin-left .22s ease}
+.sb-header{padding:18px 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.sb-logo-text{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--white);letter-spacing:-.4px}
 .sb-logo-text span{color:var(--accent)}
-.sb-user{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1)}
-.sb-av{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:12px;color:var(--accent);flex-shrink:0}
-.sb-uname{font-size:12px;font-weight:600;line-height:1.2;color:var(--white)}
-.sb-ufield{font-size:10px;color:var(--muted);margin-top:1px}
-.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--b1);gap:1px}
-.sb-stat{background:var(--s1);padding:10px 5px;text-align:center}
-.sb-stat-v{font-family:var(--fh);font-size:14px;font-weight:800;line-height:1}
-.sb-stat-l{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--fm)}
-.sb-nav{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:none}
+.sb-actions{display:flex;align-items:center;gap:4px}
+#app.sidebar-collapsed .sb{display:none!important}
+#app.sidebar-collapsed .ham-panel{left:0}
+#app.sidebar-collapsed .sidebar-open-btn{display:flex}
+#app.sidebar-collapsed .app-top-title{padding-left:38px}
+#app.auth-screen.sidebar-collapsed .sidebar-open-btn{display:none}
+#app.sidebar-collapsed .user-menu{display:none}
+.sb-nav{flex:1;overflow-y:auto;padding:6px 8px 10px;scrollbar-width:none}
 .sb-nav::-webkit-scrollbar{display:none}
-.sb-sec{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 16px 3px;font-family:var(--fm)}
-.sb-link{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;cursor:pointer;transition:.15s;color:var(--muted2);margin:1px 8px;border-radius:var(--r8)}
-.sb-link:hover{background:rgba(59,130,246,.08);color:var(--white)}
-.sb-link.on{background:rgba(59,130,246,.12);color:var(--accent);font-weight:600}
-.sb-link-ico{font-size:13px;width:15px;text-align:center;flex-shrink:0}
-.sb-badge{margin-left:auto;border-radius:var(--r100);padding:2px 6px;font-size:9px;font-family:var(--fm);background:var(--b1);color:var(--muted)}
+.sb-main-links{display:flex;flex-direction:column;gap:3px;margin-bottom:18px}
+.sb-sec{font-size:11px;color:var(--muted);letter-spacing:.2px;padding:8px 9px 7px;font-family:var(--fb)}
+.sb-link{display:flex;align-items:center;gap:10px;padding:8px 9px;font-size:14px;cursor:pointer;transition:.15s;color:var(--muted2);border-radius:var(--r8);min-height:34px}
+.sb-link:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sb-link.on{background:rgba(255,255,255,.07);color:var(--white);font-weight:600}
+.sb-link-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0;color:var(--muted2)}
+.sb-badge{margin-left:auto;border-radius:var(--r100);padding:2px 7px;font-size:10px;font-family:var(--fm);background:var(--b1);color:var(--muted)}
 .sb-badge.done{background:rgba(16,185,129,.1);color:var(--green)}
 .sb-badge.today{background:rgba(59,130,246,.12);color:var(--accent)}
-.sb-ch-list{max-height:200px;overflow-y:auto;scrollbar-width:none}
+.sb-search{display:none;margin:0 0 12px;padding:0 4px}
+.sb-search.show{display:block}
+.sb-search-input{width:100%;background:#0a0f1a;border:1px solid var(--b2);border-radius:var(--r8);padding:9px 10px;color:var(--white);font-size:12px;font-family:var(--fb)}
+.sb-search-input:focus{outline:none;border-color:var(--accent)}
+.sb-ch-list{display:flex;flex-direction:column;gap:2px;max-height:none;overflow:visible;scrollbar-width:none}
 .sb-ch-list::-webkit-scrollbar{display:none}
-.sb-bottom{padding:10px;border-top:1px solid var(--b1)}
-.sb-bottom-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r8);transition:.15s;cursor:pointer}
-.sb-bottom-user:hover{background:rgba(255,255,255,.04)}
-.sb-bottom-av{width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:11px;color:var(--accent);flex-shrink:0}
+.sb-recent-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r8);color:var(--muted2);cursor:pointer;transition:.15s;font-size:13px;min-height:32px}
+.sb-recent-item:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sb-recent-item.on{background:rgba(255,255,255,.08);color:var(--white)}
+.sb-recent-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-recent-meta{font-size:10px;color:var(--muted);font-family:var(--fm)}
+.sb-empty{padding:8px 9px;font-size:12px;color:var(--muted);line-height:1.5}
+.sb-bottom{position:relative;padding:8px;border-top:1px solid var(--b1);background:#0f1726}
+.sb-bottom-user{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--r12);transition:.15s;cursor:pointer}
+.sb-bottom-user:hover{background:rgba(255,255,255,.06)}
+.sb-bottom-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(16,185,129,.16));border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:11px;color:var(--white);flex-shrink:0}
 .sb-bottom-info{flex:1;min-width:0}
-.sb-bottom-name{font-size:12px;font-weight:600;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-bottom-plan{font-size:10px;color:var(--muted)}
-.sb-bottom-icon{font-size:14px;color:var(--muted);cursor:pointer;padding:4px;border-radius:5px;transition:.15s;flex-shrink:0}
-.sb-bottom-icon:hover{color:var(--red);background:rgba(239,68,68,.08)}
+.sb-bottom-name{font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-bottom-plan{font-size:11px;color:var(--muted)}
+.sb-bottom-icon{width:30px;height:30px;border:1px solid var(--b2);border-radius:var(--r8);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted2);cursor:pointer;transition:.15s;flex-shrink:0}
+.sb-bottom-icon:hover{color:var(--white);background:rgba(255,255,255,.06)}
 
 /* User menu dropdown */
-.user-menu{position:fixed;bottom:60px;left:10px;width:240px;background:var(--card2);border:1px solid var(--b2);border-radius:var(--r12);padding:8px;z-index:600;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.user-menu{position:fixed;left:10px;bottom:66px;width:300px;background:#222733;border:1px solid rgba(255,255,255,.14);border-radius:var(--r12);padding:8px;z-index:900;display:none;box-shadow:0 18px 48px rgba(0,0,0,.55)}
 .user-menu.show{display:block}
-.user-menu-email{font-size:11px;color:var(--muted);padding:6px 10px 10px;border-bottom:1px solid var(--b1);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;color:var(--muted2);cursor:pointer;border-radius:var(--r8);transition:.15s}
-.user-menu-item:hover{background:rgba(255,255,255,.05);color:var(--white)}
-.user-menu-item.danger{color:rgba(239,68,68,.8)}
-.user-menu-item.danger:hover{background:rgba(239,68,68,.08);color:var(--red)}
-.user-menu-sep{height:1px;background:var(--b1);margin:6px 0}
+.user-menu-email{font-size:12px;color:var(--muted2);padding:4px 9px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-profile{padding:0 9px 8px;margin-bottom:4px;color:var(--muted);font-size:11px;line-height:1.45}
+.user-menu-profile strong{display:block;color:var(--white);font-size:13px;margin-bottom:1px}
+.user-menu-profile span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-item{display:flex;align-items:center;gap:10px;padding:9px;font-size:14px;color:var(--white);cursor:pointer;border-radius:var(--r8);transition:.15s}
+.user-menu-item:hover{background:rgba(255,255,255,.08)}
+.user-menu-item span:first-child{width:18px;text-align:center;color:var(--muted2)}
+.user-menu-item .hint{margin-left:auto;color:var(--muted);font-size:12px}
+.user-menu-item.danger{color:var(--white)}
+.user-menu-item.danger:hover{background:rgba(239,68,68,.12);color:var(--red)}
+.user-menu-sep{height:1px;background:rgba(255,255,255,.1);margin:7px 9px}
 
 /* ──────── HAMBURGER MENU (top right of sidebar) ──────── */
 .ham-btn{width:30px;height:30px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);border-radius:var(--r8);transition:.15s;flex-shrink:0}
 .ham-btn:hover{background:rgba(255,255,255,.06);color:var(--white)}
 .ham-btn svg{width:16px;height:16px}
+.sidebar-open-btn{position:fixed;top:11px;left:12px;z-index:560;width:34px;height:30px;border:1px solid var(--b2);border-radius:var(--r8);background:rgba(16,24,40,.92);color:var(--muted2);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.15s;backdrop-filter:blur(12px)}
+.sidebar-open-btn:hover{border-color:var(--accent);color:var(--white);background:var(--card2)}
+.sidebar-open-btn svg{width:16px;height:16px}
 .ham-panel{position:fixed;top:0;left:var(--sw);bottom:0;width:260px;background:var(--card2);border-right:1px solid var(--b2);z-index:550;transform:translateX(-100%);transition:transform .25s ease;padding:20px 16px}
 .ham-panel.open{transform:translateX(0)}
-.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1)}
+.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
 .ham-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r12);cursor:pointer;transition:.15s;margin-bottom:4px}
 .ham-item:hover{background:rgba(59,130,246,.08)}
 .ham-item-ico{font-size:18px;width:22px;text-align:center;flex-shrink:0}
@@ -536,74 +558,111 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 
   <!-- SIDEBAR -->
   <div class="sb" id="sb">
-    <!-- Top header with logo + hamburger -->
     <div class="sb-header">
       <div class="sb-logo-text">⚡ Zub<span>hai</span></div>
-      <button class="ham-btn" onclick="toggleHam()" aria-label="Menu">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
-        </svg>
-      </button>
+      <div class="sb-actions">
+        <button class="ham-btn" onclick="collapseSidebar()" aria-label="Close sidebar" title="Close sidebar">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="3" width="11" height="10" rx="1.5"/><line x1="6" y1="3" x2="6" y2="13"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Main nav -->
     <div class="sb-nav">
-      <div class="sb-sec">Navigation</div>
-      <div class="sb-link on" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-link-ico">🏠</span>Home</div>
-      <div class="sb-link" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-link-ico">⚡</span>Today's Challenge</div>
-      <div class="sb-link" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-link-ico">🏆</span>Leaderboard</div>
-      <div class="sb-link" id="nav-comm" onclick="navTo('sc-community')"><span class="sb-link-ico">💬</span>Community<span class="sb-badge">Soon</span></div>
-      <div class="sb-sec" style="margin-top:4px">Past Challenges</div>
-      <div class="sb-ch-list" id="sb-ch-list"><div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div></div>
+      <div class="sb-main-links">
+        <div class="sb-link" id="nav-new" onclick="newTask()"><span class="sb-link-ico">＋</span><span>New task</span></div>
+        <div class="sb-link" id="nav-search" onclick="toggleSidebarSearch()"><span class="sb-link-ico">⌕</span><span>Search</span></div>
+        <div class="sb-link on" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-link-ico">💬</span><span>Chats</span></div>
+        <div class="sb-link" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-link-ico">⚡</span><span>Today's Challenge</span></div>
+        <div class="sb-link" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-link-ico">🏆</span><span>Leaderboard</span></div>
+        <div class="sb-link" id="nav-comm" onclick="navTo('sc-community')"><span class="sb-link-ico">🌐</span><span>Community</span><span class="sb-badge">Soon</span></div>
+      </div>
+
+      <div class="sb-search" id="sb-search">
+        <input class="sb-search-input" id="sb-search-input" placeholder="Search tasks and chats..." oninput="filterSidebarRecents(this.value)"/>
+      </div>
+
+      <div class="sb-sec">Recents</div>
+      <div class="sb-ch-list" id="sb-ch-list"><div class="sb-empty">Your completed tasks will appear here.</div></div>
     </div>
 
-    <!-- Bottom user row (Claude-style) -->
     <div class="sb-bottom">
+      <div class="user-menu" id="user-menu">
+        <div class="user-menu-email" id="user-menu-email">—</div>
+        <div class="user-menu-profile">
+          <strong id="user-menu-name">Shubh Agrawal</strong>
+          <span id="user-menu-plan">Free plan</span>
+          <span id="user-menu-skill">AI Basics</span>
+        </div>
+        <div class="user-menu-item" onclick="openSettingsMenu()"><span>⚙️</span>Settings<span class="hint">Ctrl ,</span></div>
+        <div class="user-menu-item" onclick="openLanguageMenu()"><span>🌐</span>Language<span class="hint">›</span></div>
+        <div class="user-menu-item" onclick="openSkillMenu()"><span>🎯</span>Change skill<span class="hint">›</span></div>
+        <div class="user-menu-item" onclick="openAnswersMenu()"><span>❔</span>Questions & answers</div>
+        <div class="user-menu-sep"></div>
+        <div class="user-menu-item" onclick="showToast('Upgrade plan coming soon!')"><span>⬆️</span>Upgrade plan</div>
+        <div class="user-menu-item" onclick="showToast('Apps and extensions coming soon!')"><span>⌄</span>Get apps and extensions</div>
+        <div class="user-menu-item" onclick="showToast('Learn more coming soon!')"><span>ⓘ</span>Learn more<span class="hint">›</span></div>
+        <div class="user-menu-sep"></div>
+        <div class="user-menu-item danger" onclick="logout()"><span>⇱</span>Log out</div>
+      </div>
       <div class="sb-bottom-user" onclick="toggleUserMenu()">
         <div class="sb-bottom-av" id="sb-bottom-av">?</div>
         <div class="sb-bottom-info">
-          <div class="sb-bottom-name" id="sb-bottom-name">—</div>
+          <div class="sb-bottom-name" id="sb-bottom-name">Shubh Agrawal</div>
           <div class="sb-bottom-plan" id="sb-bottom-plan">Free plan</div>
         </div>
-        <div class="sb-bottom-icon" title="Logout" onclick="event.stopPropagation();logout()">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M10 3h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3"/><polyline points="7 11 10 8 7 5"/><line x1="10" y1="8" x2="2" y2="8"/>
-          </svg>
-        </div>
+        <div class="sb-bottom-icon" title="Account menu" onclick="event.stopPropagation();toggleUserMenu()">⌄</div>
       </div>
     </div>
   </div>
 
+  <button class="sidebar-open-btn" onclick="expandSidebar()" aria-label="Open sidebar" title="Open sidebar">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2.5" y="3" width="11" height="10" rx="1.5"/><line x1="6" y1="3" x2="6" y2="13"/>
+    </svg>
+  </button>
+
   <!-- HAMBURGER PANEL (slides out from sidebar) -->
   <div class="ham-overlay" id="ham-overlay" onclick="closeHam()"></div>
   <div class="ham-panel" id="ham-panel">
-    <div class="ham-panel-title">Menu</div>
+    <div class="ham-panel-title">
+      <span>Zubhai menu</span>
+      <button class="ham-btn" onclick="closeHam()" aria-label="Close menu" title="Close menu">⋯</button>
+    </div>
+    <div class="ham-item" onclick="closeHam();newTask()">
+      <div class="ham-item-ico">＋</div>
+      <div class="ham-item-info"><div class="ham-item-name">New task</div><div class="ham-item-sub">Start today's work</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();toggleSidebarSearch();expandSidebar()">
+      <div class="ham-item-ico">⌕</div>
+      <div class="ham-item-info"><div class="ham-item-name">Search</div><div class="ham-item-sub">Find tasks and chats</div></div>
+    </div>
     <div class="ham-item" onclick="closeHam();navTo('sc-lobby')">
-      <div class="ham-item-ico">🏠</div>
-      <div class="ham-item-info"><div class="ham-item-name">Home</div><div class="ham-item-sub">Your dashboard</div></div>
-    </div>
-    <div class="ham-item" onclick="closeHam();navTo('sc-challenge');startChallenge()">
-      <div class="ham-item-ico">⚡</div>
-      <div class="ham-item-info"><div class="ham-item-name">Today's Challenge</div><div class="ham-item-sub">Generate & submit</div></div>
-    </div>
-    <div class="ham-sep"></div>
-    <div class="ham-item" onclick="closeHam();navTo('sc-lb');loadLb()">
-      <div class="ham-item-ico">🏆</div>
-      <div class="ham-item-info"><div class="ham-item-name">Leaderboard</div><div class="ham-item-sub">Your global rank</div></div>
-    </div>
-    <div class="ham-item" onclick="closeHam();navTo('sc-community')">
       <div class="ham-item-ico">💬</div>
-      <div class="ham-item-info"><div class="ham-item-name">Community</div><div class="ham-item-sub">Connect with learners</div></div>
-      <div class="ham-item-badge">Soon</div>
+      <div class="ham-item-info"><div class="ham-item-name">Chats</div><div class="ham-item-sub">Your dashboard</div></div>
     </div>
     <div class="ham-sep"></div>
-    <div class="ham-item" onclick="closeHam();showToast('Settings coming soon!')">
+    <div class="ham-item" onclick="closeHam();openSettingsMenu()">
       <div class="ham-item-ico">⚙️</div>
       <div class="ham-item-info"><div class="ham-item-name">Settings</div><div class="ham-item-sub">Profile & preferences</div></div>
     </div>
+    <div class="ham-item" onclick="closeHam();openLanguageMenu()">
+      <div class="ham-item-ico">🌐</div>
+      <div class="ham-item-info"><div class="ham-item-name">Language</div><div class="ham-item-sub">Change learning language</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();openSkillMenu()">
+      <div class="ham-item-ico">🎯</div>
+      <div class="ham-item-info"><div class="ham-item-name">Change skill</div><div class="ham-item-sub">Pick another AI program</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();openAnswersMenu()">
+      <div class="ham-item-ico">❔</div>
+      <div class="ham-item-info"><div class="ham-item-name">Questions & answers</div><div class="ham-item-sub">Review submitted work</div></div>
+    </div>
+    <div class="ham-sep"></div>
     <div class="ham-item" onclick="closeHam();logout()">
-      <div class="ham-item-ico">🚪</div>
-      <div class="ham-item-info"><div class="ham-item-name" style="color:var(--red)">Logout</div><div class="ham-item-sub">Sign out of Zubhai</div></div>
+      <div class="ham-item-ico">⇱</div>
+      <div class="ham-item-info"><div class="ham-item-name" style="color:var(--red)">Log out</div><div class="ham-item-sub">Sign out of Zubhai</div></div>
     </div>
   </div>
 
@@ -740,6 +799,7 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 const API="https://zubhai-zubhai-backened.hf.space";
 let userId=null,userProfile=null,authMode="signup";
 let selSkill="",curChallenge="",curChallengeId="",curToolUrl="";
+let sidebarRecentTasks=[];
 
 const SKILL_MAP = {
   developer: [
@@ -976,12 +1036,95 @@ function closeHam(){
   document.getElementById('ham-panel').classList.remove('open');
   document.getElementById('ham-overlay').classList.remove('open');
 }
+function collapseSidebar(){
+  closeHam();
+  closeUserMenu();
+  document.getElementById('app').classList.add('sidebar-collapsed');
+}
+function expandSidebar(){
+  document.getElementById('app').classList.remove('sidebar-collapsed');
+}
+function toggleSidebar(){
+  document.getElementById('app').classList.contains('sidebar-collapsed')?expandSidebar():collapseSidebar();
+}
+function newTask(){
+  closeUserMenu();
+  navTo('sc-challenge');
+  startChallenge();
+}
+function toggleSidebarSearch(){
+  expandSidebar();
+  closeUserMenu();
+  const box=document.getElementById('sb-search');
+  box.classList.toggle('show');
+  if(box.classList.contains('show'))setTimeout(()=>document.getElementById('sb-search-input')?.focus(),50);
+}
+function filterSidebarRecents(q){
+  const query=(q||'').toLowerCase();
+  document.querySelectorAll('#sb-ch-list .sb-recent-item').forEach(item=>{
+    item.style.display=item.dataset.search.includes(query)?'flex':'none';
+  });
+}
+function renderSidebarRecents(tasks){
+  const list=document.getElementById('sb-ch-list');
+  if(!list)return;
+  sidebarRecentTasks=tasks;
+  list.innerHTML=tasks.map((ch,i)=>{
+    const isToday=ch.day_number===(userProfile?.day||1),isDone=ch.status==='completed';
+    const title=esc(ch.topic||ch.title||`Day ${ch.day_number||i+1} task`);
+    const meta=esc(ch.meta||(isDone?'Done':isToday?'Today':ch.day_number?`Day ${ch.day_number}`:'Chat'));
+    const search=esc(`${title} ${meta} ${ch.status||''} ${ch.skill||''}`.toLowerCase());
+    return `<div class="sb-recent-item ${isToday?'on':''}" data-search="${search}" onclick="viewRecentTask(${i})">
+      <span class="sb-link-ico">${ch.icon||(isDone?'✅':isToday?'⚡':'💬')}</span>
+      <span class="sb-recent-title">${title}</span>
+      <span class="sb-recent-meta">${meta}</span>
+    </div>`;
+  }).join('');
+}
+function fallbackRecentTasks(){
+  const day=userProfile?.day||1,skill=userProfile?.skill||'AI Basics';
+  return [
+    {title:`Day ${day} — ${skill}`,topic:`Day ${day} — ${skill}`,day_number:day,status:'today',meta:'Today',icon:'⚡'},
+    {title:'Your 21-Day Plan',topic:'Your 21-Day Plan',status:'plan',meta:'Plan',icon:'📋'},
+    {title:'Profile & onboarding answers',topic:'Profile & onboarding answers',status:'profile',meta:userProfile?.language||'Profile',icon:'❔'}
+  ];
+}
+function viewRecentTask(i){
+  const task=sidebarRecentTasks[i];
+  if(!task)return;
+  if(task.status==='plan'){document.getElementById('curr-weeks')?.innerHTML?showScreen('sc-curr-preview'):showToast('Your 21-day plan appears after curriculum setup.');return;}
+  if(task.status==='profile'){openAnswersMenu();return;}
+  if(task.day_number===(userProfile?.day||1)||task.status==='today'){
+    navTo('sc-challenge');startChallenge();return;
+  }
+  showToast(`${task.topic||task.title||'Past task'} — ${task.status||'saved'}`);
+}
 
 // USER MENU
-function toggleUserMenu(){
-  // Since logout icon handles logout, we just toggle a small menu
-  showToast('Use the → icon to logout');
+function closeUserMenu(){document.getElementById('user-menu')?.classList.remove('show');}
+function toggleUserMenu(){expandSidebar();document.getElementById('user-menu')?.classList.toggle('show');}
+function openSettingsMenu(){closeUserMenu();showToast('Settings: profile, plan, preferences and account details');}
+function openLanguageMenu(){
+  closeUserMenu();
+  const current=userProfile?.language||'English';
+  const lang=prompt('Choose your learning language',current);
+  if(!lang)return;
+  if(!userProfile)userProfile={};
+  userProfile.language=lang.trim();
+  showToast(`Language changed to ${userProfile.language}`);
 }
+function openSkillMenu(){closeUserMenu();showSkillSelect();}
+function openAnswersMenu(){
+  closeUserMenu();
+  expandSidebar();
+  document.getElementById('sb-search')?.classList.add('show');
+  showToast('Your questions, answers and submitted tasks are under Recents.');
+}
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('user-menu');
+  const account=document.querySelector('.sb-bottom-user');
+  if(menu?.classList.contains('show')&&!menu.contains(e.target)&&!account?.contains(e.target))closeUserMenu();
+});
 
 // NAV
 function showScreen(id){
@@ -994,8 +1137,8 @@ function showScreen(id){
   document.getElementById('top-title').textContent=titles[id]||'⚡ Zubhai';
 }
 function navTo(id){
-  showScreen(id);closeHam();
-  ['nav-home','nav-ch','nav-lb','nav-comm'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
+  showScreen(id);closeHam();closeUserMenu();
+  ['nav-new','nav-search','nav-home','nav-ch','nav-lb','nav-comm'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
   if(id==='sc-lobby')document.getElementById('nav-home')?.classList.add('on');
   if(id==='sc-challenge')document.getElementById('nav-ch')?.classList.add('on');
   if(id==='sc-lb')document.getElementById('nav-lb')?.classList.add('on');
@@ -1026,6 +1169,7 @@ function updateAuthUI(){
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
 function logout(){
+  closeUserMenu();
   userId=null;userProfile=null;localStorage.removeItem('zubhai_uid');
   document.getElementById('app').classList.remove('open');
   document.getElementById('sb').style.display='none';
@@ -1054,6 +1198,7 @@ async function handleAuth(){
 }
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
+  expandSidebar();
   document.getElementById('sb').style.display='flex';
   refreshSidebar();
   if(userProfile?.field){
@@ -1171,11 +1316,16 @@ async function refreshSidebar(){
     const d=await fetch(API+'/auth/user/'+userId).then(r=>r.json());
     if(d.status!=='success')return;
     userProfile=d.user;const u=d.user;
-    const name=(u.email||'').split('@')[0];
-    // top sidebar
-    document.getElementById('sb-bottom-av').textContent=name.slice(0,2).toUpperCase();
+    const email=u.email||'';
+    const rawName=(u.name||email.split('@')[0]||'Learner').trim();
+    const name=email.includes('shubzz429')?'Shubh Agrawal':rawName.replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    document.getElementById('sb-bottom-av').textContent=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
     document.getElementById('sb-bottom-name').textContent=name;
-    document.getElementById('sb-bottom-plan').textContent=(u.field||'Free plan');
+    document.getElementById('sb-bottom-plan').textContent='Free plan';
+    document.getElementById('user-menu-email').textContent=email||name;
+    document.getElementById('user-menu-name').textContent=name;
+    document.getElementById('user-menu-plan').textContent='Free plan';
+    document.getElementById('user-menu-skill').textContent=`${u.skill||'AI Basics'} · ${u.language||'English'}`;
     // top bar badges
     document.getElementById('ap-day').textContent=u.day||1;
     document.getElementById('ap-pts').textContent=u.points||0;
@@ -1189,22 +1339,15 @@ async function loadSbChallenges(){
   try{
     const d=await fetch(API+'/challenges/'+userId).then(r=>r.json());
     if(d.status==='success'&&d.challenges.length){
-      const curDay=userProfile?.day||1;
-      document.getElementById('sb-ch-list').innerHTML=d.challenges.map(ch=>{
-        const isToday=ch.day_number===curDay,isDone=ch.status==='completed';
-        const badge=isDone?'done':isToday?'today':'';
-        const lbl=isDone?'✅':isToday?'Today':'📅';
-        return `<div class="sb-link ${isToday?'on':''}" style="font-size:11px" onclick="${isToday?'navTo(\'sc-challenge\');startChallenge()':'showToast(\'Past challenge — view only\')'}">
-          <span class="sb-link-ico">${ch.is_milestone?'⭐':'📅'}</span>
-          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ch.topic||'Day '+ch.day_number}</span>
-          <span class="sb-badge ${badge}">${lbl}</span>
-        </div>`;
-      }).join('');
+      renderSidebarRecents(d.challenges.slice().reverse());
     }else{
-      document.getElementById('sb-ch-list').innerHTML='<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No challenges yet</div>';
+      renderSidebarRecents(fallbackRecentTasks());
     }
-  }catch(e){}
+  }catch(e){
+    renderSidebarRecents(fallbackRecentTasks());
+  }
 }
+
 
 // CHALLENGE
 async function startChallenge(){
