@@ -1,24 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<title>Zubhai — Learn AI by Doing | Personalized AI Challenges</title>
-
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zubhai — Learn AI by Doing</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg"/>
+<link rel="shortcut icon" href="favicon.svg"/>
+<link rel="apple-touch-icon" href="favicon.svg"/>
+<meta name="theme-color" content="#05080f"/>
 <meta name="description" content="Zubhai gives you personalized AI challenges built for your exact job. Do them in ChatGPT, Claude, or Perplexity. AI grades your work. Free for Indian professionals."/>
-
 <meta property="og:title" content="Zubhai — Learn AI by Doing"/>
 <meta property="og:description" content="Personalized AI challenges for your profession. Real verification. Free forever."/>
 <meta property="og:url" content="https://zubhai.com"/>
 <meta property="og:type" content="website"/>
 <meta property="og:image" content="https://zubhai.com/og-image.png"/>
-
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="Zubhai — Learn AI by Doing"/>
 <meta name="twitter:description" content="Personalized AI challenges for your profession. Free for Indian professionals."/>
-
 <link rel="canonical" href="https://zubhai.com"/>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zubhai — Learn AI by Doing</title>
 <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Satoshi:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <style>
@@ -170,63 +169,85 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 #app.auth-screen .sb,
 #app.auth-screen .app-top,
 #app.auth-screen .ham-overlay,
-#app.auth-screen .ham-panel{display:none}
+#app.auth-screen .ham-panel,
+#app.auth-screen .sidebar-open-btn{display:none}
 #app.auth-screen .app-main{width:100%;flex:1}
 #app.auth-screen .app-body{padding:0;display:flex;align-items:center;justify-content:center}
 #app.auth-screen #sc-auth{width:100%;max-width:none}
 
+/* sidebar-collapsed state */
+#app.sidebar-collapsed .sb{display:none!important}
+#app.sidebar-collapsed .ham-panel{left:0}
+#app.sidebar-collapsed .sidebar-open-btn{display:flex}
+#app.sidebar-collapsed .app-top-title{padding-left:38px}
+#app.auth-screen.sidebar-collapsed .sidebar-open-btn{display:none}
+#app.sidebar-collapsed .user-menu{display:none}
+
 /* ──────── SIDEBAR ──────── */
-.sb{width:var(--sw);min-width:var(--sw);background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:hidden}
-.sb-header{padding:16px 16px 12px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--b1)}
-.sb-logo-text{font-family:var(--fh);font-size:16px;font-weight:900;color:var(--white);letter-spacing:-.3px}
+.sb{width:var(--sw);min-width:var(--sw);background:#0f1726;border-right:1px solid var(--b1);display:flex;flex-direction:column;height:100vh;overflow:visible;transition:margin-left .22s ease}
+.sb-header{padding:18px 16px 14px;display:flex;align-items:center;justify-content:space-between}
+.sb-logo-text{font-family:var(--fh);font-size:18px;font-weight:900;color:var(--white);letter-spacing:-.4px}
 .sb-logo-text span{color:var(--accent)}
-.sb-user{padding:12px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--b1)}
-.sb-av{width:34px;height:34px;border-radius:50%;background:rgba(59,130,246,.12);border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:12px;color:var(--accent);flex-shrink:0}
-.sb-uname{font-size:12px;font-weight:600;line-height:1.2;color:var(--white)}
-.sb-ufield{font-size:10px;color:var(--muted);margin-top:1px}
-.sb-stats{display:grid;grid-template-columns:1fr 1fr 1fr;background:var(--b1);gap:1px}
-.sb-stat{background:var(--s1);padding:10px 5px;text-align:center}
-.sb-stat-v{font-family:var(--fh);font-size:14px;font-weight:800;line-height:1}
-.sb-stat-l{font-size:9px;color:var(--muted);margin-top:2px;font-family:var(--fm)}
-.sb-nav{flex:1;overflow-y:auto;padding:8px 0;scrollbar-width:none}
+.sb-actions{display:flex;align-items:center;gap:4px}
+.sb-nav{flex:1;overflow-y:auto;padding:6px 8px 10px;scrollbar-width:none}
 .sb-nav::-webkit-scrollbar{display:none}
-.sb-sec{font-size:9px;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase;padding:10px 16px 3px;font-family:var(--fm)}
-.sb-link{display:flex;align-items:center;gap:8px;padding:8px 16px;font-size:12px;cursor:pointer;transition:.15s;color:var(--muted2);margin:1px 8px;border-radius:var(--r8)}
-.sb-link:hover{background:rgba(59,130,246,.08);color:var(--white)}
-.sb-link.on{background:rgba(59,130,246,.12);color:var(--accent);font-weight:600}
-.sb-link-ico{font-size:13px;width:15px;text-align:center;flex-shrink:0}
-.sb-badge{margin-left:auto;border-radius:var(--r100);padding:2px 6px;font-size:9px;font-family:var(--fm);background:var(--b1);color:var(--muted)}
+.sb-main-links{display:flex;flex-direction:column;gap:3px;margin-bottom:18px}
+.sb-sec{font-size:11px;color:var(--muted);letter-spacing:.2px;padding:8px 9px 7px;font-family:var(--fb)}
+.sb-link{display:flex;align-items:center;gap:10px;padding:8px 9px;font-size:14px;cursor:pointer;transition:.15s;color:var(--muted2);border-radius:var(--r8);min-height:34px}
+.sb-link:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sb-link.on{background:rgba(255,255,255,.07);color:var(--white);font-weight:600}
+.sb-link-ico{font-size:16px;width:20px;text-align:center;flex-shrink:0;color:var(--muted2)}
+.sb-badge{margin-left:auto;border-radius:var(--r100);padding:2px 7px;font-size:10px;font-family:var(--fm);background:var(--b1);color:var(--muted)}
 .sb-badge.done{background:rgba(16,185,129,.1);color:var(--green)}
 .sb-badge.today{background:rgba(59,130,246,.12);color:var(--accent)}
-.sb-ch-list{max-height:200px;overflow-y:auto;scrollbar-width:none}
-.sb-ch-list::-webkit-scrollbar{display:none}
-.sb-bottom{padding:10px;border-top:1px solid var(--b1)}
-.sb-bottom-user{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r8);transition:.15s;cursor:pointer}
-.sb-bottom-user:hover{background:rgba(255,255,255,.04)}
-.sb-bottom-av{width:32px;height:32px;border-radius:50%;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:11px;color:var(--accent);flex-shrink:0}
+.sb-search{display:none;margin:0 0 12px;padding:0 4px}
+.sb-search.show{display:block}
+.sb-search-input{width:100%;background:#0a0f1a;border:1px solid var(--b2);border-radius:var(--r8);padding:9px 10px;color:var(--white);font-size:12px;font-family:var(--fb)}
+.sb-search-input:focus{outline:none;border-color:var(--accent)}
+.sb-ch-list{display:flex;flex-direction:column;gap:2px;max-height:none;overflow:visible}
+.sb-recent-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:var(--r8);color:var(--muted2);cursor:pointer;transition:.15s;font-size:13px;min-height:32px}
+.sb-recent-item:hover{background:rgba(255,255,255,.06);color:var(--white)}
+.sb-recent-item.on{background:rgba(255,255,255,.08);color:var(--white)}
+.sb-recent-title{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-recent-meta{font-size:10px;color:var(--muted);font-family:var(--fm)}
+.sb-empty{padding:8px 9px;font-size:12px;color:var(--muted);line-height:1.5}
+
+/* sidebar bottom */
+.sb-bottom{position:relative;padding:8px;border-top:1px solid var(--b1);background:#0f1726}
+.sb-bottom-user{display:flex;align-items:center;gap:10px;padding:8px 9px;border-radius:var(--r12);transition:.15s;cursor:pointer}
+.sb-bottom-user:hover{background:rgba(255,255,255,.06)}
+.sb-bottom-av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,rgba(59,130,246,.22),rgba(16,185,129,.16));border:1px solid rgba(59,130,246,.25);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:11px;color:var(--white);flex-shrink:0}
 .sb-bottom-info{flex:1;min-width:0}
-.sb-bottom-name{font-size:12px;font-weight:600;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.sb-bottom-plan{font-size:10px;color:var(--muted)}
-.sb-bottom-icon{font-size:14px;color:var(--muted);cursor:pointer;padding:4px;border-radius:5px;transition:.15s;flex-shrink:0}
-.sb-bottom-icon:hover{color:var(--red);background:rgba(239,68,68,.08)}
+.sb-bottom-name{font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sb-bottom-plan{font-size:11px;color:var(--muted)}
+.sb-bottom-icon{width:30px;height:30px;border:1px solid var(--b2);border-radius:var(--r8);display:flex;align-items:center;justify-content:center;font-size:18px;color:var(--muted2);cursor:pointer;transition:.15s;flex-shrink:0}
+.sb-bottom-icon:hover{color:var(--white);background:rgba(255,255,255,.06)}
 
 /* User menu dropdown */
-.user-menu{position:fixed;bottom:60px;left:10px;width:240px;background:var(--card2);border:1px solid var(--b2);border-radius:var(--r12);padding:8px;z-index:600;display:none;box-shadow:0 16px 40px rgba(0,0,0,.5)}
+.user-menu{position:fixed;left:10px;bottom:66px;width:300px;background:#222733;border:1px solid rgba(255,255,255,.14);border-radius:var(--r12);padding:8px;z-index:900;display:none;box-shadow:0 18px 48px rgba(0,0,0,.55)}
 .user-menu.show{display:block}
-.user-menu-email{font-size:11px;color:var(--muted);padding:6px 10px 10px;border-bottom:1px solid var(--b1);margin-bottom:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.user-menu-item{display:flex;align-items:center;gap:8px;padding:8px 10px;font-size:12px;color:var(--muted2);cursor:pointer;border-radius:var(--r8);transition:.15s}
-.user-menu-item:hover{background:rgba(255,255,255,.05);color:var(--white)}
-.user-menu-item.danger{color:rgba(239,68,68,.8)}
-.user-menu-item.danger:hover{background:rgba(239,68,68,.08);color:var(--red)}
-.user-menu-sep{height:1px;background:var(--b1);margin:6px 0}
+.user-menu-email{font-size:12px;color:var(--muted2);padding:4px 9px 8px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-profile{padding:0 9px 8px;margin-bottom:4px;color:var(--muted);font-size:11px;line-height:1.45}
+.user-menu-profile strong{display:block;color:var(--white);font-size:13px;margin-bottom:1px}
+.user-menu-profile span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.user-menu-item{display:flex;align-items:center;gap:10px;padding:9px;font-size:14px;color:var(--white);cursor:pointer;border-radius:var(--r8);transition:.15s}
+.user-menu-item:hover{background:rgba(255,255,255,.08)}
+.user-menu-item span:first-child{width:18px;text-align:center;color:var(--muted2)}
+.user-menu-item .hint{margin-left:auto;color:var(--muted);font-size:12px}
+.user-menu-item.danger{color:var(--white)}
+.user-menu-item.danger:hover{background:rgba(239,68,68,.12);color:var(--red)}
+.user-menu-sep{height:1px;background:rgba(255,255,255,.1);margin:7px 9px}
 
-/* ──────── HAMBURGER MENU (top right of sidebar) ──────── */
+/* ──────── HAMBURGER ──────── */
 .ham-btn{width:30px;height:30px;background:none;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--muted2);border-radius:var(--r8);transition:.15s;flex-shrink:0}
 .ham-btn:hover{background:rgba(255,255,255,.06);color:var(--white)}
 .ham-btn svg{width:16px;height:16px}
+.sidebar-open-btn{position:fixed;top:11px;left:12px;z-index:560;width:34px;height:30px;border:1px solid var(--b2);border-radius:var(--r8);background:rgba(16,24,40,.92);color:var(--muted2);cursor:pointer;display:none;align-items:center;justify-content:center;transition:.15s;backdrop-filter:blur(12px)}
+.sidebar-open-btn:hover{border-color:var(--accent);color:var(--white);background:var(--card2)}
+.sidebar-open-btn svg{width:16px;height:16px}
 .ham-panel{position:fixed;top:0;left:var(--sw);bottom:0;width:260px;background:var(--card2);border-right:1px solid var(--b2);z-index:550;transform:translateX(-100%);transition:transform .25s ease;padding:20px 16px}
 .ham-panel.open{transform:translateX(0)}
-.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1)}
+.ham-panel-title{font-family:var(--fh);font-size:14px;font-weight:700;color:var(--white);margin-bottom:20px;padding-bottom:14px;border-bottom:1px solid var(--b1);display:flex;align-items:center;justify-content:space-between}
 .ham-item{display:flex;align-items:center;gap:11px;padding:11px 12px;border-radius:var(--r12);cursor:pointer;transition:.15s;margin-bottom:4px}
 .ham-item:hover{background:rgba(59,130,246,.08)}
 .ham-item-ico{font-size:18px;width:22px;text-align:center;flex-shrink:0}
@@ -286,8 +307,6 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 .ob-next{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;transition:.2s;margin-top:5px}
 .ob-next:hover{background:var(--accent2)}
 .ob-next:disabled{opacity:.3;cursor:not-allowed}
-
-/* Profile summary */
 .profile-card{background:var(--card);border:1px solid rgba(59,130,246,.2);border-radius:var(--r16);padding:22px;margin:14px 0}
 .profile-card h3{font-family:var(--fh);font-size:13px;color:var(--accent);margin-bottom:10px;font-weight:700}
 .profile-tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px}
@@ -295,13 +314,15 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 .profile-card p{font-size:12px;color:var(--muted2);line-height:1.75}
 
 /* ──────── SKILL SELECT ──────── */
-.skill-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.skill-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:14px;cursor:pointer;transition:.2s}
+.skill-grid{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+.skill-card{background:var(--card);border:1px solid var(--b1);border-radius:var(--r12);padding:16px;cursor:pointer;transition:.2s;display:flex;gap:12px;align-items:flex-start}
 .skill-card:hover{border-color:rgba(59,130,246,.3);transform:translateY(-1px)}
 .skill-card.on{border-color:var(--accent);background:rgba(59,130,246,.06)}
-.sk-ico{font-size:18px;margin-bottom:6px}
-.sk-name{font-family:var(--fh);font-size:12px;font-weight:700;margin-bottom:2px}
-.sk-desc{font-size:10px;color:var(--muted);line-height:1.5}
+.sk-ico{font-size:24px;flex-shrink:0;margin-top:2px}
+.sk-body{flex:1;min-width:0}
+.sk-name{font-family:var(--fh);font-size:13px;font-weight:700;margin-bottom:3px;color:var(--white)}
+.sk-desc{font-size:11px;color:var(--muted);line-height:1.55;margin-bottom:7px}
+.sk-outcome{display:inline-block;background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.2);color:var(--accent2);font-size:9px;font-weight:700;font-family:var(--fm);padding:2px 8px;border-radius:var(--r100);letter-spacing:.5px;text-transform:uppercase}
 .confirm-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:13px;font-weight:700;font-family:var(--fh);cursor:pointer;margin-top:14px;transition:.2s}
 .confirm-btn:hover{background:var(--accent2)}
 .confirm-btn:disabled{opacity:.3;cursor:not-allowed}
@@ -499,7 +520,7 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
     <span class="stag reveal">Reviews</span>
     <h2 class="stitle reveal">Real feedback from<br/>real learners.</h2>
     <div class="rev-grid">
-      <div class="rev reveal"><div class="rev-stars">★★★★★</div><div class="rev-text">"I tried 3 AI courses. None made me actually DO anything. Day 1 on Zubhai I already built something real for my job. The streak is addictive."</div><div class="rev-author"><div class="rev-av">P</div><div><div class="rev-name">Priya Sharma</div><div class="rev-role">Marketing Manager · Mumbai</div></div></div></div>
+      <div class="rev reveal"><div class="rev-stars">★★★★★</div><div class="rev-text">"I tried 3 AI courses. None made me actually DO anything. Day 1 on Zubhai I already built something real for my job."</div><div class="rev-author"><div class="rev-av">P</div><div><div class="rev-name">Priya Sharma</div><div class="rev-role">Marketing Manager · Mumbai</div></div></div></div>
       <div class="rev reveal d1"><div class="rev-stars">★★★★★</div><div class="rev-text">"Doctor hoon aur mujhe AI se darr lagta tha. Zubhai ne Perplexity use karaya medical research ke liye — ab main papers 10 minute mein summarise karta hoon."</div><div class="rev-author"><div class="rev-av">R</div><div><div class="rev-name">Dr. Rahul Mehta</div><div class="rev-role">Physician · Delhi</div></div></div></div>
       <div class="rev reveal d2"><div class="rev-stars">★★★★★</div><div class="rev-text">"The tool recommendations are what make it different. Day 4 told me to use Claude over ChatGPT for code review. Changed how I work permanently."</div><div class="rev-author"><div class="rev-av">A</div><div><div class="rev-name">Ananya Krishnan</div><div class="rev-role">Developer · Bangalore</div></div></div></div>
     </div>
@@ -536,51 +557,91 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 
   <!-- SIDEBAR -->
   <div class="sb" id="sb">
-    <!-- Top header with logo + hamburger -->
     <div class="sb-header">
       <div class="sb-logo-text">⚡ Zub<span>hai</span></div>
-      <button class="ham-btn" onclick="toggleHam()" aria-label="Menu">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-          <line x1="2" y1="4" x2="14" y2="4"/><line x1="2" y1="8" x2="14" y2="8"/><line x1="2" y1="12" x2="14" y2="12"/>
-        </svg>
-      </button>
+      <div class="sb-actions">
+        <button class="ham-btn" onclick="collapseSidebar()" aria-label="Close sidebar" title="Close sidebar">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2.5" y="3" width="11" height="10" rx="1.5"/><line x1="6" y1="3" x2="6" y2="13"/>
+          </svg>
+        </button>
+      </div>
     </div>
 
-    <!-- Main nav -->
     <div class="sb-nav">
-      <div class="sb-sec">Navigation</div>
-      <div class="sb-link on" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-link-ico">🏠</span>Home</div>
-      <div class="sb-link" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-link-ico">⚡</span>Today's Challenge</div>
-      <div class="sb-link" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-link-ico">🏆</span>Leaderboard</div>
-      <div class="sb-link" id="nav-comm" onclick="navTo('sc-community')"><span class="sb-link-ico">💬</span>Community<span class="sb-badge">Soon</span></div>
-      <div class="sb-sec" style="margin-top:4px">Past Challenges</div>
-      <div class="sb-ch-list" id="sb-ch-list"><div style="padding:6px 16px;font-size:10px;color:var(--muted)">Loading...</div></div>
+      <div class="sb-main-links">
+        <div class="sb-link" id="nav-new" onclick="newTask()"><span class="sb-link-ico">＋</span><span>New task</span></div>
+        <div class="sb-link" id="nav-search" onclick="toggleSidebarSearch()"><span class="sb-link-ico">⌕</span><span>Search</span></div>
+        <div class="sb-link on" id="nav-home" onclick="navTo('sc-lobby')"><span class="sb-link-ico">💬</span><span>Chats</span></div>
+        <div class="sb-link" id="nav-ch" onclick="navTo('sc-challenge');startChallenge()"><span class="sb-link-ico">⚡</span><span>Today's Challenge</span></div>
+        <div class="sb-link" id="nav-lb" onclick="navTo('sc-lb');loadLb()"><span class="sb-link-ico">🏆</span><span>Leaderboard</span></div>
+        <div class="sb-link" id="nav-comm" onclick="navTo('sc-community')"><span class="sb-link-ico">🌐</span><span>Community</span><span class="sb-badge">Soon</span></div>
+      </div>
+
+      <div class="sb-search" id="sb-search">
+        <input class="sb-search-input" id="sb-search-input" placeholder="Search tasks and chats..." oninput="filterSidebarRecents(this.value)"/>
+      </div>
+
+      <div class="sb-sec">Recents</div>
+      <div class="sb-ch-list" id="sb-ch-list"><div class="sb-empty">Your completed tasks will appear here.</div></div>
     </div>
 
-    <!-- Bottom user row (Claude-style) -->
+    <!-- Bottom user row -->
     <div class="sb-bottom">
+      <div class="user-menu" id="user-menu">
+        <div class="user-menu-email" id="user-menu-email">—</div>
+        <div class="user-menu-profile">
+          <strong id="user-menu-name">—</strong>
+          <span id="user-menu-plan">Free plan</span>
+          <span id="user-menu-skill">AI Basics</span>
+        </div>
+        <div class="user-menu-item" onclick="openSettingsMenu()"><span>⚙️</span>Settings<span class="hint">Ctrl ,</span></div>
+        <div class="user-menu-item" onclick="openLanguageMenu()"><span>🌐</span>Language<span class="hint">›</span></div>
+        <div class="user-menu-item" onclick="openSkillMenu()"><span>🎯</span>Change skill<span class="hint">›</span></div>
+        <div class="user-menu-item" onclick="openAnswersMenu()"><span>❔</span>Questions & answers</div>
+        <div class="user-menu-sep"></div>
+        <div class="user-menu-item" onclick="showToast('Upgrade plan coming soon!')"><span>⬆️</span>Upgrade plan</div>
+        <div class="user-menu-item" onclick="showToast('Apps and extensions coming soon!')"><span>⌄</span>Get apps and extensions</div>
+        <div class="user-menu-item" onclick="showToast('Learn more coming soon!')"><span>ⓘ</span>Learn more<span class="hint">›</span></div>
+        <div class="user-menu-sep"></div>
+        <div class="user-menu-item danger" onclick="logout()"><span>⇱</span>Log out</div>
+      </div>
       <div class="sb-bottom-user" onclick="toggleUserMenu()">
         <div class="sb-bottom-av" id="sb-bottom-av">?</div>
         <div class="sb-bottom-info">
           <div class="sb-bottom-name" id="sb-bottom-name">—</div>
           <div class="sb-bottom-plan" id="sb-bottom-plan">Free plan</div>
         </div>
-        <div class="sb-bottom-icon" title="Logout" onclick="event.stopPropagation();logout()">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
-            <path d="M10 3h3a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-3"/><polyline points="7 11 10 8 7 5"/><line x1="10" y1="8" x2="2" y2="8"/>
-          </svg>
-        </div>
+        <div class="sb-bottom-icon" title="Account menu">⌄</div>
       </div>
     </div>
   </div>
 
-  <!-- HAMBURGER PANEL (slides out from sidebar) -->
+  <!-- Sidebar open button (when collapsed) -->
+  <button class="sidebar-open-btn" onclick="expandSidebar()" aria-label="Open sidebar" title="Open sidebar">
+    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2.5" y="3" width="11" height="10" rx="1.5"/><line x1="6" y1="3" x2="6" y2="13"/>
+    </svg>
+  </button>
+
+  <!-- HAMBURGER PANEL -->
   <div class="ham-overlay" id="ham-overlay" onclick="closeHam()"></div>
   <div class="ham-panel" id="ham-panel">
-    <div class="ham-panel-title">Menu</div>
+    <div class="ham-panel-title">
+      <span>Zubhai menu</span>
+      <button class="ham-btn" onclick="closeHam()" aria-label="Close menu">⋯</button>
+    </div>
+    <div class="ham-item" onclick="closeHam();newTask()">
+      <div class="ham-item-ico">＋</div>
+      <div class="ham-item-info"><div class="ham-item-name">New task</div><div class="ham-item-sub">Start today's work</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();toggleSidebarSearch();expandSidebar()">
+      <div class="ham-item-ico">⌕</div>
+      <div class="ham-item-info"><div class="ham-item-name">Search</div><div class="ham-item-sub">Find tasks and chats</div></div>
+    </div>
     <div class="ham-item" onclick="closeHam();navTo('sc-lobby')">
-      <div class="ham-item-ico">🏠</div>
-      <div class="ham-item-info"><div class="ham-item-name">Home</div><div class="ham-item-sub">Your dashboard</div></div>
+      <div class="ham-item-ico">💬</div>
+      <div class="ham-item-info"><div class="ham-item-name">Chats</div><div class="ham-item-sub">Your dashboard</div></div>
     </div>
     <div class="ham-item" onclick="closeHam();navTo('sc-challenge');startChallenge()">
       <div class="ham-item-ico">⚡</div>
@@ -591,19 +652,26 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
       <div class="ham-item-ico">🏆</div>
       <div class="ham-item-info"><div class="ham-item-name">Leaderboard</div><div class="ham-item-sub">Your global rank</div></div>
     </div>
-    <div class="ham-item" onclick="closeHam();navTo('sc-community')">
-      <div class="ham-item-ico">💬</div>
-      <div class="ham-item-info"><div class="ham-item-name">Community</div><div class="ham-item-sub">Connect with learners</div></div>
-      <div class="ham-item-badge">Soon</div>
-    </div>
-    <div class="ham-sep"></div>
-    <div class="ham-item" onclick="closeHam();showToast('Settings coming soon!')">
+    <div class="ham-item" onclick="closeHam();openSettingsMenu()">
       <div class="ham-item-ico">⚙️</div>
       <div class="ham-item-info"><div class="ham-item-name">Settings</div><div class="ham-item-sub">Profile & preferences</div></div>
     </div>
+    <div class="ham-item" onclick="closeHam();openLanguageMenu()">
+      <div class="ham-item-ico">🌐</div>
+      <div class="ham-item-info"><div class="ham-item-name">Language</div><div class="ham-item-sub">Change learning language</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();openSkillMenu()">
+      <div class="ham-item-ico">🎯</div>
+      <div class="ham-item-info"><div class="ham-item-name">Change skill</div><div class="ham-item-sub">Pick another AI program</div></div>
+    </div>
+    <div class="ham-item" onclick="closeHam();openAnswersMenu()">
+      <div class="ham-item-ico">❔</div>
+      <div class="ham-item-info"><div class="ham-item-name">Questions & answers</div><div class="ham-item-sub">Review submitted work</div></div>
+    </div>
+    <div class="ham-sep"></div>
     <div class="ham-item" onclick="closeHam();logout()">
-      <div class="ham-item-ico">🚪</div>
-      <div class="ham-item-info"><div class="ham-item-name" style="color:var(--red)">Logout</div><div class="ham-item-sub">Sign out of Zubhai</div></div>
+      <div class="ham-item-ico">⇱</div>
+      <div class="ham-item-info"><div class="ham-item-name" style="color:var(--red)">Log out</div><div class="ham-item-sub">Sign out of Zubhai</div></div>
     </div>
   </div>
 
@@ -645,7 +713,7 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
         <div class="pg-title">Choose Your Program</div>
         <div class="pg-sub">Pick the AI skill you want to master in 21 days</div>
         <div class="skill-grid" id="skill-grid"></div>
-        <button class="confirm-btn" id="confirm-btn" onclick="confirmSkill()" disabled>Generate My 21-Day Plan ⚡</button>
+        <button class="confirm-btn" id="confirm-btn" onclick="confirmSkill()" disabled>Start This Program →</button>
       </div>
 
       <!-- CURRICULUM LOADING -->
@@ -740,187 +808,54 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 const API="https://zubhai-zubhai-backened.hf.space";
 let userId=null,userProfile=null,authMode="signup";
 let selSkill="",curChallenge="",curChallengeId="",curToolUrl="";
+let sidebarRecentTasks=[];
 
-const SKILL_MAP = {
-  developer: [
-    {
-      i: "🚀",
-      n: "Ship Features 10x Faster with AI",
-      d: "Use Claude + Copilot to write, refactor, and review production code. Go from idea to PR in minutes.",
-      outcome: "Ship faster"
-    },
-    {
-      i: "🐛",
-      n: "Debug Anything in Under 5 Minutes",
-      d: "Learn to paste errors into AI and get root-cause fixes — not just band-aids. Works for any stack.",
-      outcome: "Debug faster"
-    },
-    {
-      i: "📝",
-      n: "Auto-Generate Docs & Tests",
-      d: "Turn undocumented code into clean docs, README files, and full test suites using AI. Zero manual writing.",
-      outcome: "Zero doc debt"
-    },
-    {
-      i: "🤖",
-      n: "Build AI-Powered Features",
-      d: "Add LLM features to your app — chatbots, summarisers, classifiers. Go from zero to working prototype in a day.",
-      outcome: "Ship AI features"
-    }
+const SKILL_MAP={
+  developer:[
+    {i:"🚀",n:"Ship Features 10x Faster with AI",d:"Use Claude + Copilot to write, refactor, and review production code. Go from idea to PR in minutes.",o:"Ship faster"},
+    {i:"🐛",n:"Debug Anything in Under 5 Minutes",d:"Learn to paste errors into AI and get root-cause fixes — not just band-aids. Works for any stack.",o:"Debug faster"},
+    {i:"📝",n:"Auto-Generate Docs & Tests",d:"Turn undocumented code into clean docs, README files, and full test suites using AI. Zero manual writing.",o:"Zero doc debt"},
+    {i:"🤖",n:"Build AI-Powered Features",d:"Add LLM features to your app — chatbots, summarisers, classifiers. Go from zero to working prototype in a day.",o:"Ship AI features"}
   ],
-  marketing: [
-    {
-      i: "✍️",
-      n: "Write a Month of Content in One Day",
-      d: "Use ChatGPT + Claude to produce LinkedIn posts, blogs, and captions that sound like you — not a robot.",
-      outcome: "10x content output"
-    },
-    {
-      i: "🎯",
-      n: "Run High-Converting Ad Campaigns",
-      d: "Write ad copy, test hooks, and build landing page text that converts. Get the AI to think like a media buyer.",
-      outcome: "Better ROAS"
-    },
-    {
-      i: "📊",
-      n: "Turn Data into Marketing Insights",
-      d: "Feed your campaign data to AI and get plain-English analysis, trends, and next-step recommendations. No Excel skills needed.",
-      outcome: "Data-driven decisions"
-    },
-    {
-      i: "📧",
-      n: "Build Email Sequences That Actually Convert",
-      d: "Write welcome flows, nurture sequences, and re-engagement emails using AI. Higher open rates, more sales.",
-      outcome: "Higher conversions"
-    }
+  marketing:[
+    {i:"✍️",n:"Write a Month of Content in One Day",d:"Use ChatGPT + Claude to produce LinkedIn posts, blogs, and captions that sound like you — not a robot.",o:"10x content output"},
+    {i:"🎯",n:"Run High-Converting Ad Campaigns",d:"Write ad copy, test hooks, and build landing page text that converts. Get the AI to think like a media buyer.",o:"Better ROAS"},
+    {i:"📊",n:"Turn Data into Marketing Insights",d:"Feed your campaign data to AI and get plain-English analysis, trends, and next-step recommendations.",o:"Data-driven decisions"},
+    {i:"📧",n:"Build Email Sequences That Actually Convert",d:"Write welcome flows, nurture sequences, and re-engagement emails using AI. Higher open rates, more sales.",o:"Higher conversions"}
   ],
-  sales: [
-    {
-      i: "🔍",
-      n: "Find & Qualify 50 Leads in an Hour",
-      d: "Use Perplexity + ChatGPT to research prospects, find decision-makers, and build a hyper-targeted list fast.",
-      outcome: "Full pipeline, fast"
-    },
-    {
-      i: "💬",
-      n: "Write Cold Outreach That Gets Replies",
-      d: "Use AI to personalise every cold DM and email at scale. Stop sending generic messages. Start getting responses.",
-      outcome: "2-3x reply rate"
-    },
-    {
-      i: "🎤",
-      n: "Nail Any Sales Call with AI Prep",
-      d: "Research your prospect, predict their objections, and build a battle card in 10 minutes before every call.",
-      outcome: "Higher close rate"
-    },
-    {
-      i: "📈",
-      n: "Automate Your CRM & Follow-Ups",
-      d: "Write follow-up sequences, meeting summaries, and deal notes using AI. Spend zero time on admin.",
-      outcome: "Zero admin overhead"
-    }
+  sales:[
+    {i:"🔍",n:"Find & Qualify 50 Leads in an Hour",d:"Use Perplexity + ChatGPT to research prospects, find decision-makers, and build a hyper-targeted list fast.",o:"Full pipeline, fast"},
+    {i:"💬",n:"Write Cold Outreach That Gets Replies",d:"Use AI to personalise every cold DM and email at scale. Stop sending generic messages. Start getting responses.",o:"2-3x reply rate"},
+    {i:"🎤",n:"Nail Any Sales Call with AI Prep",d:"Research your prospect, predict their objections, and build a battle card in 10 minutes before every call.",o:"Higher close rate"},
+    {i:"📈",n:"Automate Your CRM & Follow-Ups",d:"Write follow-up sequences, meeting summaries, and deal notes using AI. Spend zero time on admin.",o:"Zero admin overhead"}
   ],
-  doctor: [
-    {
-      i: "📋",
-      n: "Write Clinical Notes in 2 Minutes",
-      d: "Use AI to draft SOAP notes, discharge summaries, and referral letters. Spend more time with patients.",
-      outcome: "Save 1hr/day"
-    },
-    {
-      i: "🔬",
-      n: "Research Any Condition in 10 Minutes",
-      d: "Use Perplexity to search PubMed and clinical guidelines. Get cited, structured answers — not Google results.",
-      outcome: "Evidence-based, fast"
-    },
-    {
-      i: "💊",
-      n: "Explain Complex Diagnoses to Patients",
-      d: "Turn medical jargon into simple, culturally-appropriate language your patients actually understand and follow.",
-      outcome: "Better compliance"
-    }
+  doctor:[
+    {i:"📋",n:"Write Clinical Notes in 2 Minutes",d:"Use AI to draft SOAP notes, discharge summaries, and referral letters. Spend more time with patients.",o:"Save 1hr/day"},
+    {i:"🔬",n:"Research Any Condition in 10 Minutes",d:"Use Perplexity to search PubMed and guidelines. Get cited, structured answers — not Google results.",o:"Evidence-based, fast"},
+    {i:"💊",n:"Explain Complex Diagnoses to Patients",d:"Turn medical jargon into simple language your patients actually understand and follow.",o:"Better compliance"}
   ],
-  teacher: [
-    {
-      i: "📚",
-      n: "Plan a Full Week of Lessons in 1 Hour",
-      d: "Use Claude to build lesson plans, activities, and discussion questions aligned to your curriculum. Works for any subject.",
-      outcome: "10x lesson planning speed"
-    },
-    {
-      i: "✏️",
-      n: "Give Personalised Feedback at Scale",
-      d: "Use AI to write detailed, constructive feedback for 30 assignments in the time it used to take for 5.",
-      outcome: "Students actually improve"
-    },
-    {
-      i: "🧪",
-      n: "Create Assessments & Rubrics Instantly",
-      d: "Generate quizzes, case studies, and grading rubrics in any format. Differentiate for different learner levels automatically.",
-      outcome: "Better assessments"
-    }
+  teacher:[
+    {i:"📚",n:"Plan a Full Week of Lessons in 1 Hour",d:"Use Claude to build lesson plans, activities, and discussion questions for any subject — in minutes.",o:"10x planning speed"},
+    {i:"✏️",n:"Give Personalised Feedback at Scale",d:"Write detailed, constructive feedback for 30 assignments in the time it used to take for 5.",o:"Students actually improve"},
+    {i:"🧪",n:"Create Assessments & Rubrics Instantly",d:"Generate quizzes, case studies, and grading rubrics for any learner level automatically.",o:"Better assessments"}
   ],
-  student: [
-    {
-      i: "📖",
-      n: "Understand Anything You're Studying",
-      d: "Paste any lecture, textbook, or paper into Claude and get a clear, exam-ready explanation in your language.",
-      outcome: "Learn faster"
-    },
-    {
-      i: "🔬",
-      n: "Research Any Topic in 20 Minutes",
-      d: "Use Perplexity to find sources, synthesise literature, and build a research outline — with real citations.",
-      outcome: "Better grades"
-    },
-    {
-      i: "✏️",
-      n: "Write Essays & Reports That Score High",
-      d: "Use AI to structure arguments, improve your writing, and fix grammar — while keeping your voice and ideas.",
-      outcome: "Stronger academic writing"
-    }
+  student:[
+    {i:"📖",n:"Understand Anything You're Studying",d:"Paste any lecture or textbook into Claude and get a clear, exam-ready explanation in your language.",o:"Learn faster"},
+    {i:"🔬",n:"Research Any Topic in 20 Minutes",d:"Use Perplexity to find sources, synthesise literature, and build a research outline — with real citations.",o:"Better grades"},
+    {i:"✏️",n:"Write Essays & Reports That Score High",d:"Use AI to structure arguments and improve your writing — while keeping your voice and ideas.",o:"Stronger writing"}
   ],
-  hr: [
-    {
-      i: "🎯",
-      n: "Hire Better Candidates, 2x Faster",
-      d: "Write JDs, screen resumes, generate interview questions, and build scorecards using AI. Cut time-to-hire in half.",
-      outcome: "Faster, better hires"
-    },
-    {
-      i: "📋",
-      n: "Write Performance Reviews That Are Actually Fair",
-      d: "Use AI to structure feedback, remove bias, and write balanced reviews for your whole team — in half the time.",
-      outcome: "Fairer reviews, faster"
-    },
-    {
-      i: "🎓",
-      n: "Build Training Programs from Scratch",
-      d: "Design onboarding plans, skill assessments, and learning paths using AI. No L&D experience required.",
-      outcome: "Faster onboarding"
-    }
+  hr:[
+    {i:"🎯",n:"Hire Better Candidates, 2x Faster",d:"Write JDs, screen resumes, generate interview questions, and build scorecards using AI.",o:"Faster, better hires"},
+    {i:"📋",n:"Write Performance Reviews That Are Actually Fair",d:"Structure feedback, remove bias, and write balanced reviews for your whole team in half the time.",o:"Fairer reviews, faster"},
+    {i:"🎓",n:"Build Training Programs from Scratch",d:"Design onboarding plans, skill assessments, and learning paths using AI. No L&D experience required.",o:"Faster onboarding"}
   ],
-  default: [
-    {
-      i: "⚡",
-      n: "Save 2 Hours Every Day with AI",
-      d: "Automate your most repetitive tasks — emails, reports, summaries — using ChatGPT and Claude. Start seeing results on Day 1.",
-      outcome: "Reclaim your time"
-    },
-    {
-      i: "✍️",
-      n: "Write Better, Faster — For Any Purpose",
-      d: "Emails, proposals, messages, reports — use AI to write at a higher level in a fraction of the time.",
-      outcome: "Professional writing instantly"
-    },
-    {
-      i: "🔍",
-      n: "Research Any Topic Like an Expert",
-      d: "Use Perplexity to get cited, accurate answers to any question — faster and better than Google.",
-      outcome: "Deep knowledge, fast"
-    }
+  default:[
+    {i:"⚡",n:"Save 2 Hours Every Day with AI",d:"Automate repetitive tasks — emails, reports, summaries — using ChatGPT and Claude. Results from Day 1.",o:"Reclaim your time"},
+    {i:"✍️",n:"Write Better, Faster — For Any Purpose",d:"Emails, proposals, messages, reports — write at a higher level in a fraction of the time.",o:"Professional writing instantly"},
+    {i:"🔍",n:"Research Any Topic Like an Expert",d:"Use Perplexity to get cited, accurate answers faster and better than Google.",o:"Deep knowledge, fast"}
   ]
 };
+
 const OBQ=[
   {key:"field",q:"What do you do?",hint:"We build your entire program around your profession",chips:["Doctor","Teacher","Sales","Developer","Student","Marketing","HR","Finance","Lawyer","Engineer","Nurse","Architect","Chef","Journalist","Pharmacist","CA / Accountant"],other:true,op:"Type your profession..."},
   {key:"xp",q:"How much have you actually used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
@@ -967,26 +902,86 @@ function showToast(msg){
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function post(path,body){return fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}).then(r=>r.json());}
 
-// HAMBURGER
-function toggleHam(){
-  document.getElementById('ham-panel').classList.toggle('open');
-  document.getElementById('ham-overlay').classList.toggle('open');
+// SIDEBAR CONTROLS
+function collapseSidebar(){closeHam();closeUserMenu();document.getElementById('app').classList.add('sidebar-collapsed');}
+function expandSidebar(){document.getElementById('app').classList.remove('sidebar-collapsed');}
+function closeHam(){document.getElementById('ham-panel').classList.remove('open');document.getElementById('ham-overlay').classList.remove('open');}
+function newTask(){closeUserMenu();navTo('sc-challenge');startChallenge();}
+function toggleSidebarSearch(){
+  expandSidebar();closeUserMenu();
+  const box=document.getElementById('sb-search');
+  box.classList.toggle('show');
+  if(box.classList.contains('show'))setTimeout(()=>document.getElementById('sb-search-input')?.focus(),50);
 }
-function closeHam(){
-  document.getElementById('ham-panel').classList.remove('open');
-  document.getElementById('ham-overlay').classList.remove('open');
+function filterSidebarRecents(q){
+  const query=(q||'').toLowerCase();
+  document.querySelectorAll('#sb-ch-list .sb-recent-item').forEach(item=>{
+    item.style.display=item.dataset.search.includes(query)?'flex':'none';
+  });
+}
+function renderSidebarRecents(tasks){
+  const list=document.getElementById('sb-ch-list');
+  if(!list)return;
+  sidebarRecentTasks=tasks;
+  if(!tasks.length){list.innerHTML='<div class="sb-empty">Your completed tasks will appear here.</div>';return;}
+  list.innerHTML=tasks.map((ch,i)=>{
+    const isToday=ch.day_number===(userProfile?.day||1),isDone=ch.status==='completed';
+    const title=esc(ch.topic||ch.title||`Day ${ch.day_number||i+1} task`);
+    const meta=esc(ch.meta||(isDone?'Done':isToday?'Today':ch.day_number?`Day ${ch.day_number}`:'Chat'));
+    const search=(title+' '+meta+' '+(ch.status||'')+' '+(ch.skill||'')).toLowerCase();
+    return `<div class="sb-recent-item ${isToday?'on':''}" data-search="${search}" onclick="viewRecentTask(${i})">
+      <span class="sb-link-ico">${ch.icon||(isDone?'✅':isToday?'⚡':'💬')}</span>
+      <span class="sb-recent-title">${title}</span>
+      <span class="sb-recent-meta">${meta}</span>
+    </div>`;
+  }).join('');
+}
+function fallbackRecentTasks(){
+  const day=userProfile?.day||1,skill=userProfile?.skill||'AI Basics';
+  return [
+    {title:`Day ${day} — ${skill}`,topic:`Day ${day} — ${skill}`,day_number:day,status:'today',meta:'Today',icon:'⚡'},
+    {title:'Your 21-Day Plan',topic:'Your 21-Day Plan',status:'plan',meta:'Plan',icon:'📋'},
+    {title:'Profile & onboarding answers',topic:'Profile & onboarding answers',status:'profile',meta:userProfile?.language||'Profile',icon:'❔'}
+  ];
+}
+function viewRecentTask(i){
+  const task=sidebarRecentTasks[i];
+  if(!task)return;
+  if(task.status==='plan'){showScreen('sc-curr-preview');return;}
+  if(task.status==='profile'){openAnswersMenu();return;}
+  if(task.day_number===(userProfile?.day||1)||task.status==='today'){navTo('sc-challenge');startChallenge();return;}
+  showToast(`${task.topic||task.title||'Past task'} — ${task.status||'saved'}`);
 }
 
 // USER MENU
-function toggleUserMenu(){
-  // Since logout icon handles logout, we just toggle a small menu
-  showToast('Use the → icon to logout');
+function closeUserMenu(){document.getElementById('user-menu')?.classList.remove('show');}
+function toggleUserMenu(){expandSidebar();document.getElementById('user-menu')?.classList.toggle('show');}
+function openSettingsMenu(){closeUserMenu();showToast('Settings: profile, plan, preferences and account details');}
+function openLanguageMenu(){
+  closeUserMenu();
+  const current=userProfile?.language||'English';
+  const lang=prompt('Choose your learning language',current);
+  if(!lang)return;
+  if(!userProfile)userProfile={};
+  userProfile.language=lang.trim();
+  showToast(`Language changed to ${userProfile.language}`);
 }
+function openSkillMenu(){closeUserMenu();showSkillSelect();}
+function openAnswersMenu(){
+  closeUserMenu();expandSidebar();
+  document.getElementById('sb-search')?.classList.add('show');
+  showToast('Your questions, answers and submitted tasks are under Recents.');
+}
+document.addEventListener('click',e=>{
+  const menu=document.getElementById('user-menu');
+  const account=document.querySelector('.sb-bottom-user');
+  if(menu?.classList.contains('show')&&!menu.contains(e.target)&&!account?.contains(e.target))closeUserMenu();
+});
 
 // NAV
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
+  document.getElementById(id)?.classList.add('on');
   const isAuth=id==='sc-auth';
   document.getElementById('app').classList.toggle('auth-screen',isAuth);
   if(isAuth)closeHam();
@@ -994,8 +989,8 @@ function showScreen(id){
   document.getElementById('top-title').textContent=titles[id]||'⚡ Zubhai';
 }
 function navTo(id){
-  showScreen(id);closeHam();
-  ['nav-home','nav-ch','nav-lb','nav-comm'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
+  showScreen(id);closeHam();closeUserMenu();
+  ['nav-new','nav-search','nav-home','nav-ch','nav-lb','nav-comm'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
   if(id==='sc-lobby')document.getElementById('nav-home')?.classList.add('on');
   if(id==='sc-challenge')document.getElementById('nav-ch')?.classList.add('on');
   if(id==='sc-lb')document.getElementById('nav-lb')?.classList.add('on');
@@ -1026,8 +1021,9 @@ function updateAuthUI(){
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
 function logout(){
+  closeUserMenu();
   userId=null;userProfile=null;localStorage.removeItem('zubhai_uid');
-  document.getElementById('app').classList.remove('open');
+  document.getElementById('app').classList.remove('open','sidebar-collapsed');
   document.getElementById('sb').style.display='none';
   showToast('Logged out. See you tomorrow! 👋');
 }
@@ -1054,6 +1050,7 @@ async function handleAuth(){
 }
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
+  expandSidebar();
   document.getElementById('sb').style.display='flex';
   refreshSidebar();
   if(userProfile?.field){
@@ -1117,7 +1114,12 @@ function showSkillSelect(){
   for(const k of Object.keys(SKILL_MAP)){if(k!=='default'&&field.includes(k)){skills=SKILL_MAP[k];break;}}
   document.getElementById('skill-grid').innerHTML=skills.map(s=>`
     <div class="skill-card" onclick="pickSkill(this,'${s.n.replace(/'/g,"\\'")}')">
-      <div class="sk-ico">${s.i}</div><div class="sk-name">${s.n}</div><div class="sk-desc">${s.d}</div>
+      <div class="sk-ico">${s.i}</div>
+      <div class="sk-body">
+        <div class="sk-name">${s.n}</div>
+        <div class="sk-desc">${s.d}</div>
+        <div class="sk-outcome">🎯 ${s.o}</div>
+      </div>
     </div>`).join('');
 }
 function pickSkill(el,name){
@@ -1171,12 +1173,16 @@ async function refreshSidebar(){
     const d=await fetch(API+'/auth/user/'+userId).then(r=>r.json());
     if(d.status!=='success')return;
     userProfile=d.user;const u=d.user;
-    const name=(u.email||'').split('@')[0];
-    // top sidebar
-    document.getElementById('sb-bottom-av').textContent=name.slice(0,2).toUpperCase();
+    const email=u.email||'';
+    const rawName=(u.name||email.split('@')[0]||'Learner').trim();
+    const name=email.includes('shubzz429')?'Shubh Agrawal':rawName.replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    document.getElementById('sb-bottom-av').textContent=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
     document.getElementById('sb-bottom-name').textContent=name;
-    document.getElementById('sb-bottom-plan').textContent=(u.field||'Free plan');
-    // top bar badges
+    document.getElementById('sb-bottom-plan').textContent='Free plan';
+    document.getElementById('user-menu-email').textContent=email||name;
+    document.getElementById('user-menu-name').textContent=name;
+    document.getElementById('user-menu-plan').textContent='Free plan';
+    document.getElementById('user-menu-skill').textContent=`${u.skill||'AI Basics'} · ${u.language||'English'}`;
     document.getElementById('ap-day').textContent=u.day||1;
     document.getElementById('ap-pts').textContent=u.points||0;
     document.getElementById('ap-streak').textContent=u.streak||0;
@@ -1189,21 +1195,13 @@ async function loadSbChallenges(){
   try{
     const d=await fetch(API+'/challenges/'+userId).then(r=>r.json());
     if(d.status==='success'&&d.challenges.length){
-      const curDay=userProfile?.day||1;
-      document.getElementById('sb-ch-list').innerHTML=d.challenges.map(ch=>{
-        const isToday=ch.day_number===curDay,isDone=ch.status==='completed';
-        const badge=isDone?'done':isToday?'today':'';
-        const lbl=isDone?'✅':isToday?'Today':'📅';
-        return `<div class="sb-link ${isToday?'on':''}" style="font-size:11px" onclick="${isToday?'navTo(\'sc-challenge\');startChallenge()':'showToast(\'Past challenge — view only\')'}">
-          <span class="sb-link-ico">${ch.is_milestone?'⭐':'📅'}</span>
-          <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${ch.topic||'Day '+ch.day_number}</span>
-          <span class="sb-badge ${badge}">${lbl}</span>
-        </div>`;
-      }).join('');
+      renderSidebarRecents(d.challenges.slice().reverse());
     }else{
-      document.getElementById('sb-ch-list').innerHTML='<div style="padding:6px 16px;font-size:10px;color:var(--muted)">No challenges yet</div>';
+      renderSidebarRecents(fallbackRecentTasks());
     }
-  }catch(e){}
+  }catch(e){
+    renderSidebarRecents(fallbackRecentTasks());
+  }
 }
 
 // CHALLENGE
@@ -1291,6 +1289,23 @@ async function loadLb(){
 }
 
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
+
+// Auto-login on page load
+(()=>{
+  const uid=localStorage.getItem('zubhai_uid');
+  if(uid){
+    userId=uid;
+    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
+      if(d.status==='success'){
+        userProfile=d.user;
+        document.getElementById('app').classList.add('open');
+        afterLogin();
+      }else{
+        userId=null;localStorage.removeItem('zubhai_uid');
+      }
+    }).catch(()=>{userId=null;});
+  }
+})();
 </script>
 </body>
 </html>
