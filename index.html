@@ -741,17 +741,186 @@ const API="https://zubhai-zubhai-backened.hf.space";
 let userId=null,userProfile=null,authMode="signup";
 let selSkill="",curChallenge="",curChallengeId="",curToolUrl="";
 
-const SKILL_MAP={
-  marketing:[{i:"✍️",n:"AI for Content Creation",d:"Blogs, captions, campaigns"},{i:"📊",n:"AI for Social Media",d:"Build social strategies"},{i:"📧",n:"AI for Email Marketing",d:"Write converting emails"}],
-  sales:[{i:"🎯",n:"AI for Lead Generation",d:"Find and qualify leads"},{i:"💬",n:"AI for Sales Scripts",d:"Write winning pitches"},{i:"📈",n:"AI for CRM",d:"Automate follow-ups"}],
-  developer:[{i:"🔍",n:"AI for Code Review",d:"Review and improve code"},{i:"📝",n:"AI for Documentation",d:"Write clean docs"},{i:"🧪",n:"AI for Testing",d:"Generate test cases"}],
-  doctor:[{i:"📋",n:"AI for Clinical Notes",d:"Summarise notes faster"},{i:"🔬",n:"AI for Medical Research",d:"Read papers with Perplexity"},{i:"💊",n:"AI for Patient Comms",d:"Write clear instructions"}],
-  teacher:[{i:"📚",n:"AI for Lesson Planning",d:"Build lesson plans fast"},{i:"📝",n:"AI for Assessments",d:"Create tests and rubrics"},{i:"💬",n:"AI for Student Feedback",d:"Write personalised feedback"}],
-  student:[{i:"📚",n:"AI for Study Planning",d:"Build revision schedules"},{i:"🔬",n:"AI for Research",d:"Summarise papers"},{i:"✏️",n:"AI for Academic Writing",d:"Essays and reports"}],
-  hr:[{i:"🎯",n:"AI for Recruitment",d:"Screen candidates faster"},{i:"📋",n:"AI for Performance Reviews",d:"Write fair reviews"},{i:"🎓",n:"AI for Training",d:"Build training programs"}],
-  default:[{i:"⚡",n:"AI Basics",d:"Foundations of AI"},{i:"🚀",n:"AI for Productivity",d:"Save hours every day"},{i:"💡",n:"AI for Communication",d:"Write better with AI"}]
+const SKILL_MAP = {
+  developer: [
+    {
+      i: "🚀",
+      n: "Ship Features 10x Faster with AI",
+      d: "Use Claude + Copilot to write, refactor, and review production code. Go from idea to PR in minutes.",
+      outcome: "Ship faster"
+    },
+    {
+      i: "🐛",
+      n: "Debug Anything in Under 5 Minutes",
+      d: "Learn to paste errors into AI and get root-cause fixes — not just band-aids. Works for any stack.",
+      outcome: "Debug faster"
+    },
+    {
+      i: "📝",
+      n: "Auto-Generate Docs & Tests",
+      d: "Turn undocumented code into clean docs, README files, and full test suites using AI. Zero manual writing.",
+      outcome: "Zero doc debt"
+    },
+    {
+      i: "🤖",
+      n: "Build AI-Powered Features",
+      d: "Add LLM features to your app — chatbots, summarisers, classifiers. Go from zero to working prototype in a day.",
+      outcome: "Ship AI features"
+    }
+  ],
+  marketing: [
+    {
+      i: "✍️",
+      n: "Write a Month of Content in One Day",
+      d: "Use ChatGPT + Claude to produce LinkedIn posts, blogs, and captions that sound like you — not a robot.",
+      outcome: "10x content output"
+    },
+    {
+      i: "🎯",
+      n: "Run High-Converting Ad Campaigns",
+      d: "Write ad copy, test hooks, and build landing page text that converts. Get the AI to think like a media buyer.",
+      outcome: "Better ROAS"
+    },
+    {
+      i: "📊",
+      n: "Turn Data into Marketing Insights",
+      d: "Feed your campaign data to AI and get plain-English analysis, trends, and next-step recommendations. No Excel skills needed.",
+      outcome: "Data-driven decisions"
+    },
+    {
+      i: "📧",
+      n: "Build Email Sequences That Actually Convert",
+      d: "Write welcome flows, nurture sequences, and re-engagement emails using AI. Higher open rates, more sales.",
+      outcome: "Higher conversions"
+    }
+  ],
+  sales: [
+    {
+      i: "🔍",
+      n: "Find & Qualify 50 Leads in an Hour",
+      d: "Use Perplexity + ChatGPT to research prospects, find decision-makers, and build a hyper-targeted list fast.",
+      outcome: "Full pipeline, fast"
+    },
+    {
+      i: "💬",
+      n: "Write Cold Outreach That Gets Replies",
+      d: "Use AI to personalise every cold DM and email at scale. Stop sending generic messages. Start getting responses.",
+      outcome: "2-3x reply rate"
+    },
+    {
+      i: "🎤",
+      n: "Nail Any Sales Call with AI Prep",
+      d: "Research your prospect, predict their objections, and build a battle card in 10 minutes before every call.",
+      outcome: "Higher close rate"
+    },
+    {
+      i: "📈",
+      n: "Automate Your CRM & Follow-Ups",
+      d: "Write follow-up sequences, meeting summaries, and deal notes using AI. Spend zero time on admin.",
+      outcome: "Zero admin overhead"
+    }
+  ],
+  doctor: [
+    {
+      i: "📋",
+      n: "Write Clinical Notes in 2 Minutes",
+      d: "Use AI to draft SOAP notes, discharge summaries, and referral letters. Spend more time with patients.",
+      outcome: "Save 1hr/day"
+    },
+    {
+      i: "🔬",
+      n: "Research Any Condition in 10 Minutes",
+      d: "Use Perplexity to search PubMed and clinical guidelines. Get cited, structured answers — not Google results.",
+      outcome: "Evidence-based, fast"
+    },
+    {
+      i: "💊",
+      n: "Explain Complex Diagnoses to Patients",
+      d: "Turn medical jargon into simple, culturally-appropriate language your patients actually understand and follow.",
+      outcome: "Better compliance"
+    }
+  ],
+  teacher: [
+    {
+      i: "📚",
+      n: "Plan a Full Week of Lessons in 1 Hour",
+      d: "Use Claude to build lesson plans, activities, and discussion questions aligned to your curriculum. Works for any subject.",
+      outcome: "10x lesson planning speed"
+    },
+    {
+      i: "✏️",
+      n: "Give Personalised Feedback at Scale",
+      d: "Use AI to write detailed, constructive feedback for 30 assignments in the time it used to take for 5.",
+      outcome: "Students actually improve"
+    },
+    {
+      i: "🧪",
+      n: "Create Assessments & Rubrics Instantly",
+      d: "Generate quizzes, case studies, and grading rubrics in any format. Differentiate for different learner levels automatically.",
+      outcome: "Better assessments"
+    }
+  ],
+  student: [
+    {
+      i: "📖",
+      n: "Understand Anything You're Studying",
+      d: "Paste any lecture, textbook, or paper into Claude and get a clear, exam-ready explanation in your language.",
+      outcome: "Learn faster"
+    },
+    {
+      i: "🔬",
+      n: "Research Any Topic in 20 Minutes",
+      d: "Use Perplexity to find sources, synthesise literature, and build a research outline — with real citations.",
+      outcome: "Better grades"
+    },
+    {
+      i: "✏️",
+      n: "Write Essays & Reports That Score High",
+      d: "Use AI to structure arguments, improve your writing, and fix grammar — while keeping your voice and ideas.",
+      outcome: "Stronger academic writing"
+    }
+  ],
+  hr: [
+    {
+      i: "🎯",
+      n: "Hire Better Candidates, 2x Faster",
+      d: "Write JDs, screen resumes, generate interview questions, and build scorecards using AI. Cut time-to-hire in half.",
+      outcome: "Faster, better hires"
+    },
+    {
+      i: "📋",
+      n: "Write Performance Reviews That Are Actually Fair",
+      d: "Use AI to structure feedback, remove bias, and write balanced reviews for your whole team — in half the time.",
+      outcome: "Fairer reviews, faster"
+    },
+    {
+      i: "🎓",
+      n: "Build Training Programs from Scratch",
+      d: "Design onboarding plans, skill assessments, and learning paths using AI. No L&D experience required.",
+      outcome: "Faster onboarding"
+    }
+  ],
+  default: [
+    {
+      i: "⚡",
+      n: "Save 2 Hours Every Day with AI",
+      d: "Automate your most repetitive tasks — emails, reports, summaries — using ChatGPT and Claude. Start seeing results on Day 1.",
+      outcome: "Reclaim your time"
+    },
+    {
+      i: "✍️",
+      n: "Write Better, Faster — For Any Purpose",
+      d: "Emails, proposals, messages, reports — use AI to write at a higher level in a fraction of the time.",
+      outcome: "Professional writing instantly"
+    },
+    {
+      i: "🔍",
+      n: "Research Any Topic Like an Expert",
+      d: "Use Perplexity to get cited, accurate answers to any question — faster and better than Google.",
+      outcome: "Deep knowledge, fast"
+    }
+  ]
 };
-
 const OBQ=[
   {key:"field",q:"What do you do?",hint:"We build your entire program around your profession",chips:["Doctor","Teacher","Sales","Developer","Student","Marketing","HR","Finance","Lawyer","Engineer","Nurse","Architect","Chef","Journalist","Pharmacist","CA / Accountant"],other:true,op:"Type your profession..."},
   {key:"xp",q:"How much have you actually used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
