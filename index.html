@@ -411,6 +411,13 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 /* ──────── TOAST ──────── */
 .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--card2);border:1px solid var(--b2);color:var(--white);padding:10px 18px;border-radius:var(--r100);font-size:12px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;font-weight:500}
 
+/* ──────── USER INFO BAR ──────── */
+.uib{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid var(--b1);border-radius:var(--r12);padding:10px 14px;margin-bottom:16px}
+.uib-av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,rgba(59,130,246,.3),rgba(16,185,129,.2));border:1px solid rgba(59,130,246,.3);display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-weight:800;font-size:12px;color:var(--white);flex-shrink:0}
+.uib-info{flex:1;min-width:0}
+.uib-name{font-size:13px;font-weight:700;color:var(--white);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.uib-email{font-size:11px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
 /* ──────── MOBILE ──────── */
 @media(max-width:768px){
   .sb{display:none}
@@ -691,6 +698,14 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
       <div class="screen on" id="sc-auth">
         <div class="auth-center">
           <div class="auth-card">
+            <div onclick="closeApp()" style="display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);cursor:pointer;margin-bottom:16px;transition:.2s" onmouseover="this.style.color='var(--white)'" onmouseout="this.style.color='var(--muted)'">← Back to Zubhai</div>
+            <div id="auth-uib" style="display:none" class="uib">
+              <div class="uib-av" id="auth-uib-av">?</div>
+              <div class="uib-info">
+                <div class="uib-name" id="auth-uib-name">—</div>
+                <div class="uib-email" id="auth-uib-email">—</div>
+              </div>
+            </div>
             <div class="auth-logo">⚡ Zub<span>hai</span></div>
             <div class="auth-sub" id="auth-sub-text">Learn AI by doing. Get verified. Earn points.</div>
             <input class="inp" type="email" id="a-email" placeholder="Your email address"/>
@@ -704,6 +719,13 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 
       <!-- ONBOARD -->
       <div class="screen" id="sc-onboard">
+        <div class="uib" id="ob-uib" style="display:none">
+          <div class="uib-av" id="ob-uib-av">?</div>
+          <div class="uib-info">
+            <div class="uib-name" id="ob-uib-name">—</div>
+            <div class="uib-email" id="ob-uib-email">—</div>
+          </div>
+        </div>
         <div class="ob-prog" id="ob-prog"></div>
         <div id="ob-body"></div>
       </div>
@@ -757,6 +779,13 @@ footer{background:var(--s1);border-top:1px solid var(--b1);padding:44px 0 28px}
 
       <!-- CHALLENGE -->
       <div class="screen" id="sc-challenge">
+        <div class="uib" id="ch-uib" style="display:none">
+          <div class="uib-av" id="ch-uib-av">?</div>
+          <div class="uib-info">
+            <div class="uib-name" id="ch-uib-name">—</div>
+            <div class="uib-email" id="ch-uib-email">—</div>
+          </div>
+        </div>
         <div id="ch-content">
           <div class="spin-wrap"><div class="spinner"></div><p>Generating your challenge...</p></div>
         </div>
@@ -954,6 +983,22 @@ function viewRecentTask(i){
 }
 
 // USER MENU
+function updateAllUserBars(name, email, initials){
+  const bars=[
+    {av:'auth-uib-av',nm:'auth-uib-name',em:'auth-uib-email',wrap:'auth-uib'},
+    {av:'ob-uib-av',nm:'ob-uib-name',em:'ob-uib-email',wrap:'ob-uib'},
+    {av:'ch-uib-av',nm:'ch-uib-name',em:'ch-uib-email',wrap:'ch-uib'},
+  ];
+  bars.forEach(b=>{
+    const wrap=document.getElementById(b.wrap);
+    if(wrap){
+      wrap.style.display='flex';
+      document.getElementById(b.av).textContent=initials;
+      document.getElementById(b.nm).textContent=name;
+      document.getElementById(b.em).textContent=email;
+    }
+  });
+}
 function closeUserMenu(){document.getElementById('user-menu')?.classList.remove('show');}
 function toggleUserMenu(){expandSidebar();document.getElementById('user-menu')?.classList.toggle('show');}
 function openSettingsMenu(){closeUserMenu();showToast('Settings: profile, plan, preferences and account details');}
@@ -1018,8 +1063,22 @@ function updateAuthUI(){
   document.getElementById('auth-sw-txt').textContent=authMode==='login'?'New to Zubhai?':'Already have an account?';
   document.getElementById('auth-sw-act').textContent=authMode==='login'?'Sign up free':'Login instead';
   document.getElementById('auth-sub-text').textContent=authMode==='login'?'Welcome back! Login to continue.':'Learn AI by doing. Get verified. Earn points.';
+  const savedEmail=localStorage.getItem('zubhai_email');
+  const authBar=document.getElementById('auth-uib');
+  if(savedEmail&&authBar){
+    authBar.style.display='flex';
+    const initials=savedEmail.split('@')[0].slice(0,2).toUpperCase();
+    document.getElementById('auth-uib-av').textContent=initials;
+    document.getElementById('auth-uib-name').textContent=savedEmail.split('@')[0];
+    document.getElementById('auth-uib-email').textContent=savedEmail;
+  }
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
+function closeApp(){
+  document.getElementById('app').classList.remove('open','sidebar-collapsed','auth-screen');
+  document.getElementById('sb').style.display='none';
+  document.getElementById('auth-uib').style.display='none';
+}
 function logout(){
   closeUserMenu();
   userId=null;userProfile=null;localStorage.removeItem('zubhai_uid');
@@ -1042,7 +1101,9 @@ async function handleAuth(){
     const d=await post(authMode==='login'?'/auth/login':'/auth/signup',{email,password:pass});
     if(d.status==='success'){
       userId=d.user_id;userProfile=d.user||{id:userId,email};
-      localStorage.setItem('zubhai_uid',userId);afterLogin();
+      localStorage.setItem('zubhai_uid',userId);
+      localStorage.setItem('zubhai_email',email);
+      afterLogin();
     } else{
       err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();
     }
@@ -1178,7 +1239,7 @@ async function refreshSidebar(){
     const name=email.includes('shubzz429')?'Shubh Agrawal':rawName.replace(/[._-]+/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
     document.getElementById('sb-bottom-av').textContent=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
     document.getElementById('sb-bottom-name').textContent=name;
-    document.getElementById('sb-bottom-plan').textContent='Free plan';
+    document.getElementById('sb-bottom-plan').textContent=u.email||'Free plan';
     document.getElementById('user-menu-email').textContent=email||name;
     document.getElementById('user-menu-name').textContent=name;
     document.getElementById('user-menu-plan').textContent='Free plan';
@@ -1186,6 +1247,7 @@ async function refreshSidebar(){
     document.getElementById('ap-day').textContent=u.day||1;
     document.getElementById('ap-pts').textContent=u.points||0;
     document.getElementById('ap-streak').textContent=u.streak||0;
+    updateAllUserBars(name, u.email||'', name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase());
     updateLobbyText();
     loadSbChallenges();
   }catch(e){}
