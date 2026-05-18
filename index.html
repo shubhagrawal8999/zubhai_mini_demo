@@ -445,7 +445,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <div id="land">
 <nav id="nav">
   <div class="nav-i">
-    <a href="#" class="nav-logo">Zub<em>hai</em></a>
+  <a href="#" class="nav-logo" style="display: flex; align-items: center;">
+    <img src="logo.svg" alt="Zubhai" style="height: 26px; width: auto; display: block;"/>
+  </a>
     <div class="nav-r">
       <button class="btn-ghost" onclick="openApp('login')">Login</button>
       <button class="btn-pri" onclick="openApp('signup')">Start Free Trial →</button>
@@ -465,9 +467,14 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
           <button class="btn-lg g" onclick="openApp('login')">Login →</button>
         </div>
       </div>
-      <div class="hero-visual reveal d2">
-        <div class="hero-card">
-          <div class="hc-top"><span class="hc-logo">Zub<em>hai</em></span><span class="hc-badge">Day 4 · Marketing</span></div>
+       <div class="hero-visual reveal d2">
+  <div class="hero-card">
+    <div class="hc-top">
+      <span class="hc-logo" style="display: flex; align-items: center;">
+        <img src="logo.svg" alt="Zubhai" style="height: 14px; width: auto; display: block;"/>
+      </span>
+      <span class="hc-badge">Day 4 · Marketing</span>
+    </div>
           <div class="hc-body">
             <div class="hc-threat">⚠ 68% of marketing tasks are now AI-automatable. Your competitor's 2-person team outproduces your 8-person team.</div>
             <div class="hc-msg">Today you'll build a full email sequence that converts. Claude will help you write 5 emails ready to send. What product or service are we writing for?</div>
@@ -583,7 +590,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <footer class="z2">
   <div class="wrap">
     <div class="foot-grid">
-      <div><span class="foot-logo">Zub<em>hai</em></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
+      <div>
+  <span class="foot-logo" style="margin-bottom: 12px; display: block;">
+    <img src="logo.svg" alt="Zubhai" style="height: 22px; width: auto; display: block;"/>
+  </span>
+  <p class="foot-desc">7-day AI coaching for students...</p>
+</div>
       <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
       <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:hello@zubhai.com">Email</a></li></ul></div>
     </div>
@@ -595,8 +607,10 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <!-- ════════ APP ════════ -->
 <div id="app">
   <div class="sb" id="sb">
-    <div class="sb-top">
-      <div class="sb-logo">Z<em>h</em></div>
+    <div class="sb-top" style="padding-bottom: 10px;">
+      <div class="sb-logo" style="display: flex; align-items: center; justify-content: center; height: 28px;">
+        <img src="favicon.svg" alt="Zubhai Logo" style="height: 22px; width: auto; display: block;"/>
+      </div>
       <div class="sb-icon on" id="nav-home" onclick="navTo('sc-lobby')">
         <svg viewBox="0 0 24 24"><path d="M3 9L12 3l9 6v12a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/></svg>
         <div class="sb-tip">Home</div>
@@ -669,11 +683,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       </div>
     </div>
   </div>
-
-  <div class="app-main">
-    <!-- plan badge top center -->
-    <div class="app-top" id="app-top">
-      <div class="app-top-title" id="top-title">Zubhai</div>
+    <div class="app-main">
+  <div class="app-top" id="app-top">
+    <div class="app-top-title" id="top-title" style="display: flex; align-items: center; height: 100%;">
+      <img src="logo.svg" alt="Zubhai" style="height: 18px; width: auto; display: block;"/>
+    </div>
+  
       <div class="plan-top-badge" id="plan-top-badge">
         <span id="plan-top-label">Free Trial</span>
         <button onclick="navTo('sc-upgrade')">Upgrade</button>
@@ -686,13 +701,12 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       </div>
     </div>
 
-    <div class="app-body">
-
-      <!-- AUTH -->
-      <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
-        <div class="auth-wrap">
-          <div class="auth-back" onclick="closeApp()">← Back</div>
-          <div class="auth-logo">Zub<em>hai</em></div>
+     <div class="app-body">
+  <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
+    <div class="auth-wrap">
+      <div class="auth-logo" style="margin-bottom: 14px; display: flex; justify-content: center;">
+        <img src="logo.svg" alt="Zubhai" style="height: 32px; width: auto; display: block;"/>
+      </div>
           <div class="auth-tagline" id="auth-tagline">7 days to transform how you work with AI.</div>
 
           <button class="auth-google" onclick="signInGoogle()">
