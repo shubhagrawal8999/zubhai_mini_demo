@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 40">
+  <!-- icon -->
+  <rect x="0" y="2" width="36" height="36" rx="9" fill="#e8602c"/>
+  <polygon points="24,8 16,20 21,20 13,32 25,22 20,22" fill="#fff"/>
+  <!-- wordmark -->
+  <text x="46" y="27" font-family="Georgia,'Times New Roman',serif" font-size="22" font-weight="400" fill="#f0f0f0" letter-spacing="-0.5">Zub</text>
+  <text x="80" y="27" font-family="Georgia,'Times New Roman',serif" font-size="22" font-style="italic" fill="#e8602c" letter-spacing="-0.5">hai</text>
+</svg>
