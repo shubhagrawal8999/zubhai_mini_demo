@@ -3,8 +3,21 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zubhai — 7-Day AI Coaching</title>
-<meta name="description" content="7 days to transform how you work with AI. Real tasks. Real verification. For students, developers, marketers, and sales pros."/>
+<title>Zubhai — AI Coaching, Training & Docs for Students, Developers, Marketers, Sales</title>
+<meta name="description" content="Zubhai helps busy professionals learn AI by doing real tasks, publishing proof, and building a shareable portfolio in 7 days."/>
+<meta name="keywords" content="Zubhai, AI coaching, AI training, AI docs, AI portfolio, student AI, developer AI, marketing AI, sales AI, login, about"/>
+<link rel="canonical" href="https://zubhai.com/"/>
+<meta name="robots" content="index, follow"/>
+<meta property="og:title" content="Zubhai — 7-Day AI Coaching for Students, Developers, Marketers & Sales"/>
+<meta property="og:description" content="Learn AI with real work, daily coaching, and a published proof wall. Start free and build a shareable AI portfolio in 7 days."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://zubhai.com/"/>
+<meta property="og:image" content="https://zubhai.com/logo.svg"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Zubhai — 7-Day AI Coaching"/>
+<meta name="twitter:description" content="Real AI learning for students, developers, marketers, and sales pros. Build real work, publish proof, and gain AI skills in 7 days."/>
+<meta name="twitter:image" content="https://zubhai.com/logo.svg"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Zubhai","url":"https://zubhai.com/","description":"Zubhai helps professionals learn AI by doing real tasks and publishing proof in 7 days.","potentialAction":{"@type":"SearchAction","target":"https://zubhai.com/?s={search_term_string}","query-input":"required name=search_term_string"}}</script>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
@@ -82,7 +95,7 @@ nav.solid{background:rgba(10,10,10,.95);backdrop-filter:blur(20px);border-bottom
 .stat-l{font-size:11px;color:var(--text3);margin-top:3px}
 
 /* sections */
-section.pad{padding:80px 0}
+section.pad{padding:80px 0;scroll-margin-top:90px}
 .stag{font-family:var(--fm);font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:block}
 .stitle{font-family:var(--fs);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.06;margin-bottom:10px;letter-spacing:-.5px}
 .ssub{font-size:14px;color:var(--text2);line-height:1.85;max-width:480px}
@@ -480,6 +493,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   <div class="nav-i">
     <a href="#" class="nav-logo" style="display:flex;align-items:center;"><img src="logo.svg" alt="Zubhai" style="height:26px;width:auto;display:block;"/></a>
     <div class="nav-r">
+      <a href="#how-it-works" class="btn-ghost">How it works</a>
+      <a href="#about" class="btn-ghost">About</a>
+      <a href="#docs" class="btn-ghost">Docs</a>
       <button class="btn-ghost" onclick="openApp('login')">Login</button>
       <button class="btn-pri" onclick="openApp('signup')">Start Free Trial →</button>
     </div>
@@ -542,7 +558,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
-<section class="pad z2" style="background:var(--bg2)">
+<section class="pad z2" id="how-it-works" style="background:var(--bg2)">
   <div class="wrap">
     <span class="stag reveal">How it works</span>
     <h2 class="stitle reveal">7 days. One real output.<br/>Actual proof.</h2>
@@ -569,7 +585,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
-<section class="pad z2" style="background:var(--bg2)">
+<section class="pad z2" id="pricing" style="background:var(--bg2)">
   <div class="wrap">
     <span class="stag reveal">Pricing</span>
     <h2 class="stitle reveal">Start free. Upgrade<br/>when you're ready.</h2>
@@ -650,11 +666,54 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
+<section class="pad z2" id="docs">
+  <div class="wrap">
+    <span class="stag reveal">Docs</span>
+    <h2 class="stitle reveal">Zubhai documentation for fast AI adoption.</h2>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px">
+      <div class="step reveal d1">
+        <span class="step-n">01 /</span>
+        <span class="step-ico">📖</span>
+        <h3>What is Zubhai?</h3>
+        <p>Learn how Zubhai turns AI from a buzzword into a daily workflow with real tasks, graded outcomes, and a proof wall.</p>
+      </div>
+      <div class="step reveal d2">
+        <span class="step-n">02 /</span>
+        <span class="step-ico">🧭</span>
+        <h3>How to use it</h3>
+        <p>Start with one onboarding answer, choose your track, and finish each day with real work that gets verified and shared.</p>
+      </div>
+      <div class="step reveal d3">
+        <span class="step-n">03 /</span>
+        <span class="step-ico">🏆</span>
+        <h3>Document your progress</h3>
+        <p>Every milestone is recorded in your proof wall. Day 7 is designed to give you a public portfolio piece or a real shareable URL.</p>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;align-items:flex-start;margin-top:42px">
+      <div class="reveal d1" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:24px">
+        <h3 style="margin-bottom:12px;color:var(--text);font-size:18px">Documentation at a glance</h3>
+        <p style="color:var(--text2);line-height:1.8;font-size:14px;margin-bottom:14px">Zubhai is built like a product team briefing: clear goals, daily tasks, real tools, and visible outcomes. This is your AI document page for how to start, what to do, and what to publish.</p>
+        <ul style="list-style:none;padding:0;display:grid;gap:10px;font-size:13px;color:var(--text2);line-height:1.8">
+          <li>• Day-by-day program for your role</li>
+          <li>• Real tools like Claude, GPT, Perplexity, and workflow prompts</li>
+          <li>• Public proof wall and LinkedIn-ready share copy</li>
+        </ul>
+      </div>
+      <div class="reveal d2" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:24px">
+        <h3 style="margin-bottom:12px;color:var(--text);font-size:18px">Why it matters for search</h3>
+        <p style="color:var(--text2);line-height:1.8;font-size:14px;margin-bottom:14px">Search engines and learners look for clear sections: login, about, docs, and proof. Zubhai now has all those sections in one page so visitors see exactly what the brand offers.</p>
+        <p style="font-size:13px;color:var(--text2);line-height:1.8">Use this page to explain the product, capture visitors, and guide them to login or start a free trial.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer class="z2">
   <div class="wrap">
     <div class="foot-grid">
       <div><span class="foot-logo" style="margin-bottom:12px;display:block;"><img src="logo.svg" alt="Zubhai" style="height:22px;width:auto;display:block;"/></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
-      <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
+      <div class="foot-col"><h4>Product</h4><ul><li><a href="#how-it-works">How it works</a></li><li><a href="#about">About</a></li><li><a href="#docs">Docs</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#" onclick="openApp('login')">Login</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li></ul></div>
       <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:hello@zubhai.com">Email</a></li></ul></div>
     </div>
     <div class="foot-bottom"><p>© 2026 Zubhai · Built in India 🇮🇳</p><p>by Shubh Agrawal</p></div>
@@ -960,7 +1019,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 </div>
 
 <script>
-const API = "https://zubhai-zubhai-backened.hf.space";
+const API = "";
 const SUPABASE_URL = "https://ceikerijcbyxtltpkqcu.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlaWtlcmlqY2J5eHRsdHBrcWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjg5ODAsImV4cCI6MjA5MjYwNDk4MH0.Is8yU6eWe0xjv7jFCIavW61pWwYqoFS8SRXt68C2uLI"; // Set your Supabase anon key here
 const sb = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
@@ -1215,38 +1274,19 @@ function refreshSidebar(){
   document.getElementById('sb-avatar').textContent=initials;
   document.getElementById('um-email').textContent=email;
   document.getElementById('um-name').textContent=name;
-  document.getElementById('um-plan').textContent=(userProfile.plan||'free_trial').replace('_',' ');
+  const planLabel = (userProfile.plan||'free_trial').replace('_',' ');
+  document.getElementById('um-plan').textContent=planLabel;
   document.getElementById('tb-streak').textContent=userProfile.streak||0;
   document.getElementById('tb-pts').textContent=userProfile.points||0;
+  document.getElementById('plan-top-label').textContent=planLabel;
   document.getElementById('tb-day').textContent=userProfile.day_in_program||1;
   document.getElementById('lb-day').textContent=userProfile.day_in_program||1;
+  document.getElementById('tb-sess-left').textContent=planLabel==='free trial'?'5':'∞';
   currentDay=userProfile.day_in_program||1;
-  loadUsage();
   loadDispatch();
 }
 
-async function loadUsage(){
-  if(!userId)return;
-  try{
-    const d=await fetch(API+'/usage/'+userId).then(r=>r.json());
-    usageData=d;
-    const left=d.sessions_left||0,limit=d.sessions_limit||5;
-    const pct=Math.round((1-(left/limit))*100);
-    document.getElementById('sb-usage-fill').style.width=pct+'%';
-    document.getElementById('sb-usage-label').textContent=`${limit-left}/${limit} sessions`;
-    const sessEl=document.getElementById('tb-sessions');
-    const sessLeft=document.getElementById('tb-sess-left');
-    sessLeft.textContent=left;
-    sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
-    if(d.trial_expired){
-      document.getElementById('plan-top-label').textContent='Trial Ended';
-    } else {
-      document.getElementById('plan-top-label').textContent=(d.plan||'free trial').replace('_',' ');
-    }
-    // Start reset timer if at limit
-    if(left===0&&d.reset_seconds)startResetTimer(d.reset_seconds);
-  }catch(e){console.log('Usage error:',e);}
-}
+// Usage tracking is currently handled by the backend. The frontend does not call /usage directly.
 
 function startResetTimer(secs){
   if(timerInterval)clearInterval(timerInterval);
