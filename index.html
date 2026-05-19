@@ -6,8 +6,8 @@
 <title>Zubhai — 7-Day AI Coaching</title>
 <meta name="description" content="7 days to transform how you work with AI. Real tasks. Real verification. For students, developers, marketers, and sales pros."/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
 <style>
 :root{
   --bg:#0a0a0a;--bg2:#111;--bg3:#161616;--bg4:#1c1c1c;
@@ -322,13 +322,46 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 .chat-send:disabled{opacity:.35;cursor:not-allowed}
 .chat-send svg{width:14px;height:14px;fill:var(--bg)}
 
+.chat-attach-btn{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:var(--r6);transition:.15s;flex-shrink:0}
+.chat-attach-btn:hover{background:rgba(255,255,255,.07);color:var(--text2)}
+
+
 /* limit banner */
-.limit-banner{background:rgba(239,68,68,.06);border:1px solid rgba(239,68,68,.2);border-radius:var(--r12);padding:14px;margin:16px;text-align:center}
-.limit-banner h3{font-size:14px;font-weight:500;color:#fca5a5;margin-bottom:4px}
-.limit-banner p{font-size:12px;color:var(--text3);line-height:1.6;margin-bottom:10px}
-.limit-timer{font-family:var(--fm);font-size:18px;color:#ef4444;margin-bottom:10px}
-.limit-upgrade{background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:10px 22px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
-.limit-upgrade:hover{background:var(--accent2)}
+/* ── LIMIT OVERLAY (Claude-style) ────────── */
+.limit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+.limit-overlay.show{display:flex}
+.limit-modal{background:#141414;border:1px solid #2a2a2a;border-radius:var(--r16);padding:28px 24px;max-width:340px;width:100%;text-align:center;position:relative}
+.limit-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ef4444,transparent);border-radius:var(--r16) var(--r16) 0 0}
+.limit-modal-icon{font-size:32px;margin-bottom:12px;display:block}
+.limit-modal h3{font-size:16px;font-weight:500;color:var(--text);margin-bottom:6px}
+.limit-modal p{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px}
+.limit-timer-big{font-family:var(--fm);font-size:28px;color:#ef4444;margin-bottom:6px;letter-spacing:2px}
+.limit-timer-label{font-size:10px;color:var(--text3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
+.limit-progress{height:3px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:18px}
+.limit-progress-fill{height:100%;border-radius:100px;transition:width .5s}
+.limit-modal-upgrade{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-bottom:8px}
+.limit-modal-upgrade:hover{background:var(--accent2)}
+.limit-modal-later{font-size:11px;color:var(--text3);cursor:pointer;transition:.2s;background:none;border:none;width:100%;padding:6px;font-family:var(--fb)}
+.limit-modal-later:hover{color:var(--text2)}
+/* ── SHARE CARD ──────────────────────────── */
+.share-card{background:var(--bg2);border:1px solid rgba(232,96,44,.25);border-radius:var(--r12);padding:14px;margin:8px 0;animation:slideUp .3s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.share-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.share-card-score{font-family:var(--fm);font-size:10px;color:var(--accent);background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);border-radius:100px;padding:2px 9px}
+.share-card-title{font-size:12px;font-weight:500;color:var(--text)}
+.share-card-post{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:11px;font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:10px;white-space:pre-wrap;font-family:var(--fb)}
+.share-card-btns{display:flex;gap:7px}
+.share-btn{flex:1;padding:8px;border-radius:var(--r8);font-size:11px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;border:1px solid var(--border2);background:none;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px}
+.share-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.share-btn.linkedin{border-color:rgba(10,102,194,.4);color:#0a66c2}
+.share-btn.linkedin:hover{background:rgba(10,102,194,.08)}
+.share-btn.twitter{border-color:rgba(255,255,255,.2);color:var(--text2)}
+.share-btn.twitter:hover{background:rgba(255,255,255,.06)}
+.share-btn.copy{color:var(--green);border-color:rgba(34,197,94,.3)}
+.share-btn.copy:hover{background:rgba(34,197,94,.06)}
+/* ── GRADE BUBBLE ────────────────────────── */
+.grade-bubble{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:100px;padding:3px 10px;font-size:10px;font-family:var(--fm);color:#4ade80;margin-top:6px}
+.grade-bubble.low{background:rgba(249,115,22,.08);border-color:rgba(249,115,22,.2);color:#fb923c}
 
 /* ── HOME / LOBBY ─────────────────────────── */
 .lobby-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
@@ -416,7 +449,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 /* responsive */
 @media(max-width:768px){
   .wrap{padding:0 16px}
-  .hero-grid,.stats-grid,.threat-grid,.steps-grid,.plans-grid,.proof-preview{grid-template-columns:1fr}
+  .hero-grid,.stats-grid,.threat-grid,.steps-grid,.plans-grid,.proof-preview,[style*='grid-template-columns:1fr 1fr']{grid-template-columns:1fr!important}
   .hero-visual{display:none}
   .foot-grid{grid-template-columns:1fr;gap:18px}
   .foot-bottom{flex-direction:column;gap:4px}
@@ -445,9 +478,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <div id="land">
 <nav id="nav">
   <div class="nav-i">
-  <a href="#" class="nav-logo" style="display: flex; align-items: center;">
-    <img src="logo.svg" alt="Zubhai" style="height: 26px; width: auto; display: block;"/>
-  </a>
+    <a href="#" class="nav-logo" style="display:flex;align-items:center;"><img src="logo.svg" alt="Zubhai" style="height:26px;width:auto;display:block;"/></a>
     <div class="nav-r">
       <button class="btn-ghost" onclick="openApp('login')">Login</button>
       <button class="btn-pri" onclick="openApp('signup')">Start Free Trial →</button>
@@ -467,14 +498,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
           <button class="btn-lg g" onclick="openApp('login')">Login →</button>
         </div>
       </div>
-       <div class="hero-visual reveal d2">
-  <div class="hero-card">
-    <div class="hc-top">
-      <span class="hc-logo" style="display: flex; align-items: center;">
-        <img src="logo.svg" alt="Zubhai" style="height: 14px; width: auto; display: block;"/>
-      </span>
-      <span class="hc-badge">Day 4 · Marketing</span>
-    </div>
+      <div class="hero-visual reveal d2">
+        <div class="hero-card">
+          <div class="hc-top"><span class="hc-logo" style="display:flex;align-items:center;"><img src="logo.svg" alt="Zubhai" style="height:14px;width:auto;display:block;"/></span><span class="hc-badge">Day 4 · Marketing</span></div>
           <div class="hc-body">
             <div class="hc-threat">⚠ 68% of marketing tasks are now AI-automatable. Your competitor's 2-person team outproduces your 8-person team.</div>
             <div class="hc-msg">Today you'll build a full email sequence that converts. Claude will help you write 5 emails ready to send. What product or service are we writing for?</div>
@@ -587,15 +613,47 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
+
+<section class="pad z2" id="about" style="background:var(--bg2)">
+  <div class="wrap">
+    <span class="stag reveal">About</span>
+    <h2 class="stitle reveal">Why Zubhai exists.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:40px">
+      <div class="reveal">
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          I spent 6 months watching AI tutorials. I understood transformers, RAG, prompt engineering, agents. I could explain everything.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Then I sat down to actually use AI for my work — and had no idea what to do.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Nobody teaches you <em style="color:var(--text);font-style:italic">how to start</em>. They teach you what AI can do. Not how to do it with AI, for your specific job, today.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95">
+          Zubhai is the platform I wish existed. You don't watch. You do. Day 1, you build something real.
+        </p>
+      </div>
+      <div class="reveal d1">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:28px">
+          <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e8602c22,#4a9eff22);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:18px;color:var(--text);margin-bottom:14px">S</div>
+          <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px">Shubh Agrawal</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Founder · Zubhai · Maharashtra, India</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">AI automation developer. Built Zubhai because I kept seeing smart people fail to use AI — not from lack of knowledge, but lack of practice.</div>
+          <div style="display:flex;gap:8px">
+            <a href="https://linkedin.com/in/shubhagrawal429" target="_blank" style="font-size:11px;color:var(--text3);text-decoration:none;border:1px solid var(--border2);border-radius:var(--r6);padding:5px 12px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text3)'">LinkedIn →</a>
+            <a href="mailto:hello@zubhai.com" style="font-size:11px;color:var(--text3);text-decoration:none;border:1px solid var(--border2);border-radius:var(--r6);padding:5px 12px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text3)'">Email →</a>
+            <a href="https://zubhai.com" style="font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(232,96,44,.3);border-radius:var(--r6);padding:5px 12px">zubhai.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer class="z2">
   <div class="wrap">
     <div class="foot-grid">
-      <div>
-  <span class="foot-logo" style="margin-bottom: 12px; display: block;">
-    <img src="logo.svg" alt="Zubhai" style="height: 22px; width: auto; display: block;"/>
-  </span>
-  <p class="foot-desc">7-day AI coaching for students...</p>
-</div>
+      <div><span class="foot-logo" style="margin-bottom:12px;display:block;"><img src="logo.svg" alt="Zubhai" style="height:22px;width:auto;display:block;"/></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
       <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
       <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:hello@zubhai.com">Email</a></li></ul></div>
     </div>
@@ -607,10 +665,8 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <!-- ════════ APP ════════ -->
 <div id="app">
   <div class="sb" id="sb">
-    <div class="sb-top" style="padding-bottom: 10px;">
-      <div class="sb-logo" style="display: flex; align-items: center; justify-content: center; height: 28px;">
-        <img src="favicon.svg" alt="Zubhai Logo" style="height: 22px; width: auto; display: block;"/>
-      </div>
+    <div class="sb-top">
+      <div class="sb-logo" style="display:flex;align-items:center;justify-content:center;height:28px;"><img src="favicon.svg" alt="Zubhai" style="height:22px;width:auto;display:block;"/></div>
       <div class="sb-icon on" id="nav-home" onclick="navTo('sc-lobby')">
         <svg viewBox="0 0 24 24"><path d="M3 9L12 3l9 6v12a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/></svg>
         <div class="sb-tip">Home</div>
@@ -683,12 +739,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       </div>
     </div>
   </div>
-    <div class="app-main">
-  <div class="app-top" id="app-top">
-    <div class="app-top-title" id="top-title" style="display: flex; align-items: center; height: 100%;">
-      <img src="logo.svg" alt="Zubhai" style="height: 18px; width: auto; display: block;"/>
-    </div>
-  
+
+  <div class="app-main">
+    <!-- plan badge top center -->
+    <div class="app-top" id="app-top">
+      <div class="app-top-title" id="top-title">Zubhai</div>
       <div class="plan-top-badge" id="plan-top-badge">
         <span id="plan-top-label">Free Trial</span>
         <button onclick="navTo('sc-upgrade')">Upgrade</button>
@@ -701,12 +756,13 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       </div>
     </div>
 
-     <div class="app-body">
-  <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
-    <div class="auth-wrap">
-      <div class="auth-logo" style="margin-bottom: 14px; display: flex; justify-content: center;">
-        <img src="logo.svg" alt="Zubhai" style="height: 32px; width: auto; display: block;"/>
-      </div>
+    <div class="app-body">
+
+      <!-- AUTH -->
+      <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
+        <div class="auth-wrap">
+          <div class="auth-back" onclick="closeApp()">← Back</div>
+          <div class="auth-logo" style="margin-bottom:14px;display:flex;justify-content:center;"><img src="logo.svg" alt="Zubhai" style="height:32px;width:auto;display:block;"/></div>
           <div class="auth-tagline" id="auth-tagline">7 days to transform how you work with AI.</div>
 
           <button class="auth-google" onclick="signInGoogle()">
@@ -726,8 +782,25 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       <div class="screen" id="sc-onboard">
         <div class="ob-center">
           <div class="ob-wrap">
-            <div class="ob-progress" id="ob-prog"></div>
-            <div id="ob-body"></div>
+            <div class="ob-q" style="font-size:clamp(20px,3vw,30px);margin-bottom:6px">What do you do?</div>
+            <div class="ob-hint">We build your 7-day program around this. Pick the closest match.</div>
+            <div class="ob-chips" style="margin-top:16px">
+              <div class="ob-chip" onclick="pickProfession(this,'student')">🎓 Student</div>
+              <div class="ob-chip" onclick="pickProfession(this,'developer')">💻 Developer</div>
+              <div class="ob-chip" onclick="pickProfession(this,'marketing')">📣 Marketing</div>
+              <div class="ob-chip" onclick="pickProfession(this,'sales')">🤝 Sales</div>
+            </div>
+            <div style="margin-top:18px;display:none" id="ob-lang-row">
+              <div class="ob-hint" style="margin-bottom:10px">Which language do you think best in?</div>
+              <div class="ob-chips">
+                <div class="ob-chip" onclick="pickLang(this,'English')">English</div>
+                <div class="ob-chip" onclick="pickLang(this,'Hindi')">Hindi</div>
+                <div class="ob-chip" onclick="pickLang(this,'Hinglish')">Hinglish</div>
+                <div class="ob-chip" onclick="pickLang(this,'Marathi')">Marathi</div>
+                <div class="ob-chip" onclick="pickLang(this,'Tamil')">Tamil</div>
+                <div class="ob-chip" onclick="pickLang(this,'Bengali')">Bengali</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -771,6 +844,20 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
         </div>
       </div>
 
+      <!-- LIMIT OVERLAY (Claude-style popup) -->
+      <div class="limit-overlay" id="limit-overlay">
+        <div class="limit-modal">
+          <span class="limit-modal-icon">⏱</span>
+          <h3 id="lm-title">You've reached your daily limit</h3>
+          <p id="lm-desc">Free trial includes 5 messages per day. Upgrade to Pro for 50/day.</p>
+          <div class="limit-timer-big" id="lm-timer">--:--:--</div>
+          <div class="limit-timer-label">Resets at midnight IST</div>
+          <div class="limit-progress"><div class="limit-progress-fill" id="lm-progress" style="width:100%;background:#ef4444"></div></div>
+          <button class="limit-modal-upgrade" onclick="closeLimitOverlay();navTo('sc-upgrade')">Upgrade to Pro — ₹499/mo →</button>
+          <button class="limit-modal-later" onclick="closeLimitOverlay()">Continue tomorrow →</button>
+        </div>
+      </div>
+
       <!-- CHAT -->
       <div class="screen" id="sc-chat">
         <div class="chat-screen">
@@ -784,27 +871,21 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
           <div class="chat-messages" id="chat-messages">
             <div class="spin-wrap"><div class="spinner"></div><p>Starting your session...</p></div>
           </div>
-          <div id="task-submit-panel" style="display:none" class="task-submit">
-            <div class="task-submit-header">Submit Your Work</div>
-            <div class="task-submit-inputs">
-              <input class="task-inp" id="task-url" placeholder="Paste your link (Claude, LinkedIn, GitHub, Google Doc...)"/>
-              <div class="task-or">— or describe what you did —</div>
-              <textarea class="task-ta" id="task-text" placeholder="Describe your output in detail..."></textarea>
-            </div>
-            <button class="task-btn" onclick="submitTask()">Submit & Get Score →</button>
-          </div>
-          <div id="limit-panel" style="display:none" class="limit-banner">
-            <h3>Sessions used for today</h3>
-            <p>Your 5 free sessions reset at midnight IST. Upgrade to Pro for unlimited daily sessions.</p>
-            <div class="limit-timer" id="limit-timer">—</div>
-            <button class="limit-upgrade" onclick="navTo('sc-upgrade')">Upgrade to Pro — ₹499/mo</button>
-          </div>
           <div class="chat-input-area" id="chat-input-area">
+            <!-- image upload hidden input -->
+            <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)"/>
             <div class="chat-input-wrap">
-              <textarea class="chat-input" id="chat-input" placeholder="Reply to your coach..." rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
+              <button class="chat-attach-btn" onclick="document.getElementById('img-upload').click()" title="Upload screenshot">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <textarea class="chat-input" id="chat-input" placeholder="Reply, paste code, or share a link..." rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
               <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">
                 <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
               </button>
+            </div>
+            <div id="img-preview-bar" style="display:none;padding:6px 0 0;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px">
+              <span id="img-preview-name"></span>
+              <span style="cursor:pointer;color:var(--accent)" onclick="clearImageUpload()">✕ remove</span>
             </div>
           </div>
         </div>
@@ -883,11 +964,13 @@ const API = "https://zubhai-zubhai-backened.hf.space";
 const SUPABASE_URL = "https://ceikerijcbyxtltpkqcu.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlaWtlcmlqY2J5eHRsdHBrcWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjg5ODAsImV4cCI6MjA5MjYwNDk4MH0.Is8yU6eWe0xjv7jFCIavW61pWwYqoFS8SRXt68C2uLI"; // Set your Supabase anon key here
 const sb = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
 let userId = null, userProfile = null, authMode = "signup";
 let chatHistory = [], streamingMessage = null;
 let usageData = null;
 let currentDay = 1;
 let timerInterval = null;
+
 const PROGRAMS = {
   student:[
     {day:1,title:"Your AI Research Assistant",tool:"Perplexity"},
@@ -926,12 +1009,14 @@ const PROGRAMS = {
     {day:7,title:"Your Sales Playbook",tool:"Claude"},
   ],
 };
+
 const OBQ = [
   {key:"field",q:"What do you do?",hint:"We build your 7-day program around your exact role",chips:["Student","Developer","Marketing","Sales"],other:false},
   {key:"level",q:"How much have you used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
   {key:"language",q:"Which language do you think best in?",hint:"Your coaching responds in this language",chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali"],other:true,op:"Type your language..."},
 ];
 let obStep=0, obAns={};
+
 /* ── THREE.JS BG ── */
 (()=>{
   const c=document.getElementById('bg'),r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
@@ -953,9 +1038,11 @@ let obStep=0, obAns={};
     r.render(sc,cam);
   })();
 })();
+
 const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
 document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
 window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
+
 /* ── UTILS ── */
 function showToast(msg,dur=2800){
   document.querySelectorAll('.toast').forEach(t=>t.remove());
@@ -969,6 +1056,7 @@ async function post(path,body){
 }
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
 function fmtTime(secs){const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);return h>0?`${h}h ${m}m`:`${m}m`;}
+
 /* ── THREAT POPUP ── */
 async function showThreat(){
   const field=(userProfile?.field||'student').toLowerCase();
@@ -986,6 +1074,7 @@ async function showThreat(){
   document.getElementById('threat-overlay').classList.add('show');
 }
 function closeThreat(){document.getElementById('threat-overlay').classList.remove('show');}
+
 /* ── NAV ── */
 function showScreen(id){
   document.querySelectorAll('#app .screen').forEach(s=>s.classList.remove('on'));
@@ -1005,6 +1094,7 @@ function navTo(id){
   const map={'sc-lobby':'nav-home','sc-chat':'nav-chat','sc-proof':'nav-proof','sc-lb':'nav-lb','sc-upgrade':'nav-upgrade'};
   if(map[id])document.getElementById(map[id])?.classList.add('on');
 }
+
 /* ── USER MENU ── */
 function closeMenu(){document.getElementById('user-menu')?.classList.remove('show');}
 function toggleUserMenu(){document.getElementById('user-menu')?.classList.toggle('show');}
@@ -1013,6 +1103,7 @@ document.addEventListener('click',e=>{
   const btn=document.getElementById('sb-avatar');
   if(m?.classList.contains('show')&&!m.contains(e.target)&&!btn?.contains(e.target))closeMenu();
 });
+
 /* ── OPEN / CLOSE APP ── */
 function openApp(mode){
   authMode=mode;updateAuthUI();
@@ -1040,6 +1131,7 @@ function logout(){
   localStorage.removeItem('zubhai_uid');
   closeApp();showToast('Logged out. See you tomorrow!');
 }
+
 /* ── AUTH UI ── */
 function updateAuthUI(){
   const l=authMode==='login';
@@ -1049,74 +1141,19 @@ function updateAuthUI(){
   document.getElementById('auth-tagline').textContent=l?'Welcome back.':'7 days to transform how you work with AI.';
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
+
 /* ── GOOGLE AUTH ── */
-async function signInGoogle() {
-  if (!sb) {
-    showToast('Add Supabase anon key to index.html first');
-    return;
-  }
-  try {
-    const { error } = await sb.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: window.location.origin + window.location.pathname,
-        queryParams: { access_type: 'offline', prompt: 'consent' }
-      }
+async function signInGoogle(){
+  if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
+  try{
+    const {data,error}=await sb.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.origin}
     });
-    if (error) throw error;
-  } catch (e) {
-    showToast('Google login error: ' + e.message);
-  }
+    if(error)throw error;
+  }catch(e){showToast('Google auth error: '+e.message);}
 }
- 
-/*
-STEP 3 — Replace the OAuth redirect handler (the async IIFE at bottom) with this:
-*/
- 
-(async () => {
-  if (!sb) return;
-  try {
-    // Listen for auth state changes — fires on redirect back from Google
-    sb.auth.onAuthStateChange(async (event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'INITIAL_SESSION') && session && !userId) {
-        const d = await post('/auth/google', {
-          access_token: session.access_token,
-          refresh_token: session.refresh_token
-        });
-        if (d.status === 'success') {
-          userId = d.user_id;
-          userProfile = d.user;
-          localStorage.setItem('zubhai_uid', userId);
-          // Hide landing, show app
-          document.getElementById('land').style.display = 'none';
-          document.getElementById('app').classList.add('open');
-          document.getElementById('sb').style.display = 'flex';
-          afterLogin();
-        }
-      }
-    });
- 
-    // Also check for existing session (page refresh)
-    const { data: { session } } = await sb.auth.getSession();
-    if (session && !userId) {
-      const d = await post('/auth/google', {
-        access_token: session.access_token,
-        refresh_token: session.refresh_token
-      });
-      if (d.status === 'success') {
-        userId = d.user_id;
-        userProfile = d.user;
-        localStorage.setItem('zubhai_uid', userId);
-        document.getElementById('land').style.display = 'none';
-        document.getElementById('app').classList.add('open');
-        document.getElementById('sb').style.display = 'flex';
-        afterLogin();
-      }
-    }
-  } catch (e) {
-    console.log('Auth state check:', e);
-  }
-})();
+
 // Handle Google OAuth redirect
 (async()=>{
   if(!sb)return;
@@ -1137,6 +1174,7 @@ STEP 3 — Replace the OAuth redirect handler (the async IIFE at bottom) with th
     }
   }catch(e){console.log('OAuth check:',e);}
 })();
+
 /* ── EMAIL AUTH ── */
 async function handleAuth(){
   const email=document.getElementById('a-email').value.trim();
@@ -1158,6 +1196,7 @@ async function handleAuth(){
   }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
+
 /* ── AFTER LOGIN ── */
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
@@ -1165,8 +1204,9 @@ function afterLogin(){
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
   if(!userProfile?.field)startOnboarding();
-  else goHome();
+  else{goHome();}
 }
+
 function refreshSidebar(){
   if(!userProfile)return;
   const email=userProfile.email||'';
@@ -1184,6 +1224,7 @@ function refreshSidebar(){
   loadUsage();
   loadDispatch();
 }
+
 async function loadUsage(){
   if(!userId)return;
   try{
@@ -1206,6 +1247,7 @@ async function loadUsage(){
     if(left===0&&d.reset_seconds)startResetTimer(d.reset_seconds);
   }catch(e){console.log('Usage error:',e);}
 }
+
 function startResetTimer(secs){
   if(timerInterval)clearInterval(timerInterval);
   let remaining=secs;
@@ -1213,6 +1255,7 @@ function startResetTimer(secs){
   const update=()=>{if(el)el.textContent='Resets in '+fmtTime(Math.max(0,remaining));remaining--;if(remaining<0){clearInterval(timerInterval);}};
   update();timerInterval=setInterval(update,1000);
 }
+
 async function loadDispatch(){
   if(!userProfile?.field)return;
   try{
@@ -1223,45 +1266,27 @@ async function loadDispatch(){
     }
   }catch(e){}
 }
+
 /* ── ONBOARDING ── */
-function startOnboarding(){showScreen('sc-onboard');obStep=0;obAns={};renderOb();}
-function renderOb(){
-  const q=OBQ[obStep];
-  let dots='';
-  for(let i=0;i<OBQ.length;i++) dots+=`<div class="ob-dot ${i<obStep?'done':i===obStep?'cur':''}"></div>`;
-  document.getElementById('ob-prog').innerHTML=dots;
-  const chips=q.chips.map(c=>`<div class="ob-chip" onclick="pickChip(this,'${c.replace(/'/g,"\\'")}','${q.key}')">${c}</div>`).join('');
-  const other=q.other?`<div class="ob-other-link" onclick="revealOther(this)">Not listed? Type it ↓</div><input class="ob-other-inp" id="ob-other" placeholder="${q.op||'Type...'}" oninput="typeOther(this,'${q.key}')"/>`:'';
-  document.getElementById('ob-body').innerHTML=`
-    <div class="ob-q">${q.q}</div>
-    <div class="ob-hint">${q.hint}</div>
-    <div class="ob-chips">${chips}</div>
-    ${other}
-    <button class="ob-next" id="ob-next" onclick="obAdvance()" disabled>Continue →</button>`;
+let pickedField='',pickedLang='English';
+function startOnboarding(){showScreen('sc-onboard');pickedField='';pickedLang='English';}
+function pickProfession(el,field){
+  document.querySelectorAll('#sc-onboard .ob-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');pickedField=field;
+  document.getElementById('ob-lang-row').style.display='block';
 }
-function revealOther(el){const i=document.getElementById('ob-other');i.classList.add('show');i.focus();}
-function typeOther(inp,key){const v=inp.value.trim();if(v){document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));obAns[key]=v;document.getElementById('ob-next').disabled=false;}}
-function pickChip(el,val,key){
-  document.querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');obAns[key]=val;
-  document.getElementById('ob-next').disabled=false;
-  const oi=document.getElementById('ob-other');if(oi)oi.value='';
+function pickLang(el,lang){
+  el.closest('.ob-chips').querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');pickedLang=lang;finishOb();
 }
-function obAdvance(){if(!obAns[OBQ[obStep].key])return;obStep++;if(obStep>=OBQ.length)finishOb();else renderOb();}
 async function finishOb(){
-  const lvlMap={"Never tried it":"beginner","Played around a bit":"beginner","Use it sometimes":"mid","Use it daily":"advanced"};
-  await post('/onboard',{
-    user_id:userId,
-    field:obAns.field,
-    level:lvlMap[obAns.level]||'beginner',
-    language:obAns.language||'English',
-    time_per_day:15
-  });
-  if(userProfile){userProfile.field=obAns.field;userProfile.language=obAns.language;}
-  // Show threat popup after onboarding
-  await showThreat();
-  goHome();
+  if(!pickedField)return;
+  await post('/onboard',{user_id:userId,field:pickedField,level:'beginner',language:pickedLang,time_per_day:15});
+  if(!userProfile)userProfile={};
+  userProfile.field=pickedField;userProfile.language=pickedLang;
+  await showThreat();goTodaySession();
 }
+
 /* ── HOME ── */
 function goHome(){
   navTo('sc-lobby');refreshSidebar();
@@ -1269,13 +1294,16 @@ function goHome(){
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
 }
+function goTodaySession(){
+  chatHistory=[];navTo('sc-chat');initChat();
+}
 function lobbyKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lobbyGo();}}
 function lobbyGo(){
   const v=(document.getElementById('lobby-input')?.value||'').trim();
   document.getElementById('lobby-input').value='';
-  navTo('sc-chat');
-  initChat(v);
+  chatHistory=[];navTo('sc-chat');initChat(v);
 }
+
 /* ── CHAT ENGINE ── */
 function initChat(initialMsg){
   const field=(userProfile?.field||'student').toLowerCase();
@@ -1286,27 +1314,27 @@ function initChat(initialMsg){
   document.getElementById('chat-day-title').textContent=dayInfo.title;
   document.getElementById('chat-tool-badge').textContent=dayInfo.tool;
   document.getElementById('chat-messages').innerHTML='';
-  document.getElementById('task-submit-panel').style.display='none';
-  document.getElementById('limit-panel').style.display='none';
   document.getElementById('chat-input-area').style.display='block';
-  // Welcome message from coach
-  const welcomeMsg=initialMsg
-    ? `Hey! I got your message: "${initialMsg}" — let me address that and also walk you through Day ${dayIdx+1}.`
-    : null;
-  if(chatHistory.length===0||welcomeMsg){
-    streamChatResponse(welcomeMsg||'');
-  }
+  closeLimitOverlay();
+  // First message = give task immediately, no warmup
+  const startMsg = initialMsg
+    ? `Context from user: "${initialMsg}". Now start Day ${dayIdx+1}.`
+    : `start`;
+  streamChatResponse(startMsg, true);
 }
-function addMessage(role,content){
+
+function addMessage(role,content,isHtml){
   const msgs=document.getElementById('chat-messages');
   const div=document.createElement('div');
   div.className='chat-msg '+role;
   const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-  div.innerHTML=`<div class="chat-msg-inner">${esc(content).replace(/\n/g,'<br/>')}</div><div class="chat-msg-time">${time}</div>`;
+  const inner=isHtml?content:esc(content).replace(/\n/g,'<br/>').replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+  div.innerHTML=`<div class="chat-msg-inner">${inner}</div><div class="chat-msg-time">${time}</div>`;
   msgs.appendChild(div);
   msgs.scrollTop=msgs.scrollHeight;
   return div;
 }
+
 function addTypingIndicator(){
   const msgs=document.getElementById('chat-messages');
   const div=document.createElement('div');
@@ -1315,202 +1343,259 @@ function addTypingIndicator(){
   msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function removeTypingIndicator(){document.getElementById('typing-indicator')?.remove();}
-// REPLACE the entire streamChatResponse function in index.html with this:
-async function streamChatResponse(userMsg) {
-  const sendBtn = document.getElementById('chat-send-btn');
-  if (sendBtn) sendBtn.disabled = true;
-  if (userMsg) {
-    chatHistory.push({ role: 'user', content: userMsg });
-  }
-  // Remove typing indicator if exists
-  removeTypingIndicator();
-  // Check usage
-  if (usageData && usageData.sessions_left === 0) {
-    showLimitPanel();
-    if (sendBtn) sendBtn.disabled = false;
+
+function renderShareCard(post, score, day){
+  const li=encodeURIComponent(post);
+  const tw=encodeURIComponent(post);
+  const card=document.createElement('div');
+  card.className='share-card';
+  card.innerHTML=`
+    <div class="share-card-header">
+      <span class="share-card-score">Score ${score}/10</span>
+      <span class="share-card-title">Day ${day} complete — share your win</span>
+    </div>
+    <div class="share-card-post" id="share-post-text">${esc(post)}</div>
+    <div class="share-card-btns">
+      <button class="share-btn linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&text=${li}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </button>
+      <button class="share-btn twitter" onclick="window.open('https://twitter.com/intent/tweet?text=${tw}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter/X
+      </button>
+      <button class="share-btn copy" onclick="navigator.clipboard.writeText(document.getElementById('share-post-text').textContent);this.textContent='✓ Copied'">
+        Copy
+      </button>
+    </div>`;
+  const msgs=document.getElementById('chat-messages');
+  msgs.appendChild(card);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function streamChatResponse(userMsg, isInit){
+  const sendBtn=document.getElementById('chat-send-btn');
+  if(sendBtn)sendBtn.disabled=true;
+
+  if(userMsg && !isInit) chatHistory.push({role:'user',content:userMsg});
+
+  addTypingIndicator();
+  const msgs=document.getElementById('chat-messages');
+
+  // client-side limit check
+  if(usageData && usageData.msgs_left===0){
+    removeTypingIndicator();
+    showLimitOverlay(usageData.reset_seconds||0);
+    if(sendBtn)sendBtn.disabled=false;
     return;
   }
-  const msgs = document.getElementById('chat-messages');
-  if (!msgs) return;
-  // Create AI message bubble immediately
-  const aiDiv = document.createElement('div');
-  aiDiv.className = 'chat-msg ai';
-  const innerDiv = document.createElement('div');
-  innerDiv.className = 'chat-msg-inner';
-  innerDiv.textContent = '...';
-  const timeDiv = document.createElement('div');
-  timeDiv.className = 'chat-msg-time';
-  timeDiv.textContent = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
-  aiDiv.appendChild(innerDiv);
-  aiDiv.appendChild(timeDiv);
-  msgs.appendChild(aiDiv);
-  msgs.scrollTop = msgs.scrollHeight;
-  const field = (userProfile?.field || 'student').toLowerCase();
-  try {
-    const resp = await fetch(API + '/chat', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        user_id: userId,
-        message: userMsg || 'Start my session for today',
-        day: currentDay || 1,
-        field: field,
-        language: userProfile?.language || 'English',
-        history: chatHistory.slice(-20)
-      })
+
+  const field=(userProfile?.field||'student').toLowerCase();
+
+  try{
+    const body={
+      user_id:userId,
+      message:isInit?('START_SESSION_DAY_'+(currentDay||1)+(userMsg&&userMsg!=='start'?'_CONTEXT:'+userMsg:'')):userMsg,
+      day:currentDay||1,
+      field:field,
+      language:userProfile?.language||'English',
+      history:isInit?[]:chatHistory.slice(-16)
+    };
+
+    const resp=await fetch(API+'/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
     });
-    if (!resp.ok) {
-      let errData = {};
-      try { errData = await resp.json(); } catch (e) {}
-      innerDiv.textContent = errData.message || 'Error. Try again.';
-      if (errData.status === 'limit_reached') {
-        aiDiv.remove();
-        showLimitPanel(errData.reset_seconds);
-      } else if (errData.status === 'trial_expired') {
-        aiDiv.remove();
-        showTrialExpiredPanel();
-      }
-      if (sendBtn) sendBtn.disabled = false;
+
+    if(!resp.ok){
+      let err={};try{err=await resp.json();}catch(e){}
+      removeTypingIndicator();
+      if(err.status==='limit_reached'){showLimitOverlay(err.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(err.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai','Error loading response. Try again.');
+      if(sendBtn)sendBtn.disabled=false;
       return;
     }
-    const contentType = resp.headers.get('content-type') || '';
-    // Handle JSON response (error states)
-    if (contentType.includes('application/json')) {
-      const data = await resp.json();
-      if (data.status === 'limit_reached') {
-        aiDiv.remove();
-        showLimitPanel(data.reset_seconds);
-      } else if (data.status === 'trial_expired') {
-        aiDiv.remove();
-        showTrialExpiredPanel();
-      } else {
-        innerDiv.textContent = data.message || 'Something went wrong.';
-        chatHistory.push({ role: 'assistant', content: data.message || '' });
-      }
-      if (sendBtn) sendBtn.disabled = false;
+
+    const ct=resp.headers.get('content-type')||'';
+    if(ct.includes('application/json')){
+      const data=await resp.json();
+      removeTypingIndicator();
+      if(data.status==='limit_reached'){showLimitOverlay(data.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(data.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai',data.message||'Error.');
+      if(sendBtn)sendBtn.disabled=false;
       return;
     }
-    // SSE streaming
-    const reader = resp.body.getReader();
-    const decoder = new TextDecoder();
-    let fullText = '';
-    let buffer = '';
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split('\n');
-      buffer = lines.pop(); // keep incomplete line in buffer
-      for (const line of lines) {
-        if (!line.startsWith('data:')) continue;
-        const raw = line.slice(5).trim();
-        if (!raw) continue;
-        try {
-          const parsed = JSON.parse(raw);
-          if (parsed.error) {
-            innerDiv.textContent = 'Error: ' + parsed.error;
-            break;
+
+    removeTypingIndicator();
+    const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
+    const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
+    const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
+    timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);
+    msgs.appendChild(aiDiv);
+
+    const reader=resp.body.getReader();
+    const decoder=new TextDecoder();
+    let fullText='',buffer='';
+
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n');
+      buffer=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        const raw=line.slice(5).trim();
+        if(!raw)continue;
+        try{
+          const p=JSON.parse(raw);
+          if(p.error){innerDiv.innerHTML='Error: '+esc(p.error);break;}
+          if(p.text){
+            fullText+=p.text;
+            // strip ZUBHAI_GRADE marker from display
+            const display=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+            innerDiv.innerHTML=esc(display)
+              .replace(/\n/g,'<br/>')
+              .replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+            msgs.scrollTop=msgs.scrollHeight;
           }
-          if (parsed.text) {
-            fullText += parsed.text;
-            // Render with line breaks
-            innerDiv.innerHTML = fullText
-              .replace(/&/g, '&amp;')
-              .replace(/</g, '&lt;')
-              .replace(/>/g, '&gt;')
-              .replace(/\n/g, '<br/>');
-            msgs.scrollTop = msgs.scrollHeight;
-          }
-          if (parsed.done) {
-            // Update session count
-            if (parsed.sessions_left !== undefined) {
-              document.getElementById('tb-sess-left').textContent = parsed.sessions_left;
-              const limit = usageData?.sessions_limit || 5;
-              const pct = Math.round((1 - (parsed.sessions_left / limit)) * 100);
-              document.getElementById('sb-usage-fill').style.width = pct + '%';
-              document.getElementById('sb-usage-label').textContent = `${limit - parsed.sessions_left}/${limit} sessions`;
-              if (usageData) usageData.sessions_left = parsed.sessions_left;
-              // Update badge color
-              const sessEl = document.getElementById('tb-sessions');
-              sessEl.className = 'tbadge tb-sessions' + (parsed.sessions_left <= 1 ? ' danger' : parsed.sessions_left <= 2 ? ' warn' : '');
+          if(p.done){
+            // update usage meter
+            if(p.msgs_left!==undefined){
+              updateUsageMeter(p.msgs_left);
+            }
+            // show grade bubble if score
+            if(p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              const good=typeof sc==='object'?sc.good:'';
+              const badgeClass=n>=7?'grade-bubble':'grade-bubble low';
+              const badge=document.createElement('div');
+              badge.className=badgeClass;
+              badge.innerHTML=`Score ${n}/10${good?' · '+esc(good):''}`;
+              aiDiv.appendChild(badge);
+              // update points badge
+              if(p.points_earned){
+                const cur=parseInt(document.getElementById('tb-pts').textContent)||0;
+                document.getElementById('tb-pts').textContent=cur+p.points_earned;
+              }
+            }
+            // show share card
+            if(p.share_post && p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              setTimeout(()=>renderShareCard(p.share_post,n,currentDay||1),400);
+            }
+            // if msgs_left hit 0 show overlay
+            if(p.msgs_left===0){
+              setTimeout(()=>{showLimitOverlay(usageData?.reset_seconds||0);},600);
             }
           }
-        } catch (e) {
-          // not JSON, skip
-        }
+        }catch(e){}
       }
     }
-    if (fullText) {
-      chatHistory.push({ role: 'assistant', content: fullText });
-      // Show task submit panel after a few exchanges
-      if (chatHistory.length >= 3) {
-        document.getElementById('task-submit-panel').style.display = 'block';
-      }
-    } else if (innerDiv.textContent === '...') {
-      innerDiv.textContent = 'No response. Please try again.';
+    if(fullText){
+      const clean=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+      chatHistory.push({role:'assistant',content:clean});
     }
-  } catch (e) {
-    console.error('Stream error:', e);
-    innerDiv.textContent = 'Connection error. Check internet and try again.';
+  }catch(e){
+    removeTypingIndicator();
+    addMessage('ai','Connection error. Check internet and try again.');
+    console.error('Stream error:',e);
   }
-  if (sendBtn) sendBtn.disabled = false;
+  if(sendBtn)sendBtn.disabled=false;
 }
-function showLimitPanel(resetSecs){
-  document.getElementById('limit-panel').style.display='block';
+
+function updateUsageMeter(left){
+  const limit=usageData?.msgs_limit||5;
+  if(usageData)usageData.msgs_left=left;
+  document.getElementById('tb-sess-left').textContent=left;
+  const pct=Math.round((1-(left/limit))*100);
+  document.getElementById('sb-usage-fill').style.width=pct+'%';
+  document.getElementById('sb-usage-label').textContent=`${limit-left}/${limit} msgs`;
+  const sessEl=document.getElementById('tb-sessions');
+  sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
+}
+
+/* ── LIMIT OVERLAY ── */
+let limitTimerInterval=null;
+function showLimitOverlay(resetSecs){
+  document.getElementById('limit-overlay').classList.add('show');
   document.getElementById('chat-input-area').style.display='none';
-  if(resetSecs)startResetTimer(resetSecs);
+  if(limitTimerInterval)clearInterval(limitTimerInterval);
+  let secs=resetSecs||0;
+  const plan=usageData?.plan||'free_trial';
+  const limit=plan==='free_trial'?5:plan==='pro'?50:999;
+  document.getElementById('lm-desc').textContent=`${plan==='free_trial'?'Free trial':'Pro'} includes ${limit} messages per day. Resets at midnight IST.`;
+  const tick=()=>{
+    if(secs<=0){clearInterval(limitTimerInterval);document.getElementById('lm-timer').textContent='Resetting...';return;}
+    const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    document.getElementById('lm-timer').textContent=
+      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    const totalDay=86400;
+    const pct=Math.round((secs/totalDay)*100);
+    document.getElementById('lm-progress').style.width=pct+'%';
+    document.getElementById('lm-progress').style.background=secs>3600?'#ef4444':'#f97316';
+    secs--;
+  };
+  tick();
+  limitTimerInterval=setInterval(tick,1000);
 }
-function showTrialExpiredPanel(){
-  document.getElementById('limit-panel').style.display='block';
+function showTrialExpiredOverlay(){
+  document.getElementById('lm-title').textContent='Your 7-day trial has ended';
+  document.getElementById('lm-desc').textContent='Upgrade to Pro for 50 messages/day and unlimited coaching.';
+  document.getElementById('limit-overlay').classList.add('show');
   document.getElementById('chat-input-area').style.display='none';
-  document.getElementById('limit-panel').querySelector('h3').textContent='7-day trial ended';
-  document.getElementById('limit-panel').querySelector('p').textContent='Your free trial has ended. Upgrade to Pro to continue your AI coaching journey.';
 }
+function closeLimitOverlay(){
+  document.getElementById('limit-overlay').classList.remove('show');
+  document.getElementById('chat-input-area').style.display='block';
+}
+
+/* ── IMAGE UPLOAD ── */
+let pendingImage=null;
+function handleImageUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  pendingImage=file;
+  const bar=document.getElementById('img-preview-bar');
+  const nm=document.getElementById('img-preview-name');
+  if(bar&&nm){bar.style.display='flex';nm.textContent=file.name;}
+}
+function clearImageUpload(){
+  pendingImage=null;
+  document.getElementById('img-upload').value='';
+  const bar=document.getElementById('img-preview-bar');
+  if(bar)bar.style.display='none';
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
-  const msg=(inp?.value||'').trim();
-  if(!msg)return;
+  let msg=(inp?.value||'').trim();
+  if(!msg&&!pendingImage)return;
+
+  // if image attached, prepend description prompt
+  if(pendingImage&&!msg){
+    msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
+  } else if(pendingImage){
+    msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
+  }
+  clearImageUpload();
   inp.value='';inp.style.height='auto';
   addMessage('user',msg);
-  await streamChatResponse(msg);
+  await streamChatResponse(msg,false);
 }
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-/* ── TASK SUBMISSION ── */
-async function submitTask(){
-  const url=(document.getElementById('task-url')?.value||'').trim();
-  const text=(document.getElementById('task-text')?.value||'').trim();
-  if(!url&&!text){showToast('Paste a link or describe your work');return;}
-  const btn=document.querySelector('.task-btn');
-  if(btn){btn.disabled=true;btn.textContent='Checking your work...';}
-  try{
-    const d=await post('/submit-task',{
-      user_id:userId,
-      day:currentDay||1,
-      field:(userProfile?.field||'student').toLowerCase(),
-      proof_url:url,
-      proof_text:text
-    });
-    if(d.status==='success'){
-      document.getElementById('sc-n').textContent=d.score;
-      document.getElementById('sc-fb').textContent=d.feedback||'';
-      const good=document.getElementById('sc-good'),imp=document.getElementById('sc-improve');
-      if(d.what_was_good){good.innerHTML='✓ '+esc(d.what_was_good);good.style.display='block';}else good.style.display='none';
-      if(d.what_to_improve){imp.innerHTML='→ '+esc(d.what_to_improve);imp.style.display='block';}else imp.style.display='none';
-      const proofNote=document.getElementById('sc-proof-note');
-      if(d.added_to_proof_wall){proofNote.style.display='block';}else proofNote.style.display='none';
-      document.getElementById('sc-pts').textContent=`+${d.points} points · Total: ${d.total_points}`;
-      document.getElementById('sc-mot').textContent='';
-      if(userProfile){userProfile.points=d.total_points;userProfile.day_in_program=d.next_day;}
-      currentDay=d.next_day||currentDay;
-      showScreen('sc-score');chatHistory=[];
-    } else{showToast(d.message||'Submission error');}
-  }catch(e){showToast('Network error. Try again.');}
-  if(btn){btn.disabled=false;btn.textContent='Submit & Get Score →';}
-}
+
 function afterScore(){
-  if(currentDay>7){showToast('You completed all 7 days! 🎉');navTo('sc-proof');loadProofWall();}
-  else{navTo('sc-lobby');goHome();}
+  if(currentDay>7){navTo('sc-proof');loadProofWall();}
+  else{goHome();}
 }
+
 /* ── PROOF WALL ── */
 async function loadProofWall(){
   if(!userId)return;
@@ -1535,6 +1620,7 @@ async function loadProofWall(){
     }
   }catch(e){document.getElementById('proof-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading proof wall.</p>';}
 }
+
 /* ── LEADERBOARD ── */
 async function loadLb(){
   document.getElementById('lb-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div></div>';
@@ -1552,6 +1638,7 @@ async function loadLb(){
       </div>`).join('');
   }catch(e){document.getElementById('lb-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading leaderboard.</p>';}
 }
+
 /* ── UPGRADE ── */
 async function upgradeIntent(plan){
   if(!userId){showToast('Please login first');return;}
@@ -1562,6 +1649,7 @@ async function upgradeIntent(plan){
   }catch(e){showToast('Error. Email hello@zubhai.com directly.');}
   btn.disabled=false;btn.textContent=plan==='pro'?'Upgrade to Pro →':'Join Max →';
 }
+
 /* ── AUTO LOGIN ── */
 (()=>{
   const uid=localStorage.getItem('zubhai_uid');
