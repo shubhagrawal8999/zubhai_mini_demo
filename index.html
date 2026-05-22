@@ -911,7 +911,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
                 <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
               </button>
             </div>
-            <div id="img-preview-bar" style="display:none;padding:6px 0 0;font-size:11px;color:var(--text3);display:flex;align-items:center;gap:6px">
+            <div id="img-preview-bar" style="display:none;padding:6px 0 0;font-size:11px;color:var(--text3);align-items:center;gap:6px">j
               <span id="img-preview-name"></span>
               <span style="cursor:pointer;color:var(--accent)" onclick="clearImageUpload()">✕ remove</span>
             </div>
@@ -1623,18 +1623,19 @@ async function sendMessage(){
   clearImageUpload();
   inp.value='';inp.style.height='auto';
 
-  // ── IMAGE PATH ──────────────────────────────────────────
   if(imageFile){
     const displayMsg=msg||'Please review this screenshot and give me feedback.';
-    addMessage('user', displayMsg + ' 📎 '+imageFile.name);
+    addMessage('user', displayMsg+' 📎 '+imageFile.name);
 
-    // Convert to base64
-    const base64=await new Promise((res,rej)=>{
-      const r=new FileReader();
-      r.onload=()=>res(r.result.split(',')[1]);
-      r.onerror=rej;
-      r.readAsDataURL(imageFile);
-    });
+    let base64='';
+    try{
+      base64=await new Promise((res,rej)=>{
+        const r=new FileReader();
+        r.onload=()=>res(r.result.split(',')[1]);
+        r.onerror=rej;
+        r.readAsDataURL(imageFile);
+      });
+    }catch(e){addMessage('ai','Could not read image file.');return;}
 
     const field=(userProfile?.field||'student').toLowerCase();
     const sendBtn=document.getElementById('chat-send-btn');
@@ -1659,46 +1660,69 @@ async function sendMessage(){
 
       removeTypingIndicator();
       const msgs=document.getElementById('chat-messages');
-      const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
-      const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
-      const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
+      const aiDiv=document.createElement('div');
+      aiDiv.className='chat-msg ai';
+      const innerDiv=document.createElement('div');
+      innerDiv.className='chat-msg-inner';
+      const timeDiv=document.createElement('div');
+      timeDiv.className='chat-msg-time';
       timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-      aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);
+      aiDiv.appendChild(innerDiv);
+      aiDiv.appendChild(timeDiv);
       msgs.appendChild(aiDiv);
 
       const reader=resp.body.getReader();
       const decoder=new TextDecoder();
       let fullText='',buffer='';
+
       while(true){
         const {done,value}=await reader.read();
         if(done)break;
         buffer+=decoder.decode(value,{stream:true});
-        const lines=buffer.split('\n');buffer=lines.pop();
+        const lines=buffer.split('\n');
+        buffer=lines.pop();
         for(const line of lines){
           if(!line.startsWith('data:'))continue;
           try{
             const p=JSON.parse(line.slice(5).trim());
             if(p.text){
               fullText+=p.text;
-              innerDiv.innerHTML=fullText.replace(/\n/g,'<br/>');
+              innerDiv.innerHTML=fullText
+                .replace(/&/g,'&amp;')
+                .replace(/</g,'&lt;')
+                .replace(/>/g,'&gt;')
+                .replace(/\n/g,'<br/>');
               msgs.scrollTop=msgs.scrollHeight;
             }
           }catch(e){}
         }
       }
-      if(fullText)chatHistory.push({role:'assistant',content:fullText});
+
+      // final render
+      if(fullText){
+        innerDiv.innerHTML=fullText
+          .replace(/&/g,'&amp;')
+          .replace(/</g,'&lt;')
+          .replace(/>/g,'&gt;')
+          .replace(/\n/g,'<br/>');
+        chatHistory.push({role:'assistant',content:fullText});
+      }
+
     }catch(e){
       removeTypingIndicator();
       addMessage('ai','Error reading image. Try again.');
+      console.error('Image chat error:',e);
     }
-    if(sendBtn)sendBtn.disabled=false;
+    if(document.getElementById('chat-send-btn'))
+      document.getElementById('chat-send-btn').disabled=false;
     return;
   }
 
-  // ── TEXT PATH (existing) ────────────────────────────────
+  // text-only path
   addMessage('user',msg);
   await streamChatResponse(msg,false);
 }
+
 /* ── PROOF WALL ── */
 async function loadProofWall(){
   if(!userId)return;
