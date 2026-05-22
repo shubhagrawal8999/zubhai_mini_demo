@@ -1619,24 +1619,86 @@ async function sendMessage(){
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
 
-  // if image attached, prepend description prompt
-  if(pendingImage&&!msg){
-    msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
-  } else if(pendingImage){
-    msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
-  }
+  const imageFile=pendingImage;
   clearImageUpload();
   inp.value='';inp.style.height='auto';
+
+  // ── IMAGE PATH ──────────────────────────────────────────
+  if(imageFile){
+    const displayMsg=msg||'Please review this screenshot and give me feedback.';
+    addMessage('user', displayMsg + ' 📎 '+imageFile.name);
+
+    // Convert to base64
+    const base64=await new Promise((res,rej)=>{
+      const r=new FileReader();
+      r.onload=()=>res(r.result.split(',')[1]);
+      r.onerror=rej;
+      r.readAsDataURL(imageFile);
+    });
+
+    const field=(userProfile?.field||'student').toLowerCase();
+    const sendBtn=document.getElementById('chat-send-btn');
+    if(sendBtn)sendBtn.disabled=true;
+    addTypingIndicator();
+
+    try{
+      const resp=await fetch(API+'/chat/image',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          user_id:userId,
+          message:displayMsg,
+          image_base64:base64,
+          image_type:imageFile.type||'image/png',
+          day:currentDay||1,
+          field:field,
+          language:userProfile?.language||'English',
+          history:chatHistory.slice(-10)
+        })
+      });
+
+      removeTypingIndicator();
+      const msgs=document.getElementById('chat-messages');
+      const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
+      const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
+      const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
+      timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+      aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);
+      msgs.appendChild(aiDiv);
+
+      const reader=resp.body.getReader();
+      const decoder=new TextDecoder();
+      let fullText='',buffer='';
+      while(true){
+        const {done,value}=await reader.read();
+        if(done)break;
+        buffer+=decoder.decode(value,{stream:true});
+        const lines=buffer.split('\n');buffer=lines.pop();
+        for(const line of lines){
+          if(!line.startsWith('data:'))continue;
+          try{
+            const p=JSON.parse(line.slice(5).trim());
+            if(p.text){
+              fullText+=p.text;
+              innerDiv.innerHTML=fullText.replace(/\n/g,'<br/>');
+              msgs.scrollTop=msgs.scrollHeight;
+            }
+          }catch(e){}
+        }
+      }
+      if(fullText)chatHistory.push({role:'assistant',content:fullText});
+    }catch(e){
+      removeTypingIndicator();
+      addMessage('ai','Error reading image. Try again.');
+    }
+    if(sendBtn)sendBtn.disabled=false;
+    return;
+  }
+
+  // ── TEXT PATH (existing) ────────────────────────────────
   addMessage('user',msg);
   await streamChatResponse(msg,false);
 }
-function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-
-function afterScore(){
-  if(currentDay>7){navTo('sc-proof');loadProofWall();}
-  else{goHome();}
-}
-
 /* ── PROOF WALL ── */
 async function loadProofWall(){
   if(!userId)return;
