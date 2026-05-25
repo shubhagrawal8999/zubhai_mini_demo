@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Zubhai — Learn AI by Doing Real Work. 7 Days. Verified.</title>
 <meta name="description" content="Stop watching AI tutorials that change nothing. Zubhai gives you one real task per day — built for your job. 7 days. AI coach grades your output. Publish real work on Day 7. Free trial, no card."/>
+<link rel="icon" type="image/svg+xml" href="./logo-mark.svg"/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
@@ -30,7 +31,7 @@ canvas#bg{position:fixed;inset:0;z-index:0;opacity:.04;pointer-events:none}
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:.3s}
 nav.solid{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-i{display:flex;align-items:center;justify-content:space-between;max-width:1060px;margin:0 auto;padding:0 24px}
-.nav-logo{font-family:var(--fs);font-size:18px;color:var(--text);text-decoration:none}
+.nav-logo{font-family:var(--fs);font-size:32px;color:var(--text);text-decoration:none;line-height:1}
 .nav-logo em{color:var(--accent);font-style:normal}
 .nav-r{display:flex;gap:8px;align-items:center}
 .btn-ghost{border:1px solid var(--border2);color:var(--text2);padding:7px 16px;border-radius:var(--r6);font-size:13px;cursor:pointer;background:none;transition:.2s;font-family:var(--fb)}
@@ -487,7 +488,7 @@ details summary>span{display:inline-block;transition:transform .2s}
 <div id="land">
 <nav id="nav">
   <div class="nav-i">
-   <a href="#" class="nav-logo">Zubh<em>Ai</em></a>
+   <a href="#" class="nav-logo"><img src="./logo-mark.svg" alt="Zubhai logo" style="width:28px;height:28px;border-radius:50%;vertical-align:-4px;margin-right:9px"/>Zubh<em>Ai</em></a>
     <div class="nav-r" style="gap:12px">
       <a href="#how-it-works" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">How it works</a>
       <a href="#about" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">About</a>
@@ -564,110 +565,75 @@ details summary>span{display:inline-block;transition:transform .2s}
   </div>
 </div>
 
-<section class="pad z2" style="background:#fff">
+<!-- ═══ JOURNEY SECTION — What happens after you sign up ═══ -->
+<section id="how-it-works" class="pad z2" style="background:#fff;padding-top:80px;padding-bottom:80px">
   <div class="wrap">
-    <span class="stag reveal">AI Threat Reality</span>
-    <h2 class="stitle reveal">Your field is already<br/>being disrupted.</h2>
-    <p class="ssub reveal">Every week, companies are quietly replacing people who don't use AI with people who do. This is what that looks like for your specific job.<br/><span style="font-size:12px;color:var(--text3);margin-top:6px;display:block">Sources: WEF Future of Jobs 2025 · DemandSage · National University · Thunderbit 2026</span></p>
-    <div class="threat-grid">
-      <div class="threat-card reveal"><div class="threat-field">Student</div><div class="threat-risk">52%</div><div class="threat-title">of entry-level jobs are being automated before you graduate</div><div class="threat-stat">WEF Future of Jobs 2025: 60% of all jobs will see significant task changes due to AI. Big Tech reduced new grad hiring 25% in 2024. AI skills now command 40% salary premium. Source: WEF, SignalFire 2025.</div></div>
-      <div class="threat-card reveal d1"><div class="threat-field">Developer</div><div class="threat-risk">71%</div><div class="threat-title">of junior dev tasks can be fully automated by AI coding tools today</div><div class="threat-stat">77,999 tech jobs lost to AI in first 6 months of 2025. 49% of US companies using ChatGPT replaced workers. 92% of IT roles being transformed — entry-level hit hardest. Source: WEF, National University 2025.</div></div>
-      <div class="threat-card reveal d2"><div class="threat-field">Marketing</div><div class="threat-risk">68%</div><div class="threat-title">of marketing tasks — content, copy, analysis — are now AI-automatable</div><div class="threat-stat">81.6% of digital marketers already fear AI replacement. Content writer jobs projected to decline 50% by 2030. AI ad copy outperforming human copy in majority of A/B tests. Source: DemandSage, BLS 2025.</div></div>
-      <div class="threat-card reveal d3"><div class="threat-field">Sales</div><div class="threat-risk">45%</div><div class="threat-title">of sales tasks — prospecting, follow-ups, CRM updates — are AI-handled</div><div class="threat-stat">AI tools handling prospecting, follow-ups, and CRM updates that used to take 40% of a rep's day. Reps using AI automation closing significantly more deals. Source: Thunderbit Automation Statistics 2026.</div></div>
+    <span class="stag reveal">The Exact Journey</span>
+    <h2 class="stitle reveal">Here's what happens<br/>after you click Sign Up.</h2>
+    <p class="ssub reveal" style="margin-bottom:52px">Most platforms hide this. We don't. Every step, spelled out — no surprises.</p>
+
+    <div style="display:flex;flex-direction:column;gap:0">
+      <div class="reveal" style="display:grid;grid-template-columns:52px 1fr;gap:24px;padding:32px 0;border-bottom:1px solid var(--border)">
+        <div><div style="width:48px;height:48px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">1</div></div>
+        <div>
+          <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Immediately after signup</div>
+          <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">You answer one question. That's the whole onboarding.</div>
+          <div style="font-size:14px;color:var(--text2);line-height:1.85">We ask: <em>"What's your current situation and what do you want to achieve with AI?"</em> — 2 sentences. No dropdowns, no forms. Our AI reads your answer and builds a personalized 7-day plan for your role, skill level, and goal. A Python developer gets different Day 1 tasks than a marketing student.</div>
+          <div style="margin-top:10px;background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent2)">⚡ Why one question? Generic programs fail. We need to know you. One honest sentence = a program that actually fits your life.</div>
+        </div>
+      </div>
+      <div class="reveal d1" style="display:grid;grid-template-columns:52px 1fr;gap:24px;padding:32px 0;border-bottom:1px solid var(--border)">
+        <div><div style="width:48px;height:48px;background:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">2</div></div>
+        <div>
+          <div style="font-family:var(--fm);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Day 1 — first 5 minutes</div>
+          <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">Arjun (your AI coach) gives you today's task. No warmup, no video to watch.</div>
+          <div style="font-size:14px;color:var(--text2);line-height:1.85">Arjun knows your profile. He tells you: exactly what to do today, which tool to open (Claude / Perplexity / ChatGPT), the exact prompt to copy-paste, and what a finished result looks like. You chat with him like WhatsApp — he pushes you, helps you, and grades your output honestly.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:56px;padding-top:40px;border-top:1px solid var(--border)">
+      <div style="font-size:15px;color:var(--text2);margin-bottom:20px">The whole thing takes 15–30 minutes a day. Day 1 takes about 20 minutes.</div>
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Day 1 — It's Free →</button>
+      <div style="font-size:12px;color:var(--text3);margin-top:10px">Questions? Email hello@zubhai.com — Shubh replies personally.</div>
     </div>
   </div>
 </section>
+
+<!-- ═══ TRACK EXPLAINER — Pick your profession ═══ -->
+<section class="pad z2" style="background:#f4f1ec;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">Pick Your Track</span>
+    <h2 class="stitle reveal">Which one are you?</h2>
+    <p class="ssub reveal" style="margin-bottom:44px">Each track has a completely different 7-day program. Same platform — different coaching, tasks, and tools.</p>
+    <div class="threat-grid">
+      <div class="threat-card reveal" style="cursor:pointer" onclick="openApp('signup')"><div style="font-size:24px;margin-bottom:8px">🎓</div><div class="threat-field">Student</div><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Make your work look 5 years ahead of your batch.</div><div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:10px">Research faster, write better, prep for placements, build your LinkedIn presence — using AI the way working professionals actually use it.</div><div class="threat-stat">Day 1: AI Research Partner → Day 7: Published industry article on LinkedIn</div></div>
+      <div class="threat-card reveal d1" style="cursor:pointer" onclick="openApp('signup')"><div style="font-size:24px;margin-bottom:8px">💻</div><div class="threat-field">Developer</div><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Read codebases instantly. Debug in seconds. Ship an AI feature.</div><div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:10px">Go from junior-who-uses-autocomplete to developer-who-orchestrates-AI. The difference is already showing in compensation data.</div><div class="threat-stat">Day 1: Read any codebase in 10 min → Day 7: GitHub showcase + LinkedIn post</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="pad z2" style="background:#fff" id="features">
+  <div class="wrap">
+    <span class="stag reveal">Every Feature Explained</span>
+    <h2 class="stitle reveal">Why each part exists.</h2>
+    <p class="ssub reveal">Nothing is random. Every feature was built to solve a specific problem.</p>
+  </div>
+</section>
+
 <section class="pad z2" style="background:#f4f1ec;padding-top:72px;padding-bottom:72px">
   <div class="wrap">
     <span class="stag reveal">FAQ</span>
     <h2 class="stitle reveal">Questions people actually have.</h2>
 
     <div style="max-width:680px;margin-top:44px">
-
       <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          What exactly is a "session"? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px;padding-left:0">One message you send + one reply from Arjun = 1 session. Free trial gives you 5/day. A typical task: Arjun gives task (1), you clarify (2), paste output (3), get graded (4), make one fix (5). That's your full day. Resets midnight IST.</div>
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">What exactly is a "session"? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px;padding-left:0">One message you send + one reply from Arjun = 1 session.</div>
       </details>
-
-      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          Do I need to already know how to use AI tools? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">No. Arjun tells you which tool to open, exactly what to type, and what to do with the result. If you've never opened Claude or Perplexity, Day 1 walks you through it step by step. If you're advanced, he skips basics and challenges you with harder output standards.</div>
-      </details>
-
-      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          What if I miss a day? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Nothing locks. Your progress, points, and history stay. Come back the next day and pick up where you left. Your streak resets (that's on you), but the program doesn't punish you. Note: the 7-day free trial counts calendar days from signup, not active days.</div>
-      </details>
-
-      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          What's different from just using ChatGPT myself? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">ChatGPT answers whatever you ask. Arjun gives you a curriculum — a deliberate sequence of skills that build on each other, personalized to your profile. He grades your output to real standards. On Day 7 you have something publishable, not just a chat history. The structure and accountability is the product.</div>
-      </details>
-
-      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          What tools do I need to have access to? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">All free. Claude (claude.ai), Perplexity (perplexity.ai), ChatGPT (chat.openai.com) — all have free tiers that are enough for every Zubhai task. You don't need to pay for any of them to complete the 7 days.</div>
-      </details>
-
-      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          How does payment work for Pro/Max? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Click Upgrade inside the app. Shubh will WhatsApp or email you a payment link within 24 hours. UPI, card, or net banking accepted. Access activated same day. No subscription auto-billing without your confirmation.</div>
-      </details>
-
-      <details class="reveal" style="padding:20px 0">
-        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
-          What happens after the 7-day trial ends? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
-        </summary>
-        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Your account stays. Your Proof Wall stays (permanently). Coaching sessions lock. Upgrade to Pro (₹499/month) to keep going with unlimited sessions and new tracks added monthly. Or stay on free — your Day 7 proof is yours regardless.</div>
-      </details>
-
-    </div>
-
-    <div class="reveal" style="margin-top:44px">
-      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Your 7 Days →</button>
-      <div style="font-size:12px;color:var(--text3);margin-top:10px">More questions? Email hello@zubhai.com — Shubh replies personally.</div>
     </div>
   </div>
 </section>
-<section class="pad z2" style="background:#f4f1ec">
-  <div class="wrap">
-    <span class="stag reveal">How it works</span>
-    <h2 class="stitle reveal">One skill per day.<br/>One proof at the end.</h2>
-    <div class="steps-grid">
-      <div class="step reveal"><span class="step-n">01</span><span class="step-ico">🎯</span><h3>Pick your profession</h3><p>Tell us your role in one sentence. We build a 7-day program around your exact situation — not generic AI theory.</p></div>
-      <div class="step reveal d1"><span class="step-n">02</span><span class="step-ico">💬</span><h3>In-app AI coaching</h3><p>Arjun, your AI coach, gives you the exact task to do today — then grades your real output. Not quizzes. Real work.</p></div>
-      <div class="step reveal d2"><span class="step-n">03</span><span class="step-ico">🛠️</span><h3>Real tasks. Right tools.</h3><p>Every day, you do a real task using the right AI tool — Claude, Perplexity, or ChatGPT. We tell you which and why.</p></div>
-      <div class="step reveal"><span class="step-n">04</span><span class="step-ico">🔗</span><h3>Verify by link</h3><p>Submit your share link. We verify your actual output — not just completion. AI grades your real work honestly.</p></div>
-      <div class="step reveal d1"><span class="step-n">05</span><span class="step-ico">📅</span><h3>5 sessions/day, reset daily</h3><p>Free trial gives you 5 sessions per day. Resets every midnight IST. Upgrade for unlimited access.</p></div>
-      <div class="step reveal d2"><span class="step-n">07</span><span class="step-ico">🏆</span><h3>Day 7: Proof Wall</h3><p>Publish something real — an article, a GitHub repo, a LinkedIn post. It goes on your Proof Wall. That's your portfolio.</p></div>
-    </div>
-  </div>
-</section>
-
-<section class="pad z2" style="background:#f4f1ec">
-  <div class="wrap">
-    <span class="stag reveal">Proof Wall Preview</span>
-    <h2 class="stitle reveal">Real work. Real URLs.<br/>Real proof.</h2>
-    <div class="proof-preview">
-      <div class="proof-card reveal"><div class="proof-field">Marketing · Day 7</div><div class="proof-title">Complete AI-powered campaign strategy for D2C brand — published LinkedIn case study</div><div class="proof-score">Score: 9/10 · linkedin.com/posts/...</div></div>
-      <div class="proof-card reveal d1"><div class="proof-field">Developer · Day 7</div><div class="proof-title">AI-assisted feature shipped: GPT-4 powered search for SaaS app — GitHub + LinkedIn post</div><div class="proof-score">Score: 8/10 · github.com/...</div></div>
-      <div class="proof-card reveal d2"><div class="proof-field">Sales · Day 7</div><div class="proof-title">Complete AI sales playbook — prospect research to follow-up sequence — published on LinkedIn</div><div class="proof-score">Score: 9/10 · linkedin.com/posts/...</div></div>
-    </div>
-  </div>
-</section>
-
 <section class="pad z2" style="background:#f9f9f9">
   <div class="wrap">
     <span class="stag reveal" style="color:#888">Pricing</span>
