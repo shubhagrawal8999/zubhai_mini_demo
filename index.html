@@ -3,17 +3,18 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Zubhai — 7-Day AI Coaching</title>
-<meta name="description" content="7 days to transform how you work with AI. Real tasks. Real verification. For students, developers, marketers, and sales pros."/>
+<title>Zubhai — Learn AI by Doing Real Work. 7 Days. Verified.</title>
+<meta name="description" content="Stop watching AI tutorials that change nothing. Zubhai gives you one real task per day — built for your job. 7 days. AI coach grades your output. Publish real work on Day 7. Free trial, no card."/>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
 <style>
 :root{
-  --bg:#0a0a0a;--bg2:#111;--bg3:#161616;--bg4:#1c1c1c;
-  --border:#222;--border2:#2e2e2e;--border3:#3a3a3a;
-  --text:#f0f0f0;--text2:#a0a0a0;--text3:#555;--text4:#333;
-  --accent:#e8602c;--accent2:#f07848;
-  --blue:#4a9eff;--green:#22c55e;--gold:#f59e0b;
+  --bg:#ffffff;--bg2:#f8f7f4;--bg3:#f0ede8;--bg4:#e8e4de;
+  --border:#e2ddd7;--border2:#d4cfc8;--border3:#c0b9b0;
+  --text:#1a1714;--text2:#5a5450;--text3:#9a9490;--text4:#c4c0bb;
+  --accent:#e8602c;--accent2:#d44e1a;
+  --blue:#2563eb;--green:#16a34a;--gold:#d97706;
   --fs:'Instrument Serif',Georgia,serif;
   --fb:'Geist','Segoe UI',system-ui,sans-serif;
   --fm:'Geist Mono',monospace;
@@ -22,165 +23,206 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{background:var(--bg);color:var(--text);font-family:var(--fb);overflow-x:hidden;-webkit-font-smoothing:antialiased}
-canvas#bg{position:fixed;inset:0;z-index:0;opacity:.15;pointer-events:none}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:.04;pointer-events:none}
 .z2{position:relative;z-index:2}
+
+/* ══ LANDING ══════════════════════════════════════════════════════════ */
 nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:.3s}
-nav.solid{background:rgba(10,10,10,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+nav.solid{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
 .nav-i{display:flex;align-items:center;justify-content:space-between;max-width:1060px;margin:0 auto;padding:0 24px}
 .nav-logo{font-family:var(--fs);font-size:18px;color:var(--text);text-decoration:none}
 .nav-logo em{color:var(--accent);font-style:normal}
 .nav-r{display:flex;gap:8px;align-items:center}
 .btn-ghost{border:1px solid var(--border2);color:var(--text2);padding:7px 16px;border-radius:var(--r6);font-size:13px;cursor:pointer;background:none;transition:.2s;font-family:var(--fb)}
 .btn-ghost:hover{border-color:var(--text3);color:var(--text)}
-.btn-pri{background:var(--text);color:var(--bg);padding:8px 18px;border-radius:var(--r6);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;font-family:var(--fb)}
-.btn-pri:hover{background:#ddd}
+.btn-pri{background:var(--accent);color:#fff;padding:8px 18px;border-radius:var(--r6);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;font-family:var(--fb)}
+.btn-pri:hover{background:var(--accent2)}
+
 .hero{min-height:100vh;display:flex;align-items:center;padding-top:70px}
 .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
-.kicker{display:inline-flex;align-items:center;gap:7px;background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.2);padding:4px 12px;border-radius:100px;font-size:11px;color:var(--accent2);font-family:var(--fm);margin-bottom:20px;letter-spacing:.3px}
+.kicker{display:inline-flex;align-items:center;gap:7px;background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.25);padding:6px 16px;border-radius:100px;font-size:13px;color:var(--accent);font-family:var(--fm);margin-bottom:22px;letter-spacing:.3px;font-weight:500}
 .kicker::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
 .hero h1{font-family:var(--fs);font-size:clamp(44px,5vw,70px);font-weight:400;line-height:1.03;margin-bottom:16px;letter-spacing:-1px}
 .hero h1 em{font-style:italic;color:var(--accent)}
-.hero-sub{font-size:15px;color:var(--text2);line-height:1.85;margin-bottom:28px;max-width:420px}
+.hero-sub{font-size:17px;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:440px}
 .hero-btns{display:flex;gap:10px;flex-wrap:wrap}
 .btn-lg{padding:12px 26px;border-radius:var(--r8);font-size:14px;font-weight:500;text-decoration:none;transition:.2s;display:inline-block;cursor:pointer;border:none;font-family:var(--fb)}
-.btn-lg.p{background:var(--text);color:var(--bg)}.btn-lg.p:hover{background:#ddd}
-.btn-lg.g{border:1px solid var(--border2);color:var(--text2);background:none}.btn-lg.g:hover{border-color:var(--text3);color:var(--text)}
+.btn-lg.p{background:var(--accent);color:#fff}
+.btn-lg.p:hover{background:var(--accent2)}
+.btn-lg.g{border:1.5px solid var(--border2);color:var(--text);background:none}
+.btn-lg.g:hover{border-color:var(--text3);color:var(--text)}
 .reveal{opacity:0;transform:translateY(18px);transition:all .55s cubic-bezier(.25,.46,.45,.94)}
 .reveal.on{opacity:1;transform:none}
 .d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
-.hero-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);overflow:hidden;animation:float 4s ease-in-out infinite}
+
+/* hero card */
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:var(--r16);overflow:hidden;animation:float 4s ease-in-out infinite;box-shadow:0 8px 40px rgba(0,0,0,.1)}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.hc-top{background:var(--bg3);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
-.hc-logo{font-family:var(--fs);font-size:13px}.hc-logo em{color:var(--accent);font-style:normal}
+.hc-top{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.hc-logo{font-family:var(--fs);font-size:13px}
+.hc-logo em{color:var(--accent);font-style:normal}
 .hc-badge{font-size:10px;color:var(--accent);font-family:var(--fm);background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);padding:3px 10px;border-radius:100px}
 .hc-body{padding:16px}
-.hc-threat{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px 12px;font-size:11px;color:var(--accent2);margin-bottom:12px;line-height:1.55}
-.hc-msg{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px 8px 8px 2px;padding:9px 12px;font-size:11px;color:var(--text2);line-height:1.6;margin-bottom:6px}
-.hc-user{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:8px 8px 2px 8px;padding:9px 12px;font-size:11px;color:var(--text);text-align:right;margin-bottom:10px}
+.hc-threat{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px;line-height:1.6}
+.hc-msg{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px 8px 8px 2px;padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:8px}
+.hc-user{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:8px 8px 2px 8px;padding:10px 14px;font-size:13px;color:var(--text);text-align:right;margin-bottom:10px}
 .hc-chips{display:flex;gap:6px}
 .hc-chip{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r6);padding:7px;text-align:center}
-.hc-chip-v{font-size:14px;font-weight:500;color:var(--text)}.hc-chip-l{font-size:8px;color:var(--text3);margin-top:2px;font-family:var(--fm)}
-.stats-bar{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:24px 0}
+.hc-chip-v{font-size:14px;font-weight:500;color:var(--text)}
+.hc-chip-l{font-size:10px;color:var(--text2);margin-top:3px;font-family:var(--fm)}
+
+/* stats */
+.stats-bar{background:var(--text);border-top:none;border-bottom:none;padding:28px 0}
 .stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
-.stat{text-align:center;padding:0 16px;border-right:1px solid var(--border)}.stat:last-child{border:none}
-.stat-n{font-family:var(--fs);font-size:36px;color:var(--text);line-height:1;letter-spacing:-1px}
-.stat-l{font-size:11px;color:var(--text3);margin-top:3px}
+.stat{text-align:center;padding:0 16px;border-right:1px solid var(--border)}
+.stat:last-child{border:none}
+.stat-n{font-family:var(--fs);font-size:36px;color:#ffffff;line-height:1;letter-spacing:-1px}
+.stat-l{font-size:13px;color:rgba(255,255,255,.65);margin-top:4px;font-weight:500}
+
+/* sections */
 section.pad{padding:80px 0}
-.stag{font-family:var(--fm);font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;display:block}
+.stag{font-family:var(--fm);font-size:12px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block}
 .stitle{font-family:var(--fs);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.06;margin-bottom:10px;letter-spacing:-.5px}
-.ssub{font-size:14px;color:var(--text2);line-height:1.85;max-width:480px}
+.ssub{font-size:16px;color:var(--text2);line-height:1.9;max-width:520px}
+
+/* threat cards */
 .threat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:44px}
-.threat-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:20px;transition:.2s;position:relative;overflow:hidden}
+.threat-card{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:24px;transition:.2s;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
 .threat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
-.threat-card:hover{border-color:var(--border2)}
+.threat-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-2px)}
 .threat-field{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
 .threat-risk{font-family:var(--fs);font-size:36px;color:var(--accent);line-height:1;margin-bottom:4px}
-.threat-title{font-size:12px;color:var(--text2);line-height:1.55;margin-bottom:8px}
-.threat-stat{font-size:11px;color:var(--text3);line-height:1.5;border-top:1px solid var(--border);padding-top:8px;margin-top:8px}
+.threat-title{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;font-weight:500}
+.threat-stat{font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+
+/* steps */
 .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:44px}
-.step{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:20px;transition:.2s}
-.step:hover{border-color:var(--border2);transform:translateY(-2px)}
-.step-n{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:2px;margin-bottom:10px;display:block}
-.step-ico{font-size:18px;margin-bottom:10px;display:block;opacity:.8}
-.step h3{font-size:13px;font-weight:500;margin-bottom:5px}
-.step p{font-size:11px;color:var(--text3);line-height:1.75}
+.step{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:24px;transition:.2s;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.step:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.1)}
+.step-n{font-family:var(--fm);font-size:11px;color:var(--accent);letter-spacing:1px;margin-bottom:10px;display:block;font-weight:600}
+.step-ico{font-size:28px;margin-bottom:12px;display:block}
+.step h3{font-size:15px;font-weight:600;margin-bottom:7px;color:var(--text)}
+.step p{font-size:13px;color:var(--text2);line-height:1.75}
+
+/* plans */
 .plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:44px}
-.plan-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);padding:24px;transition:.2s;position:relative}
-.plan-card.featured{border-color:var(--border3)}
-.plan-card.featured::before{content:'Most Popular';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;font-size:10px;font-family:var(--fm);padding:3px 12px;border-radius:100px;letter-spacing:1px;white-space:nowrap}
-.plan-name{font-family:var(--fm);font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
-.plan-price{font-family:var(--fs);font-size:38px;color:var(--text);line-height:1;margin-bottom:4px;letter-spacing:-1px}
-.plan-period{font-size:11px;color:var(--text3)}
-.plan-desc{font-size:12px;color:var(--text3);margin:12px 0;line-height:1.65;border-top:1px solid var(--border);padding-top:12px}
-.plan-feature{font-size:11px;color:var(--text2);margin-bottom:6px;display:flex;align-items:flex-start;gap:7px}
-.plan-feature::before{content:'✓';color:var(--green);flex-shrink:0;margin-top:1px}
-.plan-btn{width:100%;padding:11px;border-radius:var(--r8);font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:16px;border:1px solid var(--border2);background:none;color:var(--text2)}
-.plan-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
-.plan-btn.primary{background:var(--text);color:var(--bg);border:none}.plan-btn.primary:hover{background:#ddd}
+.plan-card{background:#fff;border:1px solid #e5e5e5;border-radius:var(--r16);padding:28px;transition:.2s;position:relative}
+.plan-card.featured{border-color:#000;box-shadow:0 0 0 2px #000}
+.plan-card.featured::before{content:'Most Popular';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:11px;font-family:var(--fm);padding:4px 14px;border-radius:100px;letter-spacing:1px;white-space:nowrap}
+.plan-name{font-family:var(--fm);font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.plan-price{font-family:var(--fs);font-size:48px;color:#000;line-height:1;margin-bottom:4px;letter-spacing:-2px;font-weight:700}
+.plan-period{font-size:13px;color:#666}
+.plan-desc{font-size:14px;color:#444;margin:14px 0;line-height:1.7;border-top:1px solid #eee;padding-top:14px}
+.plan-feature{font-size:13px;color:#222;margin-bottom:8px;display:flex;align-items:flex-start;gap:7px}
+.plan-feature::before{content:'✓';color:#16a34a;flex-shrink:0;margin-top:2px;font-weight:700}
+.plan-btn{width:100%;padding:13px;border-radius:var(--r8);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:18px;border:1.5px solid #ddd;background:none;color:#555}
+.plan-btn:hover{background:#f5f5f5;color:#000;border-color:#bbb}
+.plan-btn.primary{background:#000;color:#fff;border:none}
+.plan-btn.primary:hover{background:#222}
+
+/* proof wall preview */
 .proof-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:44px}
-.proof-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:16px;transition:.2s}
-.proof-card:hover{border-color:var(--border2)}
-.proof-field{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
-.proof-title{font-size:12px;font-weight:500;margin-bottom:4px}
-.proof-score{font-family:var(--fm);font-size:10px;color:var(--accent)}
-footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 20px}
+.proof-card{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:20px;transition:.2s;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.proof-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.proof-field{font-family:var(--fm);font-size:11px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.proof-title{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--text);line-height:1.5}
+.proof-score{font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600}
+
+footer{background:var(--text);border-top:none;padding:48px 0 24px}
 .foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:36px;margin-bottom:24px}
-.foot-logo{font-family:var(--fs);font-size:16px;color:var(--text);display:block;margin-bottom:5px}
+.foot-logo{font-family:var(--fs);font-size:18px;color:#fff;display:block;margin-bottom:6px}
 .foot-logo em{color:var(--accent);font-style:normal}
-.foot-desc{font-size:11px;color:var(--text3);line-height:1.75;max-width:190px}
-.foot-col h4{font-size:10px;font-weight:500;color:var(--text3);margin-bottom:9px;letter-spacing:.5px;text-transform:uppercase}
+.foot-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;max-width:220px}
+.foot-col h4{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:12px;letter-spacing:1.5px;text-transform:uppercase}
 .foot-col ul{list-style:none;display:flex;flex-direction:column;gap:5px}
-.foot-col a{font-size:11px;color:var(--text3);text-decoration:none;transition:.2s}
-.foot-col a:hover{color:var(--text)}
-.foot-bottom{border-top:1px solid var(--border);padding-top:16px;display:flex;justify-content:space-between}
-.foot-bottom p{font-size:11px;color:var(--text3)}
-#app{position:fixed;inset:0;background:var(--bg);z-index:500;display:none;flex-direction:row}
+.foot-col a{font-size:14px;color:rgba(255,255,255,.7);text-decoration:none;transition:.2s}
+.foot-col a:hover{color:#fff}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:18px;display:flex;justify-content:space-between}
+.foot-bottom p{font-size:13px;color:rgba(255,255,255,.4)}
+
+/* ══ APP SHELL ════════════════════════════════════════════════════════ */
+#app{position:fixed;inset:0;background:#f8f7f4;z-index:500;display:none;flex-direction:row}
 #app.open{display:flex}
 #app.auth-mode .sb,#app.auth-mode .app-top{display:none!important}
 #app.auth-mode .app-body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
-.sb{width:var(--sb);min-width:var(--sb);background:var(--bg);border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:relative;flex-shrink:0}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sb{width:var(--sb);min-width:var(--sb);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:relative;flex-shrink:0}
 .sb-top{padding:10px 8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
 .sb-logo{font-family:var(--fs);font-size:15px;color:var(--text);padding:6px 0;text-align:center;cursor:default}
 .sb-logo em{color:var(--accent);font-style:normal}
 .sb-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--r8);cursor:pointer;transition:.15s;color:var(--text3);position:relative}
-.sb-icon:hover{background:rgba(255,255,255,.07);color:var(--text2)}
-.sb-icon.on{background:rgba(255,255,255,.1);color:var(--text)}
+.sb-icon:hover{background:var(--bg3);color:var(--text)}
+.sb-icon.on{background:var(--accent);color:#fff}
 .sb-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
-.sb-tip{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);background:#1c1c1c;border:1px solid var(--border2);color:var(--text2);font-size:11px;padding:4px 9px;border-radius:var(--r6);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;font-family:var(--fb)}
+.sb-tip{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--text);border:1px solid var(--border2);color:#fff;font-size:11px;padding:4px 9px;border-radius:var(--r6);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;font-family:var(--fb)}
 .sb-icon:hover .sb-tip{opacity:1}
 .sb-divider{width:24px;height:1px;background:var(--border);margin:4px auto}
 .sb-bottom-area{padding:8px;border-top:1px solid var(--border);margin-top:auto}
 .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2a3040,#1a2820);border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text);font-family:var(--fb);transition:.15s;margin:0 auto}
 .sb-avatar:hover{border-color:var(--text3)}
+
+/* usage bar in sidebar */
 .sb-usage{padding:6px 8px;margin-bottom:4px}
-.sb-usage-bar-bg{height:2px;background:var(--border);border-radius:100px;overflow:hidden}
+.sb-usage-bar-bg{height:3px;background:var(--border);border-radius:100px;overflow:hidden}
 .sb-usage-bar-fill{height:100%;background:var(--accent);border-radius:100px;transition:width .3s}
-.sb-usage-label{font-size:9px;color:var(--text3);font-family:var(--fm);text-align:center;margin-top:3px}
-.user-menu{position:fixed;bottom:60px;left:8px;width:272px;background:#1a1a1a;border:1px solid #2e2e2e;border-radius:var(--r12);z-index:900;display:none;box-shadow:0 16px 40px rgba(0,0,0,.6)}
+.sb-usage-label{font-size:10px;color:var(--text2);font-family:var(--fm);text-align:center;margin-top:3px}
+
+/* ── USER MENU ───────────────────────────── */
+.user-menu{position:fixed;bottom:60px;left:8px;width:272px;background:#fff;border:1px solid var(--border);border-radius:var(--r12);z-index:900;display:none;box-shadow:0 8px 32px rgba(0,0,0,.12)}
 .user-menu.show{display:block}
-.um-head{padding:12px 14px 10px;border-bottom:1px solid var(--border)}
+.um-head{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
 .um-email{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px}
 .um-name{font-size:13px;font-weight:500;color:var(--text)}
 .um-plan-pill{display:inline-block;margin-top:4px;background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);color:var(--accent2);font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
 .um-sec{padding:4px}
-.um-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r6);cursor:pointer;transition:.15s;color:var(--text2);font-size:13px}
-.um-item:hover{background:rgba(255,255,255,.07);color:var(--text)}
+.um-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r6);cursor:pointer;transition:.15s;color:var(--text);font-size:14px}
+.um-item:hover{background:var(--bg2);color:var(--accent)}
 .um-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--text3)}
 .um-item:hover svg{color:var(--text2)}
 .um-hint{margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--fm)}
 .um-sep{height:1px;background:var(--border);margin:4px 0}
 .um-item.danger:hover{background:rgba(220,60,60,.08);color:#ff6b6b}
 .um-item.danger:hover svg{color:#ff6b6b}
+
+/* ── MAIN ───────────────────────────────── */
 .app-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
-.app-top{height:44px;padding:0 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg);flex-shrink:0;position:relative}
+.app-top{height:48px;padding:0 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fff;flex-shrink:0;position:relative}
 .app-top-title{font-size:13px;color:var(--text2)}
 .top-badges{display:flex;gap:6px}
-.tbadge{padding:3px 10px;border-radius:100px;font-size:10px;border:1px solid;font-family:var(--fm)}
+.tbadge{padding:4px 12px;border-radius:100px;font-size:11px;border:1px solid;font-family:var(--fm)}
 .tb-streak{color:#f97316;border-color:rgba(249,115,22,.25)}
 .tb-pts{color:var(--accent);border-color:rgba(232,96,44,.25)}
 .tb-day{color:var(--blue);border-color:rgba(74,158,255,.25)}
 .tb-sessions{color:var(--green);border-color:rgba(34,197,94,.25)}
 .tb-sessions.warn{color:var(--gold);border-color:rgba(245,158,11,.25)}
 .tb-sessions.danger{color:#ef4444;border-color:rgba(239,68,68,.25)}
+
+/* plan badge center */
 .plan-top-badge{position:absolute;left:50%;transform:translateX(-50%);display:flex;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:100px;font-size:11px;overflow:hidden}
 .plan-top-badge span{padding:4px 12px;color:var(--text2)}
 .plan-top-badge button{padding:4px 12px;color:var(--text);background:rgba(255,255,255,.08);cursor:pointer;border:none;font-size:11px;font-family:var(--fb);transition:.15s}
 .plan-top-badge button:hover{background:rgba(255,255,255,.14)}
+
 .app-body{flex:1;overflow-y:auto;padding:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;position:relative}
-.screen{display:none;height:100%}.screen.on{display:flex;flex-direction:column}
+.screen{display:none;height:100%}
+.screen.on{display:flex;flex-direction:column}
+
+/* ── AUTH ────────────────────────────────── */
 .auth-wrap{width:100%;max-width:360px}
 .auth-back{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:18px;transition:.2s}
 .auth-back:hover{color:var(--text)}
 .auth-logo{font-family:var(--fs);font-size:20px;margin-bottom:3px}
 .auth-logo em{color:var(--accent);font-style:normal}
 .auth-tagline{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6}
-.inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:11px 12px;color:var(--text);font-size:13px;margin-bottom:8px;transition:.2s;font-family:var(--fb)}
-.inp:focus{outline:none;border-color:var(--border3);background:var(--bg2)}
+.inp{width:100%;background:#fff;border:1px solid var(--border2);border-radius:var(--r8);padding:12px 14px;color:var(--text);font-size:14px;margin-bottom:10px;transition:.2s;font-family:var(--fb)}
+.inp:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(232,96,44,.08)}
 .inp::placeholder{color:var(--text3)}
-.auth-btn{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:11px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:2px}
-.auth-btn:hover{background:#ddd}.auth-btn:disabled{opacity:.4;cursor:not-allowed}
+.auth-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:4px}
+.auth-btn:hover{background:var(--accent2)}
+.auth-btn:disabled{opacity:.4;cursor:not-allowed}
 .auth-google{width:100%;background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--r8);padding:11px;font-size:13px;font-family:var(--fb);cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px}
 .auth-google:hover{border-color:var(--border3);color:var(--text);background:rgba(255,255,255,.04)}
 .auth-google svg{width:16px;height:16px;flex-shrink:0}
@@ -190,60 +232,105 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 .auth-err{color:#ff6b6b;font-size:11px;margin-top:5px;min-height:14px}
 .auth-sw{color:var(--text3);font-size:11px;margin-top:10px;text-align:center}
 .auth-sw span.lnk{color:var(--text2);cursor:pointer;text-decoration:underline}
+
+/* ── THREAT POPUP ────────────────────────── */
 .threat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:none;align-items:center;justify-content:center;padding:24px}
 .threat-overlay.show{display:flex}
-.threat-modal{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);padding:32px;max-width:440px;width:100%;position:relative}
+.threat-modal{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:36px;max-width:460px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.15)}
 .threat-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);border-radius:var(--r16) var(--r16) 0 0}
 .threat-field-badge{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;display:block}
 .threat-risk-big{font-family:var(--fs);font-size:56px;color:var(--accent);line-height:1;margin-bottom:8px}
-.threat-headline{font-size:14px;color:var(--text);font-weight:500;margin-bottom:12px;line-height:1.5}
-.threat-body{font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:16px}
+.threat-headline{font-size:16px;color:var(--text);font-weight:600;margin-bottom:14px;line-height:1.5}
+.threat-body{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:18px}
 .threat-stat-box{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px 13px;font-size:11px;color:var(--accent2);line-height:1.6;margin-bottom:18px}
 .threat-cta{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
 .threat-cta:hover{background:#ddd}
 .threat-skip{display:block;text-align:center;font-size:11px;color:var(--text3);margin-top:10px;cursor:pointer;transition:.2s}
 .threat-skip:hover{color:var(--text2)}
+
+/* ── ONBOARD ─────────────────────────────── */
 .ob-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
 .ob-wrap{width:100%;max-width:520px}
+.ob-progress{display:flex;gap:3px;margin-bottom:24px}
+.ob-dot{flex:1;height:2px;border-radius:100px;background:var(--border);transition:.3s}
+.ob-dot.done{background:var(--text2)}
+.ob-dot.cur{background:var(--accent)}
+.ob-q{font-family:var(--fs);font-size:clamp(20px,2.8vw,28px);color:var(--text);margin-bottom:5px;font-weight:400;letter-spacing:-.3px;line-height:1.2}
+.ob-hint{font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.5}
+.ob-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
 .ob-chip{padding:8px 16px;border:1px solid var(--border2);border-radius:100px;font-size:12px;cursor:pointer;transition:.15s;color:var(--text2);background:none;font-family:var(--fb)}
 .ob-chip:hover{border-color:var(--border3);color:var(--text)}
 .ob-chip.on{border-color:var(--text);background:rgba(255,255,255,.06);color:var(--text)}
-.dispatch-banner{background:rgba(232,96,44,.06);border-bottom:1px solid rgba(232,96,44,.15);padding:8px 16px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.ob-other-link{font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block}
+.ob-other-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--fb);margin-bottom:9px;display:none}
+.ob-other-inp.show{display:block}
+.ob-other-inp:focus{outline:none;border-color:var(--border3)}
+.ob-next{background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:11px 26px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:5px}
+.ob-next:hover{background:#ddd}
+.ob-next:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── DAILY DISPATCH ──────────────────────── */
+.dispatch-banner{background:#fff7f4;border-bottom:1px solid rgba(232,96,44,.2);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
 .dispatch-tag{font-family:var(--fm);font-size:9px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0}
-.dispatch-text{font-size:11px;color:var(--text2);line-height:1.5;flex:1}
+.dispatch-text{font-size:13px;color:var(--text2);line-height:1.55;flex:1}
 .dispatch-close{color:var(--text3);cursor:pointer;font-size:14px;flex-shrink:0;transition:.2s;background:none;border:none}
 .dispatch-close:hover{color:var(--text)}
+
+/* ── CHAT SCREEN ─────────────────────────── */
 .chat-screen{flex:1;display:flex;flex-direction:column;min-height:0}
-.chat-header{padding:12px 16px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between}
+.chat-header{padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;background:#fff}
 .chat-day-info{display:flex;align-items:center;gap:8px}
-.chat-day-pill{font-family:var(--fm);font-size:9px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:3px 10px;letter-spacing:1px;text-transform:uppercase}
+.chat-day-pill{font-family:var(--fm);font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:4px 12px;letter-spacing:1px;text-transform:uppercase}
 .chat-day-title{font-size:13px;font-weight:500;color:var(--text)}
-.chat-tool-badge{font-family:var(--fm);font-size:10px;color:var(--blue);background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.15);border-radius:100px;padding:3px 10px}
-.chat-messages{flex:1;overflow-y:auto;padding:16px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-direction:column;gap:12px}
-.chat-msg{max-width:78%;line-height:1.75;font-size:13px}
-.chat-msg.ai{align-self:flex-start}.chat-msg.user{align-self:flex-end}
+.chat-tool-badge{font-family:var(--fm);font-size:12px;color:var(--blue);background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.15);border-radius:100px;padding:4px 12px}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-direction:column;gap:14px;background:#f8f7f4}
+.chat-msg{max-width:78%;line-height:1.8;font-size:15px}
+.chat-msg.ai{align-self:flex-start}
+.chat-msg.user{align-self:flex-end}
 .chat-msg-inner{padding:10px 14px;border-radius:12px;word-break:break-word}
-.chat-msg.ai .chat-msg-inner{background:var(--bg2);border:1px solid var(--border);border-radius:12px 12px 12px 2px;color:var(--text2)}
-.chat-msg.user .chat-msg-inner{background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.2);border-radius:12px 12px 2px 12px;color:var(--text)}
-.chat-msg-time{font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)}
+.chat-msg.ai .chat-msg-inner{background:#fff;border:1px solid var(--border);border-radius:12px 12px 12px 2px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.chat-msg.user .chat-msg-inner{background:var(--accent);border:1px solid var(--accent);border-radius:12px 12px 2px 12px;color:#fff}
+.chat-msg-time{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--fm)}
 .chat-msg.user .chat-msg-time{text-align:right}
-.typing-dot{display:inline-block;width:6px;height:6px;background:var(--text3);border-radius:50%;animation:typing .8s infinite;margin:0 1px}
-.typing-dot:nth-child(2){animation-delay:.15s}.typing-dot:nth-child(3){animation-delay:.3s}
+.typing-dot{display:inline-block;width:6px;height:6px;background:var(--accent);border-radius:50%;animation:typing .8s infinite;margin:0 1px}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
 @keyframes typing{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1);opacity:1}}
-.chat-input-area{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0}
-.chat-input-wrap{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r12);display:flex;align-items:flex-end;gap:8px;padding:10px 12px;transition:.2s}
+
+/* task submit panel */
+.task-submit{padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+.task-submit-header{font-size:11px;color:var(--text3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.task-submit-inputs{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.task-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--fb)}
+.task-inp:focus{outline:none;border-color:var(--border3)}
+.task-inp::placeholder{color:var(--text3)}
+.task-or{font-size:10px;color:var(--text3);text-align:center}
+.task-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--fb);height:70px;resize:none}
+.task-ta:focus{outline:none;border-color:var(--border3)}
+.task-btn{background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:10px 22px;font-size:12px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
+.task-btn:hover{filter:brightness(1.1)}
+.task-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* chat input */
+.chat-input-area{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;background:#fff}
+.chat-input-wrap{background:#f8f7f4;border:1px solid var(--border2);border-radius:var(--r12);display:flex;align-items:flex-end;gap:8px;padding:10px 14px;transition:.2s}
 .chat-input-wrap:focus-within{border-color:var(--border3)}
 .chat-input{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--fb);outline:none;resize:none;max-height:120px;line-height:1.6}
 .chat-input::placeholder{color:var(--text3)}
-.chat-send{width:32px;height:32px;background:var(--text);border:none;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
-.chat-send:hover{background:#ddd}.chat-send:disabled{opacity:.35;cursor:not-allowed}
-.chat-send svg{width:14px;height:14px;fill:var(--bg)}
+.chat-send{width:36px;height:36px;background:var(--accent);border:none;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
+.chat-send:hover{background:var(--accent2)}
+.chat-send:disabled{opacity:.35;cursor:not-allowed}
+.chat-send svg{width:14px;height:14px;fill:#fff}
+
 .chat-attach-btn{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:var(--r6);transition:.15s;flex-shrink:0}
 .chat-attach-btn:hover{background:rgba(255,255,255,.07);color:var(--text2)}
-.img-preview-bar{display:none;padding:6px 0 0;font-size:11px;color:var(--text3);align-items:center;gap:6px}
+
+
+/* limit banner */
+/* ── LIMIT OVERLAY (Claude-style) ────────── */
 .limit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
 .limit-overlay.show{display:flex}
-.limit-modal{background:#141414;border:1px solid #2a2a2a;border-radius:var(--r16);padding:28px 24px;max-width:340px;width:100%;text-align:center;position:relative}
+.limit-modal{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:32px 28px;max-width:340px;width:100%;text-align:center;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.15)}
 .limit-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ef4444,transparent);border-radius:var(--r16) var(--r16) 0 0}
 .limit-modal-icon{font-size:32px;margin-bottom:12px;display:block}
 .limit-modal h3{font-size:16px;font-weight:500;color:var(--text);margin-bottom:6px}
@@ -256,42 +343,51 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 .limit-modal-upgrade:hover{background:var(--accent2)}
 .limit-modal-later{font-size:11px;color:var(--text3);cursor:pointer;transition:.2s;background:none;border:none;width:100%;padding:6px;font-family:var(--fb)}
 .limit-modal-later:hover{color:var(--text2)}
-.share-card{background:var(--bg2);border:1px solid rgba(232,96,44,.25);border-radius:var(--r12);padding:14px;margin:8px 0;animation:slideUp .3s ease}
+/* ── SHARE CARD ──────────────────────────── */
+.share-card{background:#fff;border:1px solid rgba(232,96,44,.3);border-radius:var(--r12);padding:18px;margin:10px 0;animation:slideUp .3s ease;box-shadow:0 2px 12px rgba(232,96,44,.1)}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 .share-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
 .share-card-score{font-family:var(--fm);font-size:10px;color:var(--accent);background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);border-radius:100px;padding:2px 9px}
 .share-card-title{font-size:12px;font-weight:500;color:var(--text)}
-.share-card-post{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:11px;font-size:11px;color:var(--text2);line-height:1.7;margin-bottom:10px;white-space:pre-wrap;font-family:var(--fb)}
+.share-card-post{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:14px;font-size:13px;color:var(--text);line-height:1.8;margin-bottom:12px;white-space:pre-wrap;font-family:var(--fb)}
 .share-card-btns{display:flex;gap:7px}
-.share-btn{flex:1;padding:8px;border-radius:var(--r8);font-size:11px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;border:1px solid var(--border2);background:none;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px}
+.share-btn{flex:1;padding:10px;border-radius:var(--r8);font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;border:1px solid var(--border2);background:none;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px}
 .share-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
-.share-btn.linkedin{border-color:rgba(10,102,194,.4);color:#0a66c2}.share-btn.linkedin:hover{background:rgba(10,102,194,.08)}
-.share-btn.twitter{border-color:rgba(255,255,255,.2);color:var(--text2)}.share-btn.twitter:hover{background:rgba(255,255,255,.06)}
-.share-btn.copy{color:var(--green);border-color:rgba(34,197,94,.3)}.share-btn.copy:hover{background:rgba(34,197,94,.06)}
-.grade-bubble{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:100px;padding:3px 10px;font-size:10px;font-family:var(--fm);color:#4ade80;margin-top:6px}
+.share-btn.linkedin{border-color:rgba(10,102,194,.4);color:#0a66c2}
+.share-btn.linkedin:hover{background:rgba(10,102,194,.08)}
+.share-btn.twitter{border-color:rgba(255,255,255,.2);color:var(--text2)}
+.share-btn.twitter:hover{background:rgba(255,255,255,.06)}
+.share-btn.copy{color:var(--green);border-color:rgba(34,197,94,.3)}
+.share-btn.copy:hover{background:rgba(34,197,94,.06)}
+/* ── GRADE BUBBLE ────────────────────────── */
+.grade-bubble{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:100px;padding:4px 12px;font-size:12px;font-family:var(--fm);color:#4ade80;margin-top:8px}
 .grade-bubble.low{background:rgba(249,115,22,.08);border-color:rgba(249,115,22,.2);color:#fb923c}
-.lobby-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+
+/* ── HOME / LOBBY ─────────────────────────── */
+.lobby-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#f8f7f4}
 .lobby-tagline{font-family:var(--fs);font-size:clamp(24px,3vw,38px);color:var(--text);margin-bottom:28px;text-align:center;font-weight:400;letter-spacing:-.3px;line-height:1.2}
 .lobby-tagline em{font-style:italic;color:var(--accent)}
-.lobby-input-box{width:100%;max-width:580px;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r12);overflow:hidden;margin-bottom:18px;transition:.2s}
-.lobby-input-box:focus-within{border-color:var(--border3)}
+.lobby-input-box{width:100%;max-width:580px;background:#fff;border:1px solid var(--border);border-radius:var(--r16);overflow:hidden;margin-bottom:18px;transition:.2s;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.lobby-input-box:focus-within{border-color:var(--accent);box-shadow:0 2px 20px rgba(232,96,44,.12)}
 .lobby-textarea{width:100%;background:none;border:none;padding:14px 16px 6px;color:var(--text);font-size:15px;font-family:var(--fb);resize:none;outline:none;line-height:1.6}
 .lobby-textarea::placeholder{color:var(--text3)}
 .lobby-input-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 10px 10px}
-.lobby-input-meta{font-size:11px;color:var(--text3)}
-.lobby-send-btn{width:28px;height:28px;background:var(--text);border:none;border-radius:var(--r6);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
-.lobby-send-btn:hover{background:#ddd}
-.lobby-send-btn svg{width:13px;height:13px;fill:var(--bg)}
+.lobby-input-meta{font-size:13px;color:var(--text2)}
+.lobby-send-btn{width:32px;height:32px;background:var(--accent);border:none;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.lobby-send-btn:hover{background:var(--accent2)}
+.lobby-send-btn svg{width:13px;height:13px;fill:#fff}
 .lobby-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:580px}
-.lobby-chip{padding:7px 14px;border:1px solid var(--border2);border-radius:100px;font-size:12px;color:var(--text2);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;background:none;font-family:var(--fb)}
-.lobby-chip:hover{border-color:var(--border3);color:var(--text);background:rgba(255,255,255,.04)}
+.lobby-chip{padding:8px 16px;border:1px solid var(--border);border-radius:100px;font-size:13px;color:var(--text2);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;background:#fff;font-family:var(--fb);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lobby-chip:hover{border-color:var(--accent);color:var(--accent);background:#fff}
 .lobby-chip svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
-.score-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
-.score-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r16);padding:28px;width:100%;max-width:440px;text-align:center}
+
+/* ── SCORE CARD ──────────────────────────── */
+.score-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#f8f7f4}
+.score-card{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:32px;width:100%;max-width:440px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
 .score-ring{width:100px;height:100px;border-radius:50%;border:1.5px solid var(--border2);margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
 .score-n{font-family:var(--fs);font-size:44px;color:var(--text);line-height:1}
 .score-d{color:var(--text3);font-size:11px}
-.score-fb{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:12px;text-align:left;font-size:12px;color:var(--text2);line-height:1.75;margin-bottom:8px}
+.score-fb{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:14px;text-align:left;font-size:13px;color:var(--text);line-height:1.75;margin-bottom:10px}
 .score-good{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:#4ade80;margin-bottom:6px;text-align:left}
 .score-improve{background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.15);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:#fb923c;margin-bottom:10px;text-align:left}
 .score-pts{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
@@ -299,58 +395,82 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 .score-next{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:11px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
 .score-next:hover{background:#ddd}
 .proof-wall-note{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px;font-size:11px;color:var(--accent2);margin-bottom:10px;text-align:left}
-.lb-wrap{flex:1;padding:16px;overflow-y:auto;max-width:480px;margin:0 auto;width:100%}
-.lb-row{display:flex;align-items:center;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:10px 13px;margin-bottom:6px;transition:.15s}
-.lb-row:hover{border-color:var(--border2)}
-.lb-rank{font-family:var(--fm);font-size:13px;width:26px;color:var(--text3)}.lb-rank.top{color:var(--accent)}
+
+/* ── LEADERBOARD ─────────────────────────── */
+.lb-wrap{flex:1;padding:24px;overflow-y:auto;max-width:480px;margin:0 auto;width:100%;background:#f8f7f4}
+.lb-row{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:12px 16px;margin-bottom:8px;transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.lb-row:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.lb-rank{font-family:var(--fm);font-size:13px;width:26px;color:var(--text3)}
+.lb-rank.top{color:var(--accent)}
 .lb-info{flex:1;min-width:0}
-.lb-name{font-size:12px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-sub{font-size:10px;color:var(--text3);margin-top:1px}
-.lb-pts{font-family:var(--fm);font-size:12px;color:var(--text2)}
-.upgrade-center{flex:1;display:flex;flex-direction:column;align-items:center;padding:28px 16px;overflow-y:auto}
-.upgrade-wrap{width:100%;max-width:580px}.upgrade-wrap .stitle{font-size:clamp(22px,3vw,32px)}
+.lb-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.lb-pts{font-family:var(--fm);font-size:14px;color:var(--text)}
+
+/* ── PLAN UPGRADE SCREEN ─────────────────── */
+.upgrade-center{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 20px;overflow-y:auto;background:#f8f7f4}
+.upgrade-wrap{width:100%;max-width:580px}
+.upgrade-wrap .stitle{font-size:clamp(22px,3vw,32px)}
 .in-app-plans{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px}
-.in-app-plan{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:18px;transition:.2s}
-.in-app-plan.featured{border-color:var(--border3)}
-.in-app-plan-name{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-bottom:8px}
-.in-app-plan-price{font-family:var(--fs);font-size:32px;color:var(--text);line-height:1;letter-spacing:-1px;margin-bottom:3px}
-.in-app-plan-period{font-size:11px;color:var(--text3);margin-bottom:12px}
-.in-app-plan-features{font-size:11px;color:var(--text2);line-height:1.9;border-top:1px solid var(--border);padding-top:10px;margin-bottom:14px}
-.in-app-plan-btn{width:100%;padding:10px;border-radius:var(--r8);font-size:12px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;border:1px solid var(--border2);background:none;color:var(--text2)}
+.in-app-plan{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:22px;transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.in-app-plan.featured{border-color:var(--accent);box-shadow:0 4px 20px rgba(232,96,44,.12)}
+.in-app-plan-name{font-family:var(--fm);font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.in-app-plan-price{font-family:var(--fs);font-size:40px;color:var(--text);line-height:1;letter-spacing:-1px;margin-bottom:3px;font-weight:700}
+.in-app-plan-period{font-size:13px;color:var(--text3);margin-bottom:14px}
+.in-app-plan-features{font-size:13px;color:var(--text2);line-height:2;border-top:1px solid var(--border);padding-top:12px;margin-bottom:16px}
+.in-app-plan-btn{width:100%;padding:12px;border-radius:var(--r8);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;border:1.5px solid var(--border);background:none;color:var(--text)}
 .in-app-plan-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
-.in-app-plan-btn.primary{background:var(--accent);color:#fff;border:none}.in-app-plan-btn.primary:hover{background:var(--accent2)}
-.proof-wrap{flex:1;padding:24px;overflow-y:auto;max-width:580px;margin:0 auto;width:100%}
+.in-app-plan-btn.primary{background:var(--accent);color:#fff;border:none}
+.in-app-plan-btn.primary:hover{background:var(--accent2)}
+
+/* ── PROOF WALL SCREEN ───────────────────── */
+.proof-wrap{flex:1;padding:28px;overflow-y:auto;max-width:580px;margin:0 auto;width:100%;background:#f8f7f4}
 .proof-pg-title{font-family:var(--fs);font-size:24px;font-weight:400;color:var(--text);margin-bottom:3px;letter-spacing:-.3px}
 .proof-pg-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
 .proof-empty{text-align:center;padding:40px 24px}
 .proof-empty p{font-size:13px;color:var(--text3);margin-top:8px;line-height:1.7}
-.proof-item{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:14px;margin-bottom:9px;display:flex;align-items:flex-start;gap:12px;transition:.2s}
-.proof-item:hover{border-color:var(--border2)}
-.proof-item-day{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
-.proof-item-title{font-size:13px;font-weight:500;margin-bottom:4px}
-.proof-item-score{font-family:var(--fm);font-size:10px;color:var(--accent)}
+.proof-item{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.proof-item:hover{border-color:var(--accent)}
+.proof-item-day{font-family:var(--fm);font-size:11px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:600}
+.proof-item-title{font-size:14px;font-weight:500;margin-bottom:5px;line-height:1.5}
+.proof-item-score{font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600}
 .proof-item-link{font-size:11px;color:var(--blue);text-decoration:none;transition:.2s;display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .proof-item-link:hover{color:var(--text)}
+
+/* spinner */
 .spin-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px;flex:1}
-.spinner{width:24px;height:24px;border:1.5px solid var(--border2);border-top-color:var(--text2);border-radius:50%;animation:spin .8s linear infinite}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .spin-wrap p{color:var(--text3);font-size:12px;margin-top:10px;text-align:center}
-.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1c1c1c;border:1px solid var(--border2);color:var(--text2);padding:8px 16px;border-radius:100px;font-size:12px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none}
+
+/* toast */
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--text);border:none;color:#fff;padding:10px 22px;border-radius:100px;font-size:14px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+/* responsive */
 @media(max-width:768px){
   .wrap{padding:0 16px}
-  .hero-grid,.stats-grid,.threat-grid,.steps-grid,.plans-grid,.proof-preview{grid-template-columns:1fr!important}
+  .hero-grid,.stats-grid,.threat-grid,.steps-grid,.plans-grid,.proof-preview,[style*='grid-template-columns:1fr 1fr']{grid-template-columns:1fr!important}
   .hero-visual{display:none}
   .foot-grid{grid-template-columns:1fr;gap:18px}
   .foot-bottom{flex-direction:column;gap:4px}
   .sb{width:0;min-width:0;border:none}
   .plan-top-badge{display:none}
 }
+/* FAQ details */
+details summary::-webkit-details-marker{display:none}
+details[open]>summary>span{transform:rotate(45deg)}
+details summary>span{display:inline-block;transition:transform .2s}
+/* Journey section mobile */
+@media(max-width:600px){
+  [style*="grid-template-columns:52px"]{grid-template-columns:1fr!important}
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+}
 </style>
 </head>
 <body>
 <canvas id="bg"></canvas>
 
-<!-- THREAT POPUP -->
+<!-- ════════ THREAT POPUP ════════ -->
 <div class="threat-overlay" id="threat-overlay">
   <div class="threat-modal">
     <span class="threat-field-badge" id="tp-field">Loading...</span>
@@ -363,48 +483,75 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </div>
 
-<!-- LANDING -->
+<!-- ════════ LANDING ════════ -->
 <div id="land">
 <nav id="nav">
   <div class="nav-i">
-    <a href="#" class="nav-logo">⚡ Zub<em>hai</em></a>
-    <div class="nav-r">
+   <a href="#" class="nav-logo">Zubh<em>Ai</em></a>
+    <div class="nav-r" style="gap:12px">
+      <a href="#how-it-works" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">How it works</a>
+      <a href="#about" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">About</a>
       <button class="btn-ghost" onclick="openApp('login')">Login</button>
-      <button class="btn-pri" onclick="openApp('signup')">Start Free Trial →</button>
+      <button class="btn-pri" onclick="openApp('signup')">Start Free →</button>
     </div>
   </div>
 </nav>
+<section class="hero z2" style="background:linear-gradient(135deg,#fffcf9 0%,#fff7f2 100%);min-height:100vh;display:flex;align-items:center;padding-top:70px">
+  <div class="wrap" style="text-align:center">
 
-<section class="hero z2">
-  <div class="wrap">
-    <div class="hero-grid">
+    <div class="kicker reveal" style="margin:0 auto 22px">
+      7-day free trial · No credit card · Starts in 60 seconds
+    </div>
+
+    <h1 class="reveal d1" style="font-family:var(--fs);font-size:clamp(42px,6vw,76px);font-weight:400;line-height:1.02;letter-spacing:-1.5px;margin-bottom:18px;max-width:800px;margin-left:auto;margin-right:auto">
+      You watch AI tutorials.<br/>
+      Nothing <em style="color:var(--accent);font-style:italic">actually changes.</em>
+    </h1>
+
+    <p class="reveal d2" style="font-size:17px;color:var(--text2);line-height:1.9;max-width:560px;margin:0 auto 32px">
+      Zubhai gives you <strong style="color:var(--text)">one real task per day</strong>, built for your exact job — student, developer, marketer, or sales pro. You do it. An AI coach grades it. On Day 7, you publish something you can actually show people.
+    </p>
+
+    <div class="reveal d2" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">
+        Start Day 1 — Free →
+      </button>
+      <button class="btn-lg g" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})" style="font-size:15px;padding:14px 28px">
+        See exactly how it works ↓
+      </button>
+    </div>
+
+    <div class="reveal d3" style="font-size:12px;color:var(--text3);margin-bottom:44px">
+      Free for 7 days · 5 sessions/day · No card needed · Quit anytime
+    </div>
+
+    <!-- MINI TRUST STRIP -->
+    <div class="reveal d3" style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--border);max-width:560px;margin:0 auto">
       <div>
-        <div class="kicker reveal">7-day free trial · No credit card</div>
-        <h1 class="reveal d1">Stop watching.<br/><em>Start doing.</em><br/>Get verified.</h1>
-        <p class="hero-sub reveal d2">7 days. Real tasks. Real AI tools. At the end, you have a published portfolio piece and the skills to prove it.</p>
-        <div class="hero-btns reveal d3">
-          <button class="btn-lg p" onclick="openApp('signup')">Start Free Trial</button>
-          <button class="btn-lg g" onclick="openApp('login')">Login →</button>
-        </div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">7</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Real tasks</div>
       </div>
-      <div class="hero-visual reveal d2">
-        <div class="hero-card">
-          <div class="hc-top"><span class="hc-logo">⚡ Zub<em>hai</em></span><span class="hc-badge">Day 4 · Marketing</span></div>
-          <div class="hc-body">
-            <div class="hc-threat">⚠ 68% of marketing tasks are now AI-automatable. Your competitor's 2-person team outproduces your 8-person team.</div>
-            <div class="hc-msg">Today you'll build a full email sequence that converts. Claude will help you write 5 emails ready to send. What product or service are we writing for?</div>
-            <div class="hc-user">My SaaS product — B2B project management for Indian SMEs</div>
-            <div class="hc-chips">
-              <div class="hc-chip"><div class="hc-chip-v">8</div><div class="hc-chip-l">Score</div></div>
-              <div class="hc-chip"><div class="hc-chip-v">+120</div><div class="hc-chip-l">Points</div></div>
-              <div class="hc-chip"><div class="hc-chip-v">4🔥</div><div class="hc-chip-l">Streak</div></div>
-            </div>
-          </div>
-        </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">4</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Job tracks</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">₹0</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">To start</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">1</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Published proof</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">15</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Min/day</div>
       </div>
     </div>
+
   </div>
 </section>
+
 
 <div class="stats-bar z2">
   <div class="wrap">
@@ -417,39 +564,102 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </div>
 
-<section class="pad z2">
+<section class="pad z2" style="background:#fff">
   <div class="wrap">
     <span class="stag reveal">AI Threat Reality</span>
     <h2 class="stitle reveal">Your field is already<br/>being disrupted.</h2>
-    <p class="ssub reveal">These aren't predictions. This is happening now. The question is which side you're on.</p>
+    <p class="ssub reveal">Every week, companies are quietly replacing people who don't use AI with people who do. This is what that looks like for your specific job.<br/><span style="font-size:12px;color:var(--text3);margin-top:6px;display:block">Sources: WEF Future of Jobs 2025 · DemandSage · National University · Thunderbit 2026</span></p>
     <div class="threat-grid">
-      <div class="threat-card reveal"><div class="threat-field">Student</div><div class="threat-risk">52%</div><div class="threat-title">of entry-level jobs are being automated before you graduate</div><div class="threat-stat">LinkedIn 2025: AI skills add ₹3.2L avg salary premium for fresh grads.</div></div>
-      <div class="threat-card reveal d1"><div class="threat-field">Developer</div><div class="threat-risk">71%</div><div class="threat-title">of junior dev tasks can be fully automated by AI coding tools today</div><div class="threat-stat">GitHub Copilot users ship 55% more code. Teams hire 1 senior AI-native dev instead of 3 juniors.</div></div>
-      <div class="threat-card reveal d2"><div class="threat-field">Marketing</div><div class="threat-risk">68%</div><div class="threat-title">of marketing tasks — content, copy, analysis — are now AI-automatable</div><div class="threat-stat">HubSpot 2025: AI marketing teams produce 7x more content with same headcount.</div></div>
-      <div class="threat-card reveal d3"><div class="threat-field">Sales</div><div class="threat-risk">45%</div><div class="threat-title">of sales tasks — prospecting, follow-ups, CRM updates — are AI-handled</div><div class="threat-stat">Salesforce 2025: Reps using AI close 23% more deals, spend 40% less time on admin.</div></div>
+      <div class="threat-card reveal"><div class="threat-field">Student</div><div class="threat-risk">52%</div><div class="threat-title">of entry-level jobs are being automated before you graduate</div><div class="threat-stat">WEF Future of Jobs 2025: 60% of all jobs will see significant task changes due to AI. Big Tech reduced new grad hiring 25% in 2024. AI skills now command 40% salary premium. Source: WEF, SignalFire 2025.</div></div>
+      <div class="threat-card reveal d1"><div class="threat-field">Developer</div><div class="threat-risk">71%</div><div class="threat-title">of junior dev tasks can be fully automated by AI coding tools today</div><div class="threat-stat">77,999 tech jobs lost to AI in first 6 months of 2025. 49% of US companies using ChatGPT replaced workers. 92% of IT roles being transformed — entry-level hit hardest. Source: WEF, National University 2025.</div></div>
+      <div class="threat-card reveal d2"><div class="threat-field">Marketing</div><div class="threat-risk">68%</div><div class="threat-title">of marketing tasks — content, copy, analysis — are now AI-automatable</div><div class="threat-stat">81.6% of digital marketers already fear AI replacement. Content writer jobs projected to decline 50% by 2030. AI ad copy outperforming human copy in majority of A/B tests. Source: DemandSage, BLS 2025.</div></div>
+      <div class="threat-card reveal d3"><div class="threat-field">Sales</div><div class="threat-risk">45%</div><div class="threat-title">of sales tasks — prospecting, follow-ups, CRM updates — are AI-handled</div><div class="threat-stat">AI tools handling prospecting, follow-ups, and CRM updates that used to take 40% of a rep's day. Reps using AI automation closing significantly more deals. Source: Thunderbit Automation Statistics 2026.</div></div>
     </div>
   </div>
 </section>
+<section class="pad z2" style="background:#f4f1ec;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">FAQ</span>
+    <h2 class="stitle reveal">Questions people actually have.</h2>
 
-<section class="pad z2" style="background:var(--bg2)">
+    <div style="max-width:680px;margin-top:44px">
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          What exactly is a "session"? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px;padding-left:0">One message you send + one reply from Arjun = 1 session. Free trial gives you 5/day. A typical task: Arjun gives task (1), you clarify (2), paste output (3), get graded (4), make one fix (5). That's your full day. Resets midnight IST.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          Do I need to already know how to use AI tools? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">No. Arjun tells you which tool to open, exactly what to type, and what to do with the result. If you've never opened Claude or Perplexity, Day 1 walks you through it step by step. If you're advanced, he skips basics and challenges you with harder output standards.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          What if I miss a day? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Nothing locks. Your progress, points, and history stay. Come back the next day and pick up where you left. Your streak resets (that's on you), but the program doesn't punish you. Note: the 7-day free trial counts calendar days from signup, not active days.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          What's different from just using ChatGPT myself? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">ChatGPT answers whatever you ask. Arjun gives you a curriculum — a deliberate sequence of skills that build on each other, personalized to your profile. He grades your output to real standards. On Day 7 you have something publishable, not just a chat history. The structure and accountability is the product.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          What tools do I need to have access to? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">All free. Claude (claude.ai), Perplexity (perplexity.ai), ChatGPT (chat.openai.com) — all have free tiers that are enough for every Zubhai task. You don't need to pay for any of them to complete the 7 days.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          How does payment work for Pro/Max? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Click Upgrade inside the app. Shubh will WhatsApp or email you a payment link within 24 hours. UPI, card, or net banking accepted. Access activated same day. No subscription auto-billing without your confirmation.</div>
+      </details>
+
+      <details class="reveal" style="padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">
+          What happens after the 7-day trial ends? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span>
+        </summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Your account stays. Your Proof Wall stays (permanently). Coaching sessions lock. Upgrade to Pro (₹499/month) to keep going with unlimited sessions and new tracks added monthly. Or stay on free — your Day 7 proof is yours regardless.</div>
+      </details>
+
+    </div>
+
+    <div class="reveal" style="margin-top:44px">
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Your 7 Days →</button>
+      <div style="font-size:12px;color:var(--text3);margin-top:10px">More questions? Email hello@zubhai.com — Shubh replies personally.</div>
+    </div>
+  </div>
+</section>
+<section class="pad z2" style="background:#f4f1ec">
   <div class="wrap">
     <span class="stag reveal">How it works</span>
-    <h2 class="stitle reveal">7 days. One real output.<br/>Actual proof.</h2>
+    <h2 class="stitle reveal">One skill per day.<br/>One proof at the end.</h2>
     <div class="steps-grid">
-      <div class="step reveal"><span class="step-n">01 /</span><span class="step-ico">🎯</span><h3>Pick your profession</h3><p>Student, Developer, Marketing, or Sales. We build a 7-day program around your exact job and goals.</p></div>
-      <div class="step reveal d1"><span class="step-n">02 /</span><span class="step-ico">💬</span><h3>In-app AI coaching</h3><p>Our AI coach teaches you one concept per session, then asks you questions — like a real coach, not a lecture.</p></div>
-      <div class="step reveal d2"><span class="step-n">03 /</span><span class="step-ico">🛠️</span><h3>Real tasks. Right tools.</h3><p>Every day, you do a real task using the right AI tool — Claude, Perplexity, or ChatGPT.</p></div>
-      <div class="step reveal"><span class="step-n">04 /</span><span class="step-ico">🔗</span><h3>Verify by link</h3><p>Submit your share link. AI grades your real work honestly.</p></div>
-      <div class="step reveal d1"><span class="step-n">05 /</span><span class="step-ico">📅</span><h3>5 sessions/day, reset daily</h3><p>Free trial gives you 5 sessions per day. Resets every midnight IST.</p></div>
-      <div class="step reveal d2"><span class="step-n">07 /</span><span class="step-ico">🏆</span><h3>Day 7: Proof Wall</h3><p>Publish something real. It goes on your Proof Wall. That's your portfolio.</p></div>
+      <div class="step reveal"><span class="step-n">01</span><span class="step-ico">🎯</span><h3>Pick your profession</h3><p>Tell us your role in one sentence. We build a 7-day program around your exact situation — not generic AI theory.</p></div>
+      <div class="step reveal d1"><span class="step-n">02</span><span class="step-ico">💬</span><h3>In-app AI coaching</h3><p>Arjun, your AI coach, gives you the exact task to do today — then grades your real output. Not quizzes. Real work.</p></div>
+      <div class="step reveal d2"><span class="step-n">03</span><span class="step-ico">🛠️</span><h3>Real tasks. Right tools.</h3><p>Every day, you do a real task using the right AI tool — Claude, Perplexity, or ChatGPT. We tell you which and why.</p></div>
+      <div class="step reveal"><span class="step-n">04</span><span class="step-ico">🔗</span><h3>Verify by link</h3><p>Submit your share link. We verify your actual output — not just completion. AI grades your real work honestly.</p></div>
+      <div class="step reveal d1"><span class="step-n">05</span><span class="step-ico">📅</span><h3>5 sessions/day, reset daily</h3><p>Free trial gives you 5 sessions per day. Resets every midnight IST. Upgrade for unlimited access.</p></div>
+      <div class="step reveal d2"><span class="step-n">07</span><span class="step-ico">🏆</span><h3>Day 7: Proof Wall</h3><p>Publish something real — an article, a GitHub repo, a LinkedIn post. It goes on your Proof Wall. That's your portfolio.</p></div>
     </div>
   </div>
 </section>
 
-<section class="pad z2">
+<section class="pad z2" style="background:#f4f1ec">
   <div class="wrap">
     <span class="stag reveal">Proof Wall Preview</span>
-    <h2 class="stitle reveal">What learners ship<br/>on Day 7.</h2>
+    <h2 class="stitle reveal">Real work. Real URLs.<br/>Real proof.</h2>
     <div class="proof-preview">
       <div class="proof-card reveal"><div class="proof-field">Marketing · Day 7</div><div class="proof-title">Complete AI-powered campaign strategy for D2C brand — published LinkedIn case study</div><div class="proof-score">Score: 9/10 · linkedin.com/posts/...</div></div>
       <div class="proof-card reveal d1"><div class="proof-field">Developer · Day 7</div><div class="proof-title">AI-assisted feature shipped: GPT-4 powered search for SaaS app — GitHub + LinkedIn post</div><div class="proof-score">Score: 8/10 · github.com/...</div></div>
@@ -458,13 +668,20 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
-<section class="pad z2" style="background:var(--bg2)">
+<section class="pad z2" style="background:#f9f9f9">
   <div class="wrap">
-    <span class="stag reveal">Pricing</span>
-    <h2 class="stitle reveal">Start free. Upgrade<br/>when you're ready.</h2>
-    <div class="plans-grid">
+    <span class="stag reveal" style="color:#888">Pricing</span>
+    <h2 class="stitle reveal" style="color:#000">Start free. No excuses.</h2>
+    <div style="display:flex;gap:24px;margin:24px 0 32px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">No credit card required</span></div>
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">Cancel anytime</span></div>
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">Results in 7 days or it's free</span></div>
+</div>
+<div class="plans-grid">
       <div class="plan-card reveal">
-        <div class="plan-name">Free Trial</div><div class="plan-price">₹0</div><div class="plan-period">7 days, then locked</div>
+        <div class="plan-name">Free Trial</div>
+        <div class="plan-price">₹0</div>
+        <div class="plan-period">7 days, then locked</div>
         <div class="plan-desc">Everything you need to feel the difference AI makes. No credit card.</div>
         <div class="plan-feature">5 coaching sessions per day</div>
         <div class="plan-feature">All 4 profession tracks</div>
@@ -473,7 +690,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
         <button class="plan-btn primary" onclick="openApp('signup')">Start Free Trial →</button>
       </div>
       <div class="plan-card featured reveal d1">
-        <div class="plan-name">Pro</div><div class="plan-price">₹499</div><div class="plan-period">per month</div>
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">₹499</div>
+        <div class="plan-period">per month</div>
         <div class="plan-desc">Unlimited sessions. Continue past 7 days. Full access to all tracks.</div>
         <div class="plan-feature">Unlimited daily sessions</div>
         <div class="plan-feature">All 4 tracks + new tracks monthly</div>
@@ -483,7 +702,9 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
         <button class="plan-btn primary" onclick="openApp('signup')">Start with Pro →</button>
       </div>
       <div class="plan-card reveal d2">
-        <div class="plan-name">Max</div><div class="plan-price">₹999</div><div class="plan-period">per month</div>
+        <div class="plan-name">Max</div>
+        <div class="plan-price">₹999</div>
+        <div class="plan-period">per month</div>
         <div class="plan-desc">Everything in Pro plus a weekly 15-min live review call with Shubh.</div>
         <div class="plan-feature">Everything in Pro</div>
         <div class="plan-feature">Weekly 15-min 1-on-1 with Shubh</div>
@@ -496,16 +717,25 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
   </div>
 </section>
 
-<section class="pad z2" id="about" style="background:var(--bg2)">
+
+<section class="pad z2" id="about" style="background:#f4f1ec">
   <div class="wrap">
     <span class="stag reveal">About</span>
     <h2 class="stitle reveal">Why Zubhai exists.</h2>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:40px">
       <div class="reveal">
-        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">I spent 6 months watching AI tutorials. I understood transformers, RAG, prompt engineering, agents. I could explain everything.</p>
-        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">Then I sat down to actually use AI for my work — and had no idea what to do.</p>
-        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">Nobody teaches you <em style="color:var(--text);font-style:italic">how to start</em>. They teach you what AI can do. Not how to do it with AI, for your specific job, today.</p>
-        <p style="font-size:15px;color:var(--text2);line-height:1.95">Zubhai is the platform I wish existed. You don't watch. You do. Day 1, you build something real.</p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          I spent 6 months watching AI tutorials. I understood transformers, RAG, prompt engineering, agents. I could explain everything.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Then I sat down to actually use AI for my work — and had no idea what to do.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Nobody teaches you <em style="color:var(--text);font-style:italic">how to start</em>. They teach you what AI can do. Not how to do it with AI, for your specific job, today.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95">
+          Zubhai is the platform I wish existed when I started. You don't watch lectures. You do the actual work, with the actual tools, for your actual job. Day 1, you build something real.
+        </p>
       </div>
       <div class="reveal d1">
         <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:28px">
@@ -527,7 +757,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 <footer class="z2">
   <div class="wrap">
     <div class="foot-grid">
-      <div><span class="foot-logo">⚡ Zub<em>hai</em></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
+      <div><span class="foot-logo">Zubh<em>Ai</em></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
       <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
       <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:hello@zubhai.com">Email</a></li></ul></div>
     </div>
@@ -536,7 +766,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 </footer>
 </div>
 
-<!-- APP -->
+<!-- ════════ APP ════════ -->
 <div id="app">
   <div class="sb" id="sb">
     <div class="sb-top">
@@ -572,6 +802,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
     </div>
   </div>
 
+  <!-- USER MENU -->
   <div class="user-menu" id="user-menu">
     <div class="um-head">
       <div class="um-email" id="um-email">—</div>
@@ -580,26 +811,43 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
     </div>
     <div class="um-sec">
       <div class="um-item" onclick="closeMenu();navTo('sc-upgrade')">
-        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="6" x2="12" y2="18"/></svg>Upgrade plan
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+        Upgrade plan
       </div>
       <div class="um-item" onclick="closeMenu();showThreat()">
-        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>AI Threat Report
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        AI Threat Report
       </div>
       <div class="um-item" onclick="closeMenu();showToast('Settings coming soon')">
-        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>Settings<span class="um-hint">⌘,</span>
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        Settings
+        <span class="um-hint">⌘,</span>
+      </div>
+    </div>
+    <div class="um-sep"></div>
+    <div class="um-sec">
+      <div class="um-item" onclick="closeMenu();showToast('Apps coming soon')">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Get apps
+      </div>
+      <div class="um-item" onclick="closeMenu();window.open('https://linkedin.com/in/shubhagrawal429','_blank')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help & feedback
       </div>
     </div>
     <div class="um-sep"></div>
     <div class="um-sec">
       <div class="um-item danger" onclick="logout()">
-        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Log out
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
       </div>
     </div>
   </div>
 
   <div class="app-main">
+    <!-- plan badge top center -->
     <div class="app-top" id="app-top">
-      <div class="app-top-title" id="top-title" style="font-family:var(--fs);font-size:15px;color:var(--text);letter-spacing:-.2px">⚡ Zub<em style="color:var(--accent);font-style:normal">hai</em></div>
+      <div class="app-top-title" id="top-title">ZubhAi</div>
       <div class="plan-top-badge" id="plan-top-badge">
         <span id="plan-top-label">Free Trial</span>
         <button onclick="navTo('sc-upgrade')">Upgrade</button>
@@ -618,10 +866,11 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
         <div class="auth-wrap">
           <div class="auth-back" onclick="closeApp()">← Back</div>
-          <div class="auth-logo" style="margin-bottom:14px;text-align:center;font-size:24px;">⚡ Zub<em>hai</em></div>
+          <div class="auth-logo" style="text-align:center;margin-bottom:14px;">Zubh<em>Ai</em></div>
           <div class="auth-tagline" id="auth-tagline">7 days to transform how you work with AI.</div>
+
           <button class="auth-google" onclick="signInGoogle()">
-            <svg viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
             Continue with Google
           </button>
           <div class="auth-divider"><span>or</span></div>
@@ -636,34 +885,31 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
       <!-- ONBOARD -->
       <div class="screen" id="sc-onboard">
         <div class="ob-center">
-          <div class="ob-wrap" style="max-width:480px">
-            <div style="font-family:var(--fs);font-size:clamp(22px,3vw,32px);margin-bottom:8px;line-height:1.15">One question before<br/><em style="color:var(--accent);font-style:italic">Day 1 begins.</em></div>
-            <div style="font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:22px">In 2–3 sentences — what's your current situation and what do you want to achieve with AI in the next 7 days?</div>
-            <textarea id="ob-answer" placeholder="e.g. I'm a 3rd year CS student at Pune University. I want to learn how to use Claude and ChatGPT to debug faster and build AI features in my final year project." rows="4"
-              style="width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:14px;color:var(--text);font-size:14px;font-family:var(--fb);line-height:1.7;resize:none;transition:.2s;outline:none"
-              onfocus="this.style.borderColor='var(--border3)'" onblur="this.style.borderColor='var(--border2)'"
-              oninput="document.getElementById('ob-char').textContent=this.value.length+' chars'"></textarea>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;margin-bottom:18px">
-              <span id="ob-char" style="font-size:10px;color:var(--text3);font-family:var(--fm)">0 chars</span>
-              <span style="font-size:10px;color:var(--text3)">min ~50 chars for best personalization</span>
+          <div class="ob-wrap">
+            <div class="ob-q" style="font-size:clamp(20px,3vw,30px);margin-bottom:6px">What do you do?</div>
+            <div class="ob-hint">We build your 7-day program around this. Pick the closest match.</div>
+            <div class="ob-chips" style="margin-top:16px">
+              <div class="ob-chip" onclick="pickProfession(this,'student')">🎓 Student</div>
+              <div class="ob-chip" onclick="pickProfession(this,'developer')">💻 Developer</div>
+              <div class="ob-chip" onclick="pickProfession(this,'marketing')">📣 Marketing</div>
+              <div class="ob-chip" onclick="pickProfession(this,'sales')">🤝 Sales</div>
             </div>
-            <div style="margin-bottom:18px">
-              <div style="font-size:10px;color:var(--text3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px">Examples</div>
-              <div style="display:flex;flex-direction:column;gap:6px">
-                <div onclick="fillObExample(this)" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--text3);cursor:pointer;line-height:1.6;transition:.15s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">I'm a backend developer with 2 years experience in Python. I want to learn how to use AI to review my code, write better tests, and eventually ship AI features at my startup.</div>
-                <div onclick="fillObExample(this)" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--text3);cursor:pointer;line-height:1.6;transition:.15s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">I'm a marketing manager at a D2C brand. I want to use AI to create content faster, write better ad copy, and stop spending 3 hours on tasks that should take 20 minutes.</div>
-                <div onclick="fillObExample(this)" style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:var(--text3);cursor:pointer;line-height:1.6;transition:.15s" onmouseover="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text3)'">Final year MBA student. I want to use AI tools like Perplexity and Claude to do better research, write sharper case analyses, and stand out in placements.</div>
+            <div style="margin-top:18px;display:none" id="ob-lang-row">
+              <div class="ob-hint" style="margin-bottom:10px">Which language do you think best in?</div>
+              <div class="ob-chips">
+                <div class="ob-chip" onclick="pickLang(this,'English')">English</div>
+                <div class="ob-chip" onclick="pickLang(this,'Hindi')">Hindi</div>
+                <div class="ob-chip" onclick="pickLang(this,'Hinglish')">Hinglish</div>
+                <div class="ob-chip" onclick="pickLang(this,'Marathi')">Marathi</div>
+                <div class="ob-chip" onclick="pickLang(this,'Tamil')">Tamil</div>
+                <div class="ob-chip" onclick="pickLang(this,'Bengali')">Bengali</div>
               </div>
             </div>
-            <button id="ob-submit-btn" onclick="submitOnboarding()"
-              style="width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s"
-              onmouseover="this.style.background='#ddd'" onmouseout="this.style.background='var(--text)'">Build my 7-day program →</button>
-            <div id="ob-err" style="color:#ff6b6b;font-size:11px;margin-top:8px;min-height:14px;text-align:center"></div>
           </div>
         </div>
       </div>
 
-      <!-- LOBBY -->
+      <!-- LOBBY / HOME -->
       <div class="screen" id="sc-lobby">
         <div id="dispatch-bar" class="dispatch-banner" style="display:none">
           <span class="dispatch-tag">Today</span>
@@ -676,19 +922,33 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
             <textarea class="lobby-textarea" id="lobby-input" placeholder="Start today's session, or ask anything..." rows="2" onkeydown="lobbyKey(event)"></textarea>
             <div class="lobby-input-foot">
               <span class="lobby-input-meta">Zubhai · Day <span id="lb-day">1</span>/7</span>
-              <button class="lobby-send-btn" onclick="lobbyGo()"><svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg></button>
+              <button class="lobby-send-btn" onclick="lobbyGo()">
+                <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
+              </button>
             </div>
           </div>
           <div class="lobby-suggestions">
-            <button class="lobby-chip" onclick="navTo('sc-chat')"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Today's Session</button>
-            <button class="lobby-chip" onclick="navTo('sc-proof');loadProofWall()"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>My Proof Wall</button>
-            <button class="lobby-chip" onclick="navTo('sc-lb');loadLb()"><svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>Leaderboard</button>
-            <button class="lobby-chip" onclick="showThreat()"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>AI Threat Report</button>
+            <button class="lobby-chip" onclick="navTo('sc-chat')">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Today's Session
+            </button>
+            <button class="lobby-chip" onclick="navTo('sc-proof');loadProofWall()">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
+              My Proof Wall
+            </button>
+            <button class="lobby-chip" onclick="navTo('sc-lb');loadLb()">
+              <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
+              Leaderboard
+            </button>
+            <button class="lobby-chip" onclick="showThreat()">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              AI Threat Report
+            </button>
           </div>
         </div>
       </div>
 
-      <!-- LIMIT OVERLAY -->
+      <!-- LIMIT OVERLAY (Claude-style popup) -->
       <div class="limit-overlay" id="limit-overlay">
         <div class="limit-modal">
           <span class="limit-modal-icon">⏱</span>
@@ -716,6 +976,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
             <div class="spin-wrap"><div class="spinner"></div><p>Starting your session...</p></div>
           </div>
           <div class="chat-input-area" id="chat-input-area">
+            <!-- image upload hidden input -->
             <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)"/>
             <div class="chat-input-wrap">
               <button class="chat-attach-btn" onclick="document.getElementById('img-upload').click()" title="Upload screenshot">
@@ -726,8 +987,7 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
                 <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
               </button>
             </div>
-            <!-- FIX: no stray characters, using class instead of inline display -->
-            <div id="img-preview-bar" class="img-preview-bar">
+            <div id="img-preview-bar" style="display:none;padding:6px 0 0;font-size:11px;color:var(--text3);align-items:center;gap:6px">
               <span id="img-preview-name"></span>
               <span style="cursor:pointer;color:var(--accent)" onclick="clearImageUpload()">✕ remove</span>
             </div>
@@ -775,15 +1035,19 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
           <div class="upgrade-wrap">
             <div class="stag">Pricing</div>
             <div class="stitle">Upgrade your plan</div>
-            <div class="ssub" style="margin-bottom:0">Your 7-day trial gives you 5 sessions/day. Upgrade for unlimited access and continued coaching.</div>
+            <div class="ssub" style="margin-bottom:0;color:#555">Start free — no credit card, no catch. If 7 days doesn't change how you work, you've lost nothing. If it does, ₹499/month is nothing compared to what AI skills are worth.</div>
             <div class="in-app-plans">
               <div class="in-app-plan featured">
-                <div class="in-app-plan-name">Pro</div><div class="in-app-plan-price">₹499</div><div class="in-app-plan-period">per month</div>
+                <div class="in-app-plan-name">Pro</div>
+                <div class="in-app-plan-price">₹499</div>
+                <div class="in-app-plan-period">per month</div>
                 <div class="in-app-plan-features">✓ Unlimited daily sessions<br/>✓ All 4 profession tracks<br/>✓ Public Proof Wall link<br/>✓ LinkedIn AI badge<br/>✓ Priority support</div>
                 <button class="in-app-plan-btn primary" onclick="upgradeIntent('pro')">Upgrade to Pro →</button>
               </div>
               <div class="in-app-plan">
-                <div class="in-app-plan-name">Max</div><div class="in-app-plan-price">₹999</div><div class="in-app-plan-period">per month · capped at 20 users</div>
+                <div class="in-app-plan-name">Max</div>
+                <div class="in-app-plan-price">₹999</div>
+                <div class="in-app-plan-period">per month · capped at 20 users</div>
                 <div class="in-app-plan-features">✓ Everything in Pro<br/>✓ Weekly 15-min call with Shubh<br/>✓ Custom AI workflow for your role<br/>✓ WhatsApp direct access</div>
                 <button class="in-app-plan-btn" onclick="upgradeIntent('max')">Join Max →</button>
               </div>
@@ -800,16 +1064,18 @@ footer{background:var(--bg2);border-top:1px solid var(--border);padding:36px 0 2
 </div>
 
 <script>
-const API="https://zubhai-zubhai-backened.hf.space";
-const SUPABASE_URL="https://ceikerijcbyxtltpkqcu.supabase.co";
-const SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlaWtlcmlqY2J5eHRsdHBrcWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjg5ODAsImV4cCI6MjA5MjYwNDk4MH0.Is8yU6eWe0xjv7jFCIavW61pWwYqoFS8SRXt68C2uLI";
-const sb=window.supabase?.createClient?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const API = "https://zubhai-zubhai-backened.hf.space";
+const SUPABASE_URL = "https://ceikerijcbyxtltpkqcu.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlaWtlcmlqY2J5eHRsdHBrcWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjg5ODAsImV4cCI6MjA5MjYwNDk4MH0.Is8yU6eWe0xjv7jFCIavW61pWwYqoFS8SRXt68C2uLI"; // Set your Supabase anon key here
+const sb = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-let userId=null,userProfile=null,authMode="signup";
-let chatHistory=[],streamingMessage=null;
-let usageData=null,currentDay=1,timerInterval=null;
+let userId = null, userProfile = null, authMode = "signup";
+let chatHistory = [], streamingMessage = null;
+let usageData = null;
+let currentDay = 1;
+let timerInterval = null;
 
-const PROGRAMS={
+const PROGRAMS = {
   student:[
     {day:1,title:"Your AI Research Assistant",tool:"Perplexity"},
     {day:2,title:"Write Anything 10x Better",tool:"Claude"},
@@ -848,29 +1114,63 @@ const PROGRAMS={
   ],
 };
 
-/* UTILS */
-function showToast(msg,dur=2800){document.querySelectorAll('.toast').forEach(t=>t.remove());const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},dur);}
+const OBQ = [
+  {key:"field",q:"What do you do?",hint:"We build your 7-day program around your exact role",chips:["Student","Developer","Marketing","Sales"],other:false},
+  {key:"level",q:"How much have you used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
+  {key:"language",q:"Which language do you think best in?",hint:"Your coaching responds in this language",chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali"],other:true,op:"Type your language..."},
+];
+let obStep=0, obAns={};
+
+/* Three.js background loaded via ES module — see <script type="module"> below */
+
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
+
+/* ── UTILS ── */
+function showToast(msg,dur=2800){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},dur);
+}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-async function post(path,body){const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});return r.json();}
+async function post(path,body){
+  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
 function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
 function fmtTime(secs){const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);return h>0?`${h}h ${m}m`:`${m}m`;}
 
-/* THREAT */
+/* ── THREAT POPUP ── */
 async function showThreat(){
   const field=(userProfile?.field||'student').toLowerCase();
-  try{const d=await fetch(API+'/threat-score/'+field).then(r=>r.json());if(d.status==='success'){const td=d.data;document.getElementById('tp-field').textContent=field.toUpperCase()+' · AI IMPACT REPORT 2025';document.getElementById('tp-risk').textContent=td.risk+'%';document.getElementById('tp-headline').textContent=td.headline;document.getElementById('tp-body').textContent=td.fear;document.getElementById('tp-stat').textContent=td.stat;}}catch(e){}
+  try{
+    const d=await fetch(API+'/threat-score/'+field).then(r=>r.json());
+    if(d.status==='success'){
+      const td=d.data;
+      document.getElementById('tp-field').textContent=field.toUpperCase()+' · AI IMPACT REPORT 2025';
+      document.getElementById('tp-risk').textContent=td.risk+'%';
+      document.getElementById('tp-headline').textContent=td.headline;
+      document.getElementById('tp-body').textContent=td.fear;
+      document.getElementById('tp-stat').textContent=td.stat;
+    }
+  }catch(e){}
   document.getElementById('threat-overlay').classList.add('show');
 }
 function closeThreat(){document.getElementById('threat-overlay').classList.remove('show');}
 
-/* NAV */
+/* ── NAV ── */
 function showScreen(id){
   document.querySelectorAll('#app .screen').forEach(s=>s.classList.remove('on'));
   document.getElementById(id)?.classList.add('on');
-  const titleEl=document.getElementById('top-title');
-  const titles={'sc-auth':'','sc-onboard':'Setup','sc-lobby':'','sc-chat':"Today's Session",'sc-score':'Results','sc-proof':'Proof Wall','sc-lb':'Leaderboard','sc-upgrade':'Upgrade'};
-  if(titleEl){const t=titles[id];if(t===''||t===undefined){titleEl.innerHTML='⚡ Zub<em style="color:var(--accent);font-style:normal">hai</em>';}else{titleEl.textContent=t;}}
-  document.getElementById('app').classList.toggle('auth-mode',(id==='sc-auth'||id==='sc-onboard')&&!userId);
+  const titles={
+    'sc-auth':'Zubhai','sc-onboard':'Setup','sc-lobby':'Home',
+    'sc-chat':"Today's Session",'sc-score':'Results',
+    'sc-proof':'Proof Wall','sc-lb':'Leaderboard','sc-upgrade':'Upgrade'
+  };
+  document.getElementById('top-title').textContent=titles[id]||'Zubhai';
+  const isAuth=id==='sc-auth'||id==='sc-onboard';
+  document.getElementById('app').classList.toggle('auth-mode',isAuth&&!userId);
 }
 function navTo(id){
   showScreen(id);closeMenu();
@@ -879,25 +1179,44 @@ function navTo(id){
   if(map[id])document.getElementById(map[id])?.classList.add('on');
 }
 
-/* USER MENU */
+/* ── USER MENU ── */
 function closeMenu(){document.getElementById('user-menu')?.classList.remove('show');}
 function toggleUserMenu(){document.getElementById('user-menu')?.classList.toggle('show');}
-document.addEventListener('click',e=>{const m=document.getElementById('user-menu');const btn=document.getElementById('sb-avatar');if(m?.classList.contains('show')&&!m.contains(e.target)&&!btn?.contains(e.target))closeMenu();});
+document.addEventListener('click',e=>{
+  const m=document.getElementById('user-menu');
+  const btn=document.getElementById('sb-avatar');
+  if(m?.classList.contains('show')&&!m.contains(e.target)&&!btn?.contains(e.target))closeMenu();
+});
 
-/* OPEN/CLOSE APP */
+/* ── OPEN / CLOSE APP ── */
 function openApp(mode){
   authMode=mode;updateAuthUI();
   document.getElementById('land').style.display='none';
   document.getElementById('app').classList.add('open');
   document.getElementById('sb').style.display='none';
   showScreen('sc-auth');
+  // Auto-login check
   const uid=localStorage.getItem('zubhai_uid');
-  if(uid&&!userId){userId=uid;fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{if(d.status==='success'){userProfile=d.user;afterLogin();}else{userId=null;localStorage.removeItem('zubhai_uid');}}).catch(()=>{userId=null;});}
+  if(uid&&!userId){
+    userId=uid;
+    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
+      if(d.status==='success'){userProfile=d.user;afterLogin();}
+      else{userId=null;localStorage.removeItem('zubhai_uid');}
+    }).catch(()=>{userId=null;});
+  }
 }
-function closeApp(){document.getElementById('app').classList.remove('open','auth-mode');document.getElementById('land').style.display='block';document.getElementById('sb').style.display='none';}
-function logout(){closeMenu();userId=null;userProfile=null;chatHistory=[];localStorage.removeItem('zubhai_uid');closeApp();showToast('Logged out. See you tomorrow!');}
+function closeApp(){
+  document.getElementById('app').classList.remove('open','auth-mode');
+  document.getElementById('land').style.display='block';
+  document.getElementById('sb').style.display='none';
+}
+function logout(){
+  closeMenu();userId=null;userProfile=null;chatHistory=[];
+  localStorage.removeItem('zubhai_uid');
+  closeApp();showToast('Logged out. See you tomorrow!');
+}
 
-/* AUTH UI */
+/* ── AUTH UI ── */
 function updateAuthUI(){
   const l=authMode==='login';
   document.getElementById('auth-lbl').textContent=l?'Login →':'Sign Up Free →';
@@ -907,17 +1226,40 @@ function updateAuthUI(){
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
 
-/* GOOGLE AUTH */
+/* ── GOOGLE AUTH ── */
 async function signInGoogle(){
-  if(!sb){showToast('Google login unavailable');return;}
-  try{const{data,error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:window.location.origin}});if(error)throw error;}catch(e){showToast('Google auth error: '+e.message);}
+  if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
+  try{
+    const {data,error}=await sb.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.origin}
+    });
+    if(error)throw error;
+  }catch(e){showToast('Google auth error: '+e.message);}
 }
+
+// Handle Google OAuth redirect
 (async()=>{
   if(!sb)return;
-  try{const{data:{session}}=await sb.auth.getSession();if(session?.access_token&&!userId){const d=await post('/auth/google',{access_token:session.access_token,refresh_token:session.refresh_token});if(d.status==='success'){userId=d.user_id;userProfile=d.user;localStorage.setItem('zubhai_uid',userId);document.getElementById('land').style.display='none';document.getElementById('app').classList.add('open');afterLogin();}}}catch(e){console.log('OAuth check:',e);}
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session?.access_token&&!userId){
+      const d=await post('/auth/google',{
+        access_token:session.access_token,
+        refresh_token:session.refresh_token
+      });
+      if(d.status==='success'){
+        userId=d.user_id;userProfile=d.user;
+        localStorage.setItem('zubhai_uid',userId);
+        document.getElementById('land').style.display='none';
+        document.getElementById('app').classList.add('open');
+        afterLogin();
+      }
+    }
+  }catch(e){console.log('OAuth check:',e);}
 })();
 
-/* EMAIL AUTH */
+/* ── EMAIL AUTH ── */
 async function handleAuth(){
   const email=document.getElementById('a-email').value.trim();
   const pass=document.getElementById('a-pass').value.trim();
@@ -928,27 +1270,31 @@ async function handleAuth(){
   if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
   btn.disabled=true;document.getElementById('auth-lbl').textContent='Please wait...';
   try{
-    const d=await post(authMode==='login'?'/auth/login':'/auth/signup',{email,password:pass});
-    if(d.status==='success'){userId=d.user_id;userProfile=d.user||{id:d.user_id,email};localStorage.setItem('zubhai_uid',userId);afterLogin();}
-    else{err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();}
+    const path=authMode==='login'?'/auth/login':'/auth/signup';
+    const d=await post(path,{email,password:pass});
+    if(d.status==='success'){
+      userId=d.user_id;userProfile=d.user||{id:d.user_id,email};
+      localStorage.setItem('zubhai_uid',userId);
+      afterLogin();
+    } else{err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();}
   }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();}
 }
 document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
 
-/* AFTER LOGIN */
+/* ── AFTER LOGIN ── */
 function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
-  if(!userProfile?.onboarding_done&&!userProfile?.field)startOnboarding();
-  else goHome();
+  if(!userProfile?.field)startOnboarding();
+  else{goHome();}
 }
 
 function refreshSidebar(){
   if(!userProfile)return;
   const email=userProfile.email||'';
-  const name=userProfile.name||email.split('@')[0];
+  const name=userProfile.name||(email.includes('shubzz429')?'Shubh Agrawal':email.split('@')[0]);
   const initials=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?';
   document.getElementById('sb-avatar').textContent=initials;
   document.getElementById('um-email').textContent=email;
@@ -959,7 +1305,8 @@ function refreshSidebar(){
   document.getElementById('tb-day').textContent=userProfile.day_in_program||1;
   document.getElementById('lb-day').textContent=userProfile.day_in_program||1;
   currentDay=userProfile.day_in_program||1;
-  loadUsage();loadDispatch();
+  loadUsage();
+  loadDispatch();
 }
 
 async function loadUsage(){
@@ -972,9 +1319,15 @@ async function loadUsage(){
     document.getElementById('sb-usage-fill').style.width=pct+'%';
     document.getElementById('sb-usage-label').textContent=`${limit-left}/${limit} sessions`;
     const sessEl=document.getElementById('tb-sessions');
-    document.getElementById('tb-sess-left').textContent=left;
+    const sessLeft=document.getElementById('tb-sess-left');
+    sessLeft.textContent=left;
     sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
-    document.getElementById('plan-top-label').textContent=d.trial_expired?'Trial Ended':(d.plan||'free trial').replace('_',' ');
+    if(d.trial_expired){
+      document.getElementById('plan-top-label').textContent='Trial Ended';
+    } else {
+      document.getElementById('plan-top-label').textContent=(d.plan||'free trial').replace('_',' ');
+    }
+    // Start reset timer if at limit
     if(left===0&&d.reset_seconds)startResetTimer(d.reset_seconds);
   }catch(e){console.log('Usage error:',e);}
 }
@@ -983,53 +1336,59 @@ function startResetTimer(secs){
   if(timerInterval)clearInterval(timerInterval);
   let remaining=secs;
   const el=document.getElementById('limit-timer');
-  const update=()=>{if(el)el.textContent='Resets in '+fmtTime(Math.max(0,remaining));remaining--;if(remaining<0)clearInterval(timerInterval);};
+  const update=()=>{if(el)el.textContent='Resets in '+fmtTime(Math.max(0,remaining));remaining--;if(remaining<0){clearInterval(timerInterval);}};
   update();timerInterval=setInterval(update,1000);
 }
 
 async function loadDispatch(){
   if(!userProfile?.field)return;
-  try{const d=await fetch(API+'/daily-dispatch/'+userProfile.field.toLowerCase()).then(r=>r.json());if(d.dispatch){document.getElementById('dispatch-text').textContent=d.dispatch;document.getElementById('dispatch-bar').style.display='flex';}}catch(e){}
-}
-
-/* ONBOARDING */
-function startOnboarding(){showScreen('sc-onboard');setTimeout(()=>document.getElementById('ob-answer')?.focus(),300);}
-function fillObExample(el){const ta=document.getElementById('ob-answer');if(ta){ta.value=el.textContent.trim();document.getElementById('ob-char').textContent=ta.value.length+' chars';}}
-
-async function submitOnboarding(){
-  const answer=(document.getElementById('ob-answer')?.value||'').trim();
-  const err=document.getElementById('ob-err');
-  const btn=document.getElementById('ob-submit-btn');
-  err.textContent='';
-  if(answer.length<30){err.textContent='Tell us a bit more — at least a sentence or two.';return;}
-  btn.disabled=true;btn.textContent='Analysing your profile...';
   try{
-    const d=await post('/onboard/parse',{user_id:userId,answer});
-    if(d.status==='success'){
-      if(!userProfile)userProfile={};
-      userProfile.field=d.field;userProfile.language=d.profile?.language||'English';userProfile.onboarding_done=true;userProfile.profile=d.profile;
-      showToast(d.message||'Profile set! Starting Day 1...',3000);
-      setTimeout(()=>{showThreat();goTodaySession();},1200);
-    } else {
-      const field=answer.toLowerCase().includes('develop')||answer.toLowerCase().includes('code')?'developer':answer.toLowerCase().includes('market')||answer.toLowerCase().includes('content')?'marketing':answer.toLowerCase().includes('sales')||answer.toLowerCase().includes('lead')?'sales':'student';
-      await post('/onboard',{user_id:userId,field,level:'beginner',language:'English',time_per_day:15});
-      if(!userProfile)userProfile={};userProfile.field=field;showThreat();goTodaySession();
+    const d=await fetch(API+'/daily-dispatch/'+userProfile.field.toLowerCase()).then(r=>r.json());
+    if(d.dispatch){
+      document.getElementById('dispatch-text').textContent=d.dispatch;
+      document.getElementById('dispatch-bar').style.display='flex';
     }
-  }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;btn.textContent='Build my 7-day program →';}
+  }catch(e){}
 }
 
-/* HOME */
+/* ── ONBOARDING ── */
+let pickedField='',pickedLang='English';
+function startOnboarding(){showScreen('sc-onboard');pickedField='';pickedLang='English';}
+function pickProfession(el,field){
+  document.querySelectorAll('#sc-onboard .ob-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');pickedField=field;
+  document.getElementById('ob-lang-row').style.display='block';
+}
+function pickLang(el,lang){
+  el.closest('.ob-chips').querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');pickedLang=lang;finishOb();
+}
+async function finishOb(){
+  if(!pickedField)return;
+  await post('/onboard',{user_id:userId,field:pickedField,level:'beginner',language:pickedLang,time_per_day:15});
+  if(!userProfile)userProfile={};
+  userProfile.field=pickedField;userProfile.language=pickedLang;
+  await showThreat();goTodaySession();
+}
+
+/* ── HOME ── */
 function goHome(){
   navTo('sc-lobby');refreshSidebar();
   const h=new Date().getHours();
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
 }
-function goTodaySession(){chatHistory=[];navTo('sc-chat');initChat();}
+function goTodaySession(){
+  chatHistory=[];navTo('sc-chat');initChat();
+}
 function lobbyKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lobbyGo();}}
-function lobbyGo(){const v=(document.getElementById('lobby-input')?.value||'').trim();document.getElementById('lobby-input').value='';chatHistory=[];navTo('sc-chat');initChat(v);}
+function lobbyGo(){
+  const v=(document.getElementById('lobby-input')?.value||'').trim();
+  document.getElementById('lobby-input').value='';
+  chatHistory=[];navTo('sc-chat');initChat(v);
+}
 
-/* CHAT ENGINE */
+/* ── CHAT ENGINE ── */
 function initChat(initialMsg){
   const field=(userProfile?.field||'student').toLowerCase();
   const prog=PROGRAMS[field]||PROGRAMS.student;
@@ -1041,77 +1400,193 @@ function initChat(initialMsg){
   document.getElementById('chat-messages').innerHTML='';
   document.getElementById('chat-input-area').style.display='block';
   closeLimitOverlay();
-  streamChatResponse(initialMsg?`Context from user: "${initialMsg}". Now start Day ${dayIdx+1}.`:'start',true);
+  // First message = give task immediately, no warmup
+  const startMsg = initialMsg
+    ? `Context from user: "${initialMsg}". Now start Day ${dayIdx+1}.`
+    : `start`;
+  streamChatResponse(startMsg, true);
 }
 
 function addMessage(role,content,isHtml){
   const msgs=document.getElementById('chat-messages');
-  const div=document.createElement('div');div.className='chat-msg '+role;
+  const div=document.createElement('div');
+  div.className='chat-msg '+role;
   const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
   const inner=isHtml?content:esc(content).replace(/\n/g,'<br/>').replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
   div.innerHTML=`<div class="chat-msg-inner">${inner}</div><div class="chat-msg-time">${time}</div>`;
-  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;return div;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
 }
 
 function addTypingIndicator(){
   const msgs=document.getElementById('chat-messages');
-  const div=document.createElement('div');div.className='chat-msg ai';div.id='typing-indicator';
-  div.innerHTML='<div class="chat-msg-inner"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>';
+  const div=document.createElement('div');
+  div.className='chat-msg ai';div.id='typing-indicator';
+  div.innerHTML=`<div class="chat-msg-inner"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
   msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
 }
 function removeTypingIndicator(){document.getElementById('typing-indicator')?.remove();}
 
-function renderShareCard(sharePost,score,day){
-  const li=encodeURIComponent(sharePost),tw=encodeURIComponent(sharePost);
-  const card=document.createElement('div');card.className='share-card';
-  card.innerHTML=`<div class="share-card-header"><span class="share-card-score">Score ${score}/10</span><span class="share-card-title">Day ${day} complete — share your win</span></div><div class="share-card-post" id="share-post-text">${esc(sharePost)}</div><div class="share-card-btns"><button class="share-btn linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&text=${li}','_blank')"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>LinkedIn</button><button class="share-btn twitter" onclick="window.open('https://twitter.com/intent/tweet?text=${tw}','_blank')"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Twitter/X</button><button class="share-btn copy" onclick="navigator.clipboard.writeText(document.getElementById('share-post-text').textContent);this.textContent='✓ Copied'">Copy</button></div>`;
-  const msgs=document.getElementById('chat-messages');msgs.appendChild(card);msgs.scrollTop=msgs.scrollHeight;
+function renderShareCard(post, score, day){
+  const li=encodeURIComponent(post);
+  const tw=encodeURIComponent(post);
+  const card=document.createElement('div');
+  card.className='share-card';
+  card.innerHTML=`
+    <div class="share-card-header">
+      <span class="share-card-score">Score ${score}/10</span>
+      <span class="share-card-title">Day ${day} complete — share your win</span>
+    </div>
+    <div class="share-card-post" id="share-post-text">${esc(post)}</div>
+    <div class="share-card-btns">
+      <button class="share-btn linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&text=${li}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </button>
+      <button class="share-btn twitter" onclick="window.open('https://twitter.com/intent/tweet?text=${tw}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter/X
+      </button>
+      <button class="share-btn copy" onclick="navigator.clipboard.writeText(document.getElementById('share-post-text').textContent);this.textContent='✓ Copied'">
+        Copy
+      </button>
+    </div>`;
+  const msgs=document.getElementById('chat-messages');
+  msgs.appendChild(card);
+  msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function streamChatResponse(userMsg,isInit){
+async function streamChatResponse(userMsg, isInit){
   const sendBtn=document.getElementById('chat-send-btn');
   if(sendBtn)sendBtn.disabled=true;
-  if(userMsg&&!isInit)chatHistory.push({role:'user',content:userMsg});
+
+  if(userMsg && !isInit) chatHistory.push({role:'user',content:userMsg});
+
   addTypingIndicator();
   const msgs=document.getElementById('chat-messages');
-  if(usageData&&usageData.msgs_left===0){removeTypingIndicator();showLimitOverlay(usageData.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+
+  // client-side limit check
+  if(usageData && usageData.msgs_left===0){
+    removeTypingIndicator();
+    showLimitOverlay(usageData.reset_seconds||0);
+    if(sendBtn)sendBtn.disabled=false;
+    return;
+  }
+
   const field=(userProfile?.field||'student').toLowerCase();
+
   try{
-    const body={user_id:userId,message:isInit?('START_SESSION_DAY_'+(currentDay||1)+(userMsg&&userMsg!=='start'?'_CONTEXT:'+userMsg:'')):userMsg,day:currentDay||1,field,language:userProfile?.language||'English',history:isInit?[]:chatHistory.slice(-16)};
-    const resp=await fetch(API+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    if(!resp.ok){let err={};try{err=await resp.json();}catch(e){}removeTypingIndicator();if(err.status==='limit_reached'){showLimitOverlay(err.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}if(err.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}addMessage('ai','Error loading response. Try again.');if(sendBtn)sendBtn.disabled=false;return;}
+    const body={
+      user_id:userId,
+      message:isInit?('START_SESSION_DAY_'+(currentDay||1)+(userMsg&&userMsg!=='start'?'_CONTEXT:'+userMsg:'')):userMsg,
+      day:currentDay||1,
+      field:field,
+      language:userProfile?.language||'English',
+      history:isInit?[]:chatHistory.slice(-16)
+    };
+
+    const resp=await fetch(API+'/chat',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+
+    if(!resp.ok){
+      let err={};try{err=await resp.json();}catch(e){}
+      removeTypingIndicator();
+      if(err.status==='limit_reached'){showLimitOverlay(err.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(err.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai','Error loading response. Try again.');
+      if(sendBtn)sendBtn.disabled=false;
+      return;
+    }
+
     const ct=resp.headers.get('content-type')||'';
-    if(ct.includes('application/json')){const data=await resp.json();removeTypingIndicator();if(data.status==='limit_reached'){showLimitOverlay(data.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}if(data.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}addMessage('ai',data.message||'Error.');if(sendBtn)sendBtn.disabled=false;return;}
+    if(ct.includes('application/json')){
+      const data=await resp.json();
+      removeTypingIndicator();
+      if(data.status==='limit_reached'){showLimitOverlay(data.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(data.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai',data.message||'Error.');
+      if(sendBtn)sendBtn.disabled=false;
+      return;
+    }
+
     removeTypingIndicator();
     const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
     const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
     const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
     timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-    aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);msgs.appendChild(aiDiv);
-    const reader=resp.body.getReader(),decoder=new TextDecoder();
+    aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);
+    msgs.appendChild(aiDiv);
+
+    const reader=resp.body.getReader();
+    const decoder=new TextDecoder();
     let fullText='',buffer='';
+
     while(true){
-      const{done,value}=await reader.read();if(done)break;
+      const {done,value}=await reader.read();
+      if(done)break;
       buffer+=decoder.decode(value,{stream:true});
-      const lines=buffer.split('\n');buffer=lines.pop();
+      const lines=buffer.split('\n');
+      buffer=lines.pop();
       for(const line of lines){
         if(!line.startsWith('data:'))continue;
-        const raw=line.slice(5).trim();if(!raw)continue;
+        const raw=line.slice(5).trim();
+        if(!raw)continue;
         try{
           const p=JSON.parse(raw);
           if(p.error){innerDiv.innerHTML='Error: '+esc(p.error);break;}
-          if(p.text){fullText+=p.text;const display=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();innerDiv.innerHTML=esc(display).replace(/\n/g,'<br/>').replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');msgs.scrollTop=msgs.scrollHeight;}
+          if(p.text){
+            fullText+=p.text;
+            // strip ZUBHAI_GRADE marker from display
+            const display=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+            innerDiv.innerHTML=esc(display)
+              .replace(/\n/g,'<br/>')
+              .replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+            msgs.scrollTop=msgs.scrollHeight;
+          }
           if(p.done){
-            if(p.msgs_left!==undefined)updateUsageMeter(p.msgs_left);
-            if(p.grade){const sc=p.grade.score||p.grade;const n=typeof sc==='object'?sc.n:sc;const good=typeof sc==='object'?sc.good:'';const badge=document.createElement('div');badge.className=n>=7?'grade-bubble':'grade-bubble low';badge.innerHTML=`Score ${n}/10${good?' · '+esc(good):''}`;aiDiv.appendChild(badge);if(p.points_earned){const cur=parseInt(document.getElementById('tb-pts').textContent)||0;document.getElementById('tb-pts').textContent=cur+p.points_earned;}}
-            if(p.share_post&&p.grade){const sc=p.grade.score||p.grade;const n=typeof sc==='object'?sc.n:sc;setTimeout(()=>renderShareCard(p.share_post,n,currentDay||1),400);}
-            if(p.msgs_left===0)setTimeout(()=>{showLimitOverlay(usageData?.reset_seconds||0);},600);
+            // update usage meter
+            if(p.msgs_left!==undefined){
+              updateUsageMeter(p.msgs_left);
+            }
+            // show grade bubble if score
+            if(p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              const good=typeof sc==='object'?sc.good:'';
+              const badge=document.createElement('div');
+              badge.className=n>=7?'grade-bubble':'grade-bubble low';
+              badge.innerHTML='Score '+n+'/10'+(good?' · '+esc(good):'');
+              aiDiv.appendChild(badge);
+              if(p.points_earned){
+                const cur=parseInt(document.getElementById('tb-pts').textContent)||0;
+                document.getElementById('tb-pts').textContent=cur+p.points_earned;
+              }
+            }
+            if(p.share_post&&p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              setTimeout(()=>renderShareCard(p.share_post,n,currentDay||1),400);
+            }
+            if(p.msgs_left===0){
+              setTimeout(()=>{showLimitOverlay(usageData?.reset_seconds||0);},600);
+            }
           }
         }catch(e){}
       }
     }
-    if(fullText){const clean=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();chatHistory.push({role:'assistant',content:clean});}
-  }catch(e){removeTypingIndicator();addMessage('ai','Connection error. Check internet and try again.');console.error('Stream error:',e);}
+    if(fullText){
+      const clean=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+      chatHistory.push({role:'assistant',content:clean});
+    }
+  }catch(e){
+    removeTypingIndicator();
+    addMessage('ai','Connection error. Check internet and try again.');
+    console.error('Stream error:',e);
+  }
   if(sendBtn)sendBtn.disabled=false;
 }
 
@@ -1126,7 +1601,7 @@ function updateUsageMeter(left){
   sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
 }
 
-/* LIMIT OVERLAY */
+/* ── LIMIT OVERLAY ── */
 let limitTimerInterval=null;
 function showLimitOverlay(resetSecs){
   document.getElementById('limit-overlay').classList.add('show');
@@ -1136,16 +1611,36 @@ function showLimitOverlay(resetSecs){
   const plan=usageData?.plan||'free_trial';
   const limit=plan==='free_trial'?5:plan==='pro'?50:999;
   document.getElementById('lm-desc').textContent=`${plan==='free_trial'?'Free trial':'Pro'} includes ${limit} messages per day. Resets at midnight IST.`;
-  const tick=()=>{if(secs<=0){clearInterval(limitTimerInterval);document.getElementById('lm-timer').textContent='Resetting...';return;}const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;document.getElementById('lm-timer').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');const pct=Math.round((secs/86400)*100);document.getElementById('lm-progress').style.width=pct+'%';document.getElementById('lm-progress').style.background=secs>3600?'#ef4444':'#f97316';secs--;};
-  tick();limitTimerInterval=setInterval(tick,1000);
+  const tick=()=>{
+    if(secs<=0){clearInterval(limitTimerInterval);document.getElementById('lm-timer').textContent='Resetting...';return;}
+    const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    document.getElementById('lm-timer').textContent=
+      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    const totalDay=86400;
+    const pct=Math.round((secs/totalDay)*100);
+    document.getElementById('lm-progress').style.width=pct+'%';
+    document.getElementById('lm-progress').style.background=secs>3600?'#ef4444':'#f97316';
+    secs--;
+  };
+  tick();
+  limitTimerInterval=setInterval(tick,1000);
 }
-function showTrialExpiredOverlay(){document.getElementById('lm-title').textContent='Your 7-day trial has ended';document.getElementById('lm-desc').textContent='Upgrade to Pro for 50 messages/day and unlimited coaching.';document.getElementById('limit-overlay').classList.add('show');document.getElementById('chat-input-area').style.display='none';}
-function closeLimitOverlay(){document.getElementById('limit-overlay').classList.remove('show');document.getElementById('chat-input-area').style.display='block';}
+function showTrialExpiredOverlay(){
+  document.getElementById('lm-title').textContent='Your 7-day trial has ended';
+  document.getElementById('lm-desc').textContent='Upgrade to Pro for 50 messages/day and unlimited coaching.';
+  document.getElementById('limit-overlay').classList.add('show');
+  document.getElementById('chat-input-area').style.display='none';
+}
+function closeLimitOverlay(){
+  document.getElementById('limit-overlay').classList.remove('show');
+  document.getElementById('chat-input-area').style.display='block';
+}
 
-/* IMAGE UPLOAD */
+/* ── IMAGE UPLOAD ── */
 let pendingImage=null;
 function handleImageUpload(input){
-  const file=input.files[0];if(!file)return;
+  const file=input.files[0];
+  if(!file)return;
   pendingImage=file;
   const bar=document.getElementById('img-preview-bar');
   const nm=document.getElementById('img-preview-name');
@@ -1158,59 +1653,30 @@ function clearImageUpload(){
   if(bar)bar.style.display='none';
 }
 
-/* SEND MESSAGE — fixed: handles image via /chat/image endpoint */
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
-  const imageFile=pendingImage;
+
+  // if image attached, prepend description prompt
+  if(pendingImage&&!msg){
+    msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
+  } else if(pendingImage){
+    msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
+  }
   clearImageUpload();
   inp.value='';inp.style.height='auto';
-
-  if(imageFile){
-    const displayMsg=msg||'Please review this screenshot and give me feedback.';
-    addMessage('user',displayMsg+' 📎 '+imageFile.name);
-    let base64='';
-    try{base64=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result.split(',')[1]);r.onerror=rej;r.readAsDataURL(imageFile);});}catch(e){addMessage('ai','Could not read image file.');return;}
-    const field=(userProfile?.field||'student').toLowerCase();
-    const sendBtn=document.getElementById('chat-send-btn');
-    if(sendBtn)sendBtn.disabled=true;
-    addTypingIndicator();
-    try{
-      const resp=await fetch(API+'/chat/image',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({user_id:userId,message:displayMsg,image_base64:base64,image_type:imageFile.type||'image/png',day:currentDay||1,field,language:userProfile?.language||'English',history:chatHistory.slice(-10)})});
-      removeTypingIndicator();
-      const msgs=document.getElementById('chat-messages');
-      const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
-      const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
-      const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
-      timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
-      aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);msgs.appendChild(aiDiv);
-      const reader=resp.body.getReader(),decoder=new TextDecoder();
-      let fullText='',buffer='';
-      while(true){
-        const{done,value}=await reader.read();if(done)break;
-        buffer+=decoder.decode(value,{stream:true});
-        const lines=buffer.split('\n');buffer=lines.pop();
-        for(const line of lines){
-          if(!line.startsWith('data:'))continue;
-          try{const p=JSON.parse(line.slice(5).trim());if(p.text){fullText+=p.text;innerDiv.innerHTML=esc(fullText).replace(/\n/g,'<br/>');msgs.scrollTop=msgs.scrollHeight;}}catch(e){}
-        }
-      }
-      if(fullText){innerDiv.innerHTML=esc(fullText).replace(/\n/g,'<br/>');chatHistory.push({role:'assistant',content:fullText});}
-    }catch(e){removeTypingIndicator();addMessage('ai','Error reading image. Try again.');console.error('Image chat error:',e);}
-    if(document.getElementById('chat-send-btn'))document.getElementById('chat-send-btn').disabled=false;
-    return;
-  }
   addMessage('user',msg);
   await streamChatResponse(msg,false);
 }
-
-/* FIX: chatKey defined here — handles Enter key in chat textarea */
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 
-function afterScore(){if(currentDay>7){navTo('sc-proof');loadProofWall();}else{goHome();}}
+function afterScore(){
+  if(currentDay>7){navTo('sc-proof');loadProofWall();}
+  else{goHome();}
+}
 
-/* PROOF WALL */
+/* ── PROOF WALL ── */
 async function loadProofWall(){
   if(!userId)return;
   document.getElementById('proof-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div><p>Loading...</p></div>';
@@ -1218,54 +1684,110 @@ async function loadProofWall(){
     const d=await fetch(API+'/proof-wall/'+userId).then(r=>r.json());
     document.getElementById('proof-sub').textContent=`${d.tasks_completed||0} tasks completed · ${d.points||0} points earned`;
     const pw=d.proof_wall||[];
-    if(!pw.length){document.getElementById('proof-list').innerHTML='<div class="proof-empty"><div style="font-size:32px;opacity:.4">🏆</div><p>Complete Day 7 to publish your first Proof Wall entry. It becomes your shareable AI portfolio.</p></div>';}
-    else{document.getElementById('proof-list').innerHTML=pw.map(p=>`<div class="proof-item"><div style="flex:1"><div class="proof-item-day">Day ${p.day} · ${(p.field||'').toUpperCase()}</div><div class="proof-item-title">${esc(p.title||'Project')}</div><div class="proof-item-score">Score: ${p.score}/10</div>${p.url?`<a class="proof-item-link" href="${esc(p.url)}" target="_blank">${esc(p.url)}</a>`:''}<div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--fm)">${p.date||''}</div></div></div>`).join('');}
+    if(!pw.length){
+      document.getElementById('proof-list').innerHTML='<div class="proof-empty"><div style="font-size:32px;opacity:.4">🏆</div><p>Complete Day 7 to publish your first Proof Wall entry. It becomes your shareable AI portfolio.</p></div>';
+    } else {
+      document.getElementById('proof-list').innerHTML=pw.map(p=>`
+        <div class="proof-item">
+          <div style="flex:1">
+            <div class="proof-item-day">Day ${p.day} · ${(p.field||'').toUpperCase()}</div>
+            <div class="proof-item-title">${esc(p.title||'Project')}</div>
+            <div class="proof-item-score">Score: ${p.score}/10</div>
+            ${p.url?`<a class="proof-item-link" href="${esc(p.url)}" target="_blank">${esc(p.url)}</a>`:''}
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--fm)">${p.date||''}</div>
+          </div>
+        </div>`).join('');
+    }
   }catch(e){document.getElementById('proof-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading proof wall.</p>';}
 }
 
-/* LEADERBOARD */
+/* ── LEADERBOARD ── */
 async function loadLb(){
   document.getElementById('lb-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div></div>';
   try{
     const d=await fetch(API+'/leaderboard').then(r=>r.json());
     const medals=['🥇','🥈','🥉'];
-    document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`<div class="lb-row"><div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div><div class="lb-info"><div class="lb-name">${esc(u.name||u.email?.split('@')[0]||'Anonymous')}</div><div class="lb-sub">${esc(u.field||'—')} · Day ${u.day_in_program||1}/7</div></div><div class="lb-pts">${u.points||0} pts</div></div>`).join('');
+    document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
+      <div class="lb-row">
+        <div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div>
+        <div class="lb-info">
+          <div class="lb-name">${esc(u.name||u.email?.split('@')[0]||'Anonymous')}</div>
+          <div class="lb-sub">${esc(u.field||'—')} · Day ${u.day_in_program||1}/7 · <span class="um-plan-pill" style="font-size:8px">${(u.plan||'trial').replace('_',' ')}</span></div>
+        </div>
+        <div class="lb-pts">${u.points||0} pts</div>
+      </div>`).join('');
   }catch(e){document.getElementById('lb-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading leaderboard.</p>';}
 }
 
-/* UPGRADE */
+/* ── UPGRADE ── */
 async function upgradeIntent(plan){
   if(!userId){showToast('Please login first');return;}
   const btn=event.target;btn.disabled=true;btn.textContent='Sending request...';
-  try{const d=await post('/upgrade',{user_id:userId,plan});showToast(d.message||'Request sent! Shubh will contact you within 24hrs',4000);}catch(e){showToast('Error. Email hello@zubhai.com directly.');}
+  try{
+    const d=await post('/upgrade',{user_id:userId,plan});
+    showToast(d.message||'Request sent! Shubh will contact you within 24hrs',4000);
+  }catch(e){showToast('Error. Email hello@zubhai.com directly.');}
   btn.disabled=false;btn.textContent=plan==='pro'?'Upgrade to Pro →':'Join Max →';
 }
 
-/* AUTO LOGIN */
+/* ── AUTO LOGIN ── */
 (()=>{
   const uid=localStorage.getItem('zubhai_uid');
-  if(uid){userId=uid;fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{if(d.status==='success'){userProfile=d.user;currentDay=d.user.day_in_program||1;document.getElementById('land').style.display='none';document.getElementById('app').classList.add('open');document.getElementById('sb').style.display='flex';afterLogin();}else{userId=null;localStorage.removeItem('zubhai_uid');}}).catch(()=>{userId=null;});}
+  if(uid){
+    userId=uid;
+    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
+      if(d.status==='success'){
+        userProfile=d.user;currentDay=d.user.day_in_program||1;
+        document.getElementById('land').style.display='none';
+        document.getElementById('app').classList.add('open');
+        document.getElementById('sb').style.display='flex';
+        afterLogin();
+      }else{userId=null;localStorage.removeItem('zubhai_uid');}
+    }).catch(()=>{userId=null;});
+  }
 })();
-
-const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
-document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
-window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
 </script>
+
 <script type="module">
-import*as THREE from'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
-const c=document.getElementById('bg');if(!c)throw new Error('no canvas');
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+const c=document.getElementById('bg');
+if(!c)throw new Error('no canvas');
 const r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
 r.setSize(innerWidth,innerHeight);r.setPixelRatio(Math.min(devicePixelRatio,2));
 const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
 cam.position.z=30;
 const N=40,pts=[],pa=new Float32Array(N*3);
-for(let i=0;i<N;i++){const p={x:(Math.random()-.5)*80,y:(Math.random()-.5)*60,z:(Math.random()-.5)*40,vx:(Math.random()-.5)*.009,vy:(Math.random()-.5)*.009,vz:(Math.random()-.5)*.004};pts.push(p);pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;}
-const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pa,3));
+for(let i=0;i<N;i++){
+  const p={x:(Math.random()-.5)*80,y:(Math.random()-.5)*60,z:(Math.random()-.5)*40,
+           vx:(Math.random()-.5)*.009,vy:(Math.random()-.5)*.009,vz:(Math.random()-.5)*.004};
+  pts.push(p);pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;
+}
+const g=new THREE.BufferGeometry();
+g.setAttribute('position',new THREE.BufferAttribute(pa,3));
 sc.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.1,transparent:true,opacity:.4})));
 const la=new Float32Array(N*N*6),lg=new THREE.BufferGeometry();
 sc.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.02})));
 addEventListener('resize',()=>{r.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
-(function an(){requestAnimationFrame(an);pts.forEach((p,i)=>{p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;if(Math.abs(p.x)>40)p.vx*=-1;if(Math.abs(p.y)>30)p.vy*=-1;if(Math.abs(p.z)>20)p.vz*=-1;pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;});g.attributes.position.needsUpdate=true;let li=0;for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dz=pts[i].z-pts[j].z;if(Math.sqrt(dx*dx+dy*dy+dz*dz)<16){la[li++]=pts[i].x;la[li++]=pts[i].y;la[li++]=pts[i].z;la[li++]=pts[j].x;la[li++]=pts[j].y;la[li++]=pts[j].z;}}lg.setAttribute('position',new THREE.BufferAttribute(la.slice(0,li),3));r.render(sc,cam);})();
+(function an(){
+  requestAnimationFrame(an);
+  pts.forEach((p,i)=>{
+    p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;
+    if(Math.abs(p.x)>40)p.vx*=-1;if(Math.abs(p.y)>30)p.vy*=-1;if(Math.abs(p.z)>20)p.vz*=-1;
+    pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;
+  });
+  g.attributes.position.needsUpdate=true;
+  let li=0;
+  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dz=pts[i].z-pts[j].z;
+    if(Math.sqrt(dx*dx+dy*dy+dz*dz)<16){
+      la[li++]=pts[i].x;la[li++]=pts[i].y;la[li++]=pts[i].z;
+      la[li++]=pts[j].x;la[li++]=pts[j].y;la[li++]=pts[j].z;
+    }
+  }
+  lg.setAttribute('position',new THREE.BufferAttribute(la.slice(0,li),3));
+  r.render(sc,cam);
+})();
 </script>
+
 </body>
 </html>
