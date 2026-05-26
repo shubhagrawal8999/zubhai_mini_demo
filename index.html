@@ -1452,7 +1452,7 @@ function renderShareCard(post, score, day){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function streamChatResponse(userMsg, isInit){
+async function streamChatResponse(userMsg, isInit, imagePayload=null){
   const sendBtn=document.getElementById('chat-send-btn');
   if(sendBtn)sendBtn.disabled=true;
 
@@ -1481,7 +1481,10 @@ async function streamChatResponse(userMsg, isInit){
       history:isInit?[]:chatHistory.slice(-16)
     };
 
-    const resp=await fetch(API+'/chat',{
+    const endpoint=imagePayload?'/chat/image':'/chat';
+    if(imagePayload){body.image_base64=imagePayload.base64;body.image_type=imagePayload.type;}
+
+    const resp=await fetch(API+endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
@@ -1648,21 +1651,45 @@ function clearImageUpload(){
   if(bar)bar.style.display='none';
 }
 
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const res=String(reader.result||'');
+      const base64=res.includes(',')?res.split(',')[1]:res;
+      resolve(base64);
+    };
+    reader.onerror=()=>reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
 
-  // if image attached, prepend description prompt
+  let imagePayload=null;
   if(pendingImage&&!msg){
     msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
   } else if(pendingImage){
     msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
   }
+
+  if(pendingImage){
+    try{
+      const b64=await fileToBase64(pendingImage);
+      imagePayload={base64:b64,type:pendingImage.type||'image/png'};
+    }catch(e){
+      addMessage('ai','Could not read screenshot. Try uploading again.');
+      return;
+    }
+  }
+
   clearImageUpload();
   inp.value='';inp.style.height='auto';
   addMessage('user',msg);
-  await streamChatResponse(msg,false);
+  await streamChatResponse(msg,false,imagePayload);
 }
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 

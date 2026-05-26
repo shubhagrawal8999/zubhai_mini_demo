@@ -145,27 +145,47 @@ def fetch_daily_news(field: str, profile: dict | None = None) -> dict:
     profile = profile or {}
     role = profile.get("current_role", "").strip()
     industry = profile.get("industry", "").strip()
-    query_focus = role or industry or field
-    query = f"{query_focus} AI India latest news"
+    focus = role or industry or field
 
-    try:
-        q = requests.utils.quote(query)
-        res = requests.get(f"https://r.jina.ai/http://news.google.com/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", timeout=12)
-        if res.status_code == 200 and len(res.text) > 120:
+    queries = [
+        f"{focus} AI layoffs India latest",
+        f"{focus} AI productivity benchmark India latest",
+        f"{focus} AI tools adoption enterprise latest",
+    ]
+    bullets = []
+
+    for qtxt in queries:
+        try:
+            q = requests.utils.quote(qtxt)
+            res = requests.get(f"https://r.jina.ai/http://news.google.com/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", timeout=10)
+            if res.status_code != 200 or len(res.text) < 120:
+                continue
             lines = [ln.strip(" -•	") for ln in res.text.splitlines() if ln.strip()]
-            useful = [ln for ln in lines if len(ln) > 40 and "http" in ln]
-            top = useful[0] if useful else lines[0]
-            return {
-                "query": query,
-                "headline": top[:220],
-                "date": date.today().isoformat(),
-                "source": "Google News",
-            }
-    except Exception:
-        pass
+            useful = [ln for ln in lines if len(ln) > 40 and ("http" in ln or "ago" in ln.lower())]
+            if useful:
+                bullets.append(useful[0][:220])
+        except Exception:
+            continue
+
+    if bullets:
+        return {
+            "query": focus,
+            "headline": bullets[0],
+            "highlights": bullets[:3],
+            "date": date.today().isoformat(),
+            "source": "Google News (live)",
+            "is_live": True,
+        }
 
     fallback = THREAT_DATA.get(field.lower(), THREAT_DATA["student"]).get("dispatch", "AI is reshaping your profession quickly.")
-    return {"query": query, "headline": fallback, "date": date.today().isoformat(), "source": "fallback"}
+    return {
+        "query": focus,
+        "headline": fallback,
+        "highlights": [fallback],
+        "date": date.today().isoformat(),
+        "source": "fallback",
+        "is_live": False,
+    }
 
 def get_user(user_id: str):
     r = supabase.table("users").select("*").eq("id", user_id).execute()
@@ -570,7 +590,7 @@ def daily_dispatch(field: str, user_id: str = ""):
         u = get_user(user_id)
         profile = get_profile(u) if u else {}
     news = fetch_daily_news(f, profile)
-    return {"status": "success", "dispatch": news["headline"], "news": news}
+    return {"status": "success", "dispatch": news["headline"], "news": news, "popup": {"title": f"Live AI Signal for {f.title()}", "highlights": news.get("highlights", []), "source": news.get("source"), "date": news.get("date"), "is_live": news.get("is_live", False)}}
 
 # ── MAIN CHAT ENGINE ───────────────────────────────────────────────────────────
 @app.post("/chat")
@@ -680,7 +700,7 @@ ZUBHAI_GRADE:{{"score":{{"n":SCORE,"good":"specific praise","improve":"specific 
 {f"DEVELOPER extra: if beginner level → give a 10-15 line starter code scaffold they complete. if intermediate+ → give the challenge directly without scaffold." if f == "developer" else ""}
 {f"MARKETING extra: grade on specificity — generic copy = 4/10 max. Real brand, real audience, real hook = higher." if f == "marketing" else ""}
 {f"STUDENT extra: connect task to their actual course/career goal from profile." if f == "student" else ""}
-DAILY NEWS CONTEXT (today): {daily_news["headline"]}\nUse this to make task examples specific to their role/industry and outcome-driven.\nFor submissions, if they share a URL or screenshot, acknowledge both and extract one measurable outcome.\nREALITY CHECK (drop once, naturally, early in Day 1 only):\n{threat['fear']} {threat['stat']}\nNEVER repeat yourself. SHORT replies always except for starter code or detailed feedback."""
+LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights", [daily_news["headline"]])}\nIf live context exists, cite concrete numbers/trends from it and tailor to user role.\nIf user asks for latest/current/today, do internet-backed guidance only; do not rely on stale/internal memory.\nFor submissions, if they share a URL or screenshot, acknowledge both and extract one measurable outcome.\nREALITY CHECK (use only when live context missing):\n{threat['fear']} {threat['stat']}\nTone: think like a Fortune-500 backend principal engineer mentor: precise, outcome-driven, no fluff.\nNEVER repeat yourself. SHORT replies always except for starter code or detailed feedback."""
 
     # ── URL FETCHING ──────────────────────────────────────────────────────────
     fetched_url_content = ""
@@ -715,7 +735,7 @@ DAILY NEWS CONTEXT (today): {daily_news["headline"]}\nUse this to make task exam
     web_ctx = ""
     try:
         yr = date.today().year
-        q  = requests.utils.quote(f"AI tools {f} professionals India {yr} practical use cases")
+        q  = requests.utils.quote(f"{profile.get('current_role', f)} AI layoffs productivity benchmarks India {yr} latest")
         r  = requests.get(f"https://r.jina.ai/https://www.google.com/search?q={q}", timeout=5)
         if r.status_code == 200 and len(r.text) > 100:
             web_ctx = r.text[:1000]
