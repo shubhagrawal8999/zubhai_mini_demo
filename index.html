@@ -940,6 +940,14 @@ details summary>span{display:inline-block;transition:transform .2s}
               AI Threat Report
             </button>
           </div>
+          <div id="profile-nudge-card" style="display:none;margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;max-width:720px;width:100%">
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">Personalization boost</div>
+            <div id="profile-nudge-q" style="font-size:14px;color:var(--text);margin:6px 0 8px"></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="profile-nudge-input" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px" placeholder="Type answer..."/>
+              <button onclick="submitProfileNudge()" style="border:none;background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer">Save</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1346,6 +1354,43 @@ async function loadDispatch(){
   }catch(e){}
 }
 
+let activeProfileNudge=null;
+async function loadProfileNudge(){
+  if(!userId)return;
+  try{
+    const d=await fetch(API+'/profile/nudge/'+userId).then(r=>r.json());
+    const card=document.getElementById('profile-nudge-card');
+    if(d.status==='success' && !d.completed && d.nudge){
+      activeProfileNudge=d.nudge;
+      document.getElementById('profile-nudge-q').textContent=d.nudge.question;
+      document.getElementById('profile-nudge-input').placeholder=d.nudge.placeholder||'Type answer...';
+      card.style.display='block';
+    }else{
+      activeProfileNudge=null;
+      card.style.display='none';
+    }
+  }catch(e){}
+}
+
+async function submitProfileNudge(){
+  if(!activeProfileNudge||!userId)return;
+  const el=document.getElementById('profile-nudge-input');
+  const v=(el.value||'').trim();
+  if(!v)return;
+  const body={user_id:userId,updates:{}};
+  body.updates[activeProfileNudge.key]=v;
+  try{
+    const d=await post('/profile/update',body);
+    if(d.status==='success'){
+      if(!userProfile)userProfile={};
+      userProfile.profile=d.profile;
+      el.value='';
+      await loadProfileNudge();
+      showToast('Saved. Next question loaded.');
+    }
+  }catch(e){}
+}
+
 /* ── ONBOARDING ── */
 let pickedField='',pickedLang='English';
 function startOnboarding(){showScreen('sc-onboard');pickedField='';pickedLang='English';}
@@ -1372,6 +1417,7 @@ function goHome(){
   const h=new Date().getHours();
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
+  loadProfileNudge();
 }
 function goTodaySession(){
   chatHistory=[];navTo('sc-chat');initChat();
@@ -1452,7 +1498,7 @@ function renderShareCard(post, score, day){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function streamChatResponse(userMsg, isInit){
+async function streamChatResponse(userMsg, isInit, imagePayload=null){
   const sendBtn=document.getElementById('chat-send-btn');
   if(sendBtn)sendBtn.disabled=true;
 
@@ -1481,7 +1527,10 @@ async function streamChatResponse(userMsg, isInit){
       history:isInit?[]:chatHistory.slice(-16)
     };
 
-    const resp=await fetch(API+'/chat',{
+    const endpoint=imagePayload?'/chat/image':'/chat';
+    if(imagePayload){body.image_base64=imagePayload.base64;body.image_type=imagePayload.type;}
+
+    const resp=await fetch(API+endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
@@ -1648,21 +1697,45 @@ function clearImageUpload(){
   if(bar)bar.style.display='none';
 }
 
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const res=String(reader.result||'');
+      const base64=res.includes(',')?res.split(',')[1]:res;
+      resolve(base64);
+    };
+    reader.onerror=()=>reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
 
-  // if image attached, prepend description prompt
+  let imagePayload=null;
   if(pendingImage&&!msg){
     msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
   } else if(pendingImage){
     msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
   }
+
+  if(pendingImage){
+    try{
+      const b64=await fileToBase64(pendingImage);
+      imagePayload={base64:b64,type:pendingImage.type||'image/png'};
+    }catch(e){
+      addMessage('ai','Could not read screenshot. Try uploading again.');
+      return;
+    }
+  }
+
   clearImageUpload();
   inp.value='';inp.style.height='auto';
   addMessage('user',msg);
-  await streamChatResponse(msg,false);
+  await streamChatResponse(msg,false,imagePayload);
 }
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 
