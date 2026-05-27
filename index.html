@@ -344,6 +344,12 @@ footer{background:var(--text);border-top:none;padding:48px 0 24px}
 .limit-modal-upgrade:hover{background:var(--accent2)}
 .limit-modal-later{font-size:11px;color:var(--text3);cursor:pointer;transition:.2s;background:none;border:none;width:100%;padding:6px;font-family:var(--fb)}
 .limit-modal-later:hover{color:var(--text2)}
+.promo-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:950;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.promo-overlay.show{display:flex}
+.promo-modal{width:min(92vw,620px);background:#fff;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 28px 70px rgba(0,0,0,.35);border:1px solid #f0d9d1}
+.promo-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:none;border-radius:50%;background:#fff;color:#333;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.promo-img{width:100%;display:block;max-height:72vh;object-fit:cover}
+.promo-cta{display:block;text-align:center;padding:12px 16px;background:#111;color:#fff;text-decoration:none;font-size:13px}
 /* ── SHARE CARD ──────────────────────────── */
 .share-card{background:#fff;border:1px solid rgba(232,96,44,.3);border-radius:var(--r12);padding:18px;margin:10px 0;animation:slideUp .3s ease;box-shadow:0 2px 12px rgba(232,96,44,.1)}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -481,6 +487,14 @@ details summary>span{display:inline-block;transition:transform .2s}
     <div class="threat-stat-box" id="tp-stat"></div>
     <button class="threat-cta" onclick="closeThreat()">I want to be in the other % — Start Day 1 →</button>
     <span class="threat-skip" onclick="closeThreat()">Skip for now</span>
+  </div>
+</div>
+
+<div class="promo-overlay" id="promo-overlay">
+  <div class="promo-modal">
+    <button class="promo-close" onclick="closePromoPopup()" aria-label="Close popup">×</button>
+    <img class="promo-img" src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1200&q=80" alt="Special offer image popup"/>
+    <a class="promo-cta" href="#" onclick="closePromoPopup();navTo('sc-upgrade');return false;">Limited-time offer · Unlock Pro coaching →</a>
   </div>
 </div>
 
@@ -940,6 +954,14 @@ details summary>span{display:inline-block;transition:transform .2s}
               AI Threat Report
             </button>
           </div>
+          <div id="profile-nudge-card" style="display:none;margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;max-width:720px;width:100%">
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">Personalization boost</div>
+            <div id="profile-nudge-q" style="font-size:14px;color:var(--text);margin:6px 0 8px"></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="profile-nudge-input" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px" placeholder="Type answer..."/>
+              <button onclick="submitProfileNudge()" style="border:none;background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer">Save</button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1153,6 +1175,11 @@ async function showThreat(){
   document.getElementById('threat-overlay').classList.add('show');
 }
 function closeThreat(){document.getElementById('threat-overlay').classList.remove('show');}
+function showPromoPopup(){document.getElementById('promo-overlay')?.classList.add('show');}
+function closePromoPopup(){
+  document.getElementById('promo-overlay')?.classList.remove('show');
+  localStorage.setItem('zubhai_promo_seen_on', new Date().toISOString().slice(0,10));
+}
 
 /* ── NAV ── */
 function showScreen(id){
@@ -1346,6 +1373,43 @@ async function loadDispatch(){
   }catch(e){}
 }
 
+let activeProfileNudge=null;
+async function loadProfileNudge(){
+  if(!userId)return;
+  try{
+    const d=await fetch(API+'/profile/nudge/'+userId).then(r=>r.json());
+    const card=document.getElementById('profile-nudge-card');
+    if(d.status==='success' && !d.completed && d.nudge){
+      activeProfileNudge=d.nudge;
+      document.getElementById('profile-nudge-q').textContent=d.nudge.question;
+      document.getElementById('profile-nudge-input').placeholder=d.nudge.placeholder||'Type answer...';
+      card.style.display='block';
+    }else{
+      activeProfileNudge=null;
+      card.style.display='none';
+    }
+  }catch(e){}
+}
+
+async function submitProfileNudge(){
+  if(!activeProfileNudge||!userId)return;
+  const el=document.getElementById('profile-nudge-input');
+  const v=(el.value||'').trim();
+  if(!v)return;
+  const body={user_id:userId,updates:{}};
+  body.updates[activeProfileNudge.key]=v;
+  try{
+    const d=await post('/profile/update',body);
+    if(d.status==='success'){
+      if(!userProfile)userProfile={};
+      userProfile.profile=d.profile;
+      el.value='';
+      await loadProfileNudge();
+      showToast('Saved. Next question loaded.');
+    }
+  }catch(e){}
+}
+
 /* ── ONBOARDING ── */
 let pickedField='',pickedLang='English';
 function startOnboarding(){showScreen('sc-onboard');pickedField='';pickedLang='English';}
@@ -1372,6 +1436,9 @@ function goHome(){
   const h=new Date().getHours();
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
+  loadProfileNudge();
+  const todayKey=new Date().toISOString().slice(0,10);
+  if(localStorage.getItem('zubhai_promo_seen_on')!==todayKey) setTimeout(showPromoPopup,450);
 }
 function goTodaySession(){
   chatHistory=[];navTo('sc-chat');initChat();
@@ -1452,7 +1519,7 @@ function renderShareCard(post, score, day){
   msgs.scrollTop=msgs.scrollHeight;
 }
 
-async function streamChatResponse(userMsg, isInit){
+async function streamChatResponse(userMsg, isInit, imagePayload=null){
   const sendBtn=document.getElementById('chat-send-btn');
   if(sendBtn)sendBtn.disabled=true;
 
@@ -1481,7 +1548,10 @@ async function streamChatResponse(userMsg, isInit){
       history:isInit?[]:chatHistory.slice(-16)
     };
 
-    const resp=await fetch(API+'/chat',{
+    const endpoint=imagePayload?'/chat/image':'/chat';
+    if(imagePayload){body.image_base64=imagePayload.base64;body.image_type=imagePayload.type;}
+
+    const resp=await fetch(API+endpoint,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(body)
@@ -1648,21 +1718,45 @@ function clearImageUpload(){
   if(bar)bar.style.display='none';
 }
 
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const res=String(reader.result||'');
+      const base64=res.includes(',')?res.split(',')[1]:res;
+      resolve(base64);
+    };
+    reader.onerror=()=>reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
 
-  // if image attached, prepend description prompt
+  let imagePayload=null;
   if(pendingImage&&!msg){
     msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
   } else if(pendingImage){
     msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
   }
+
+  if(pendingImage){
+    try{
+      const b64=await fileToBase64(pendingImage);
+      imagePayload={base64:b64,type:pendingImage.type||'image/png'};
+    }catch(e){
+      addMessage('ai','Could not read screenshot. Try uploading again.');
+      return;
+    }
+  }
+
   clearImageUpload();
   inp.value='';inp.style.height='auto';
   addMessage('user',msg);
-  await streamChatResponse(msg,false);
+  await streamChatResponse(msg,false,imagePayload);
 }
 function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
 

@@ -121,6 +121,16 @@ DEFAULT_PROFILE = {
     "language": "English", "raw_answer": "",
 }
 
+PROFILE_NUDGES = [
+    {"key": "company", "question": "Which company/org are you currently at?", "placeholder": "e.g., Infosys / Self-employed / College"},
+    {"key": "desired_role", "question": "What role are you targeting in next 6-12 months?", "placeholder": "e.g., Backend Engineer II"},
+    {"key": "experience_years", "question": "How many years of experience do you have?", "placeholder": "e.g., 2"},
+    {"key": "main_kpi", "question": "What is one KPI you want to improve with AI?", "placeholder": "e.g., Ship PRs faster / Improve CTR"},
+    {"key": "biggest_blocker", "question": "What is your biggest blocker right now?", "placeholder": "e.g., unclear architecture / no content ideas"},
+    {"key": "weekly_time_commitment", "question": "How many hours/week can you commit?", "placeholder": "e.g., 5"},
+    {"key": "learning_style", "question": "Preferred learning style?", "placeholder": "e.g., hands-on projects"},
+]
+
 def extract_json(text):
     if not text:
         return None
@@ -140,6 +150,53 @@ def extract_json(text):
 def today_str():
     return date.today().isoformat()
 
+
+def fetch_daily_news(field: str, profile: dict | None = None) -> dict:
+    profile = profile or {}
+    role = profile.get("current_role", "").strip()
+    industry = profile.get("industry", "").strip()
+    focus = role or industry or field
+
+    queries = [
+        f"{focus} AI layoffs India latest",
+        f"{focus} AI productivity benchmark India latest",
+        f"{focus} AI tools adoption enterprise latest",
+    ]
+    bullets = []
+
+    for qtxt in queries:
+        try:
+            q = requests.utils.quote(qtxt)
+            res = requests.get(f"https://r.jina.ai/http://news.google.com/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", timeout=10)
+            if res.status_code != 200 or len(res.text) < 120:
+                continue
+            lines = [ln.strip(" -•	") for ln in res.text.splitlines() if ln.strip()]
+            useful = [ln for ln in lines if len(ln) > 40 and ("http" in ln or "ago" in ln.lower())]
+            if useful:
+                bullets.append(useful[0][:220])
+        except Exception:
+            continue
+
+    if bullets:
+        return {
+            "query": focus,
+            "headline": bullets[0],
+            "highlights": bullets[:3],
+            "date": date.today().isoformat(),
+            "source": "Google News (live)",
+            "is_live": True,
+        }
+
+    fallback = THREAT_DATA.get(field.lower(), THREAT_DATA["student"]).get("dispatch", "AI is reshaping your profession quickly.")
+    return {
+        "query": focus,
+        "headline": fallback,
+        "highlights": [fallback],
+        "date": date.today().isoformat(),
+        "source": "fallback",
+        "is_live": False,
+    }
+
 def get_user(user_id: str):
     r = supabase.table("users").select("*").eq("id", user_id).execute()
     return r.data[0] if r.data else None
@@ -153,6 +210,15 @@ def get_profile(u: dict) -> dict:
         return {**DEFAULT_PROFILE, **p}
     except:
         return dict(DEFAULT_PROFILE)
+
+def merge_profile(user_id: str, updates: dict):
+    u = get_user(user_id)
+    if not u:
+        return None
+    profile = get_profile(u)
+    profile.update({k: v for k, v in updates.items() if v not in (None, "")})
+    supabase.table("users").update({"profile": json.dumps(profile)}).eq("id", user_id).execute()
+    return profile
 
 def send_email(to: str, subject: str, html: str):
     try:
@@ -529,6 +595,28 @@ def onboard(data: dict):
     return {"status": "success"}
 
 # ── THREAT SCORE ───────────────────────────────────────────────────────────────
+@app.get("/profile/nudge/{user_id}")
+def profile_nudge(user_id: str):
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+    p = get_profile(u)
+    for n in PROFILE_NUDGES:
+        if not str(p.get(n["key"], "")).strip():
+            return {"status": "success", "nudge": n, "completed": False}
+    return {"status": "success", "completed": True}
+
+@app.post("/profile/update")
+def profile_update(data: dict):
+    user_id = data.get("user_id")
+    updates = data.get("updates", {})
+    if not user_id or not isinstance(updates, dict):
+        return {"status": "error", "message": "Missing data"}
+    profile = merge_profile(user_id, updates)
+    if profile is None:
+        return {"status": "error", "message": "User not found"}
+    return {"status": "success", "profile": profile}
+
 @app.get("/threat-score/{field}")
 def threat_score(field: str):
     f    = field.lower()
@@ -536,10 +624,14 @@ def threat_score(field: str):
     return {"status": "success", "data": data}
 
 @app.get("/daily-dispatch/{field}")
-def daily_dispatch(field: str):
-    f  = field.lower()
-    td = THREAT_DATA.get(f, THREAT_DATA.get("student"))
-    return {"status": "success", "dispatch": td.get("dispatch", "AI is reshaping every profession.")}
+def daily_dispatch(field: str, user_id: str = ""):
+    f = field.lower()
+    profile = {}
+    if user_id:
+        u = get_user(user_id)
+        profile = get_profile(u) if u else {}
+    news = fetch_daily_news(f, profile)
+    return {"status": "success", "dispatch": news["headline"], "news": news, "popup": {"title": f"Live AI Signal for {f.title()}", "highlights": news.get("highlights", []), "source": news.get("source"), "date": news.get("date"), "is_live": news.get("is_live", False)}}
 
 # ── MAIN CHAT ENGINE ───────────────────────────────────────────────────────────
 @app.post("/chat")
@@ -575,6 +667,7 @@ async def chat(data: dict):
     day_idx  = min(max(day - 1, 0), len(program) - 1)
     day_info = program[day_idx]
     threat   = THREAT_DATA.get(f, THREAT_DATA["student"])
+    daily_news = fetch_daily_news(f, profile)
 
     is_start      = message.startswith("START_SESSION_DAY_")
     msg_lower     = message.lower()
@@ -648,9 +741,7 @@ ZUBHAI_GRADE:{{"score":{{"n":SCORE,"good":"specific praise","improve":"specific 
 {f"DEVELOPER extra: if beginner level → give a 10-15 line starter code scaffold they complete. if intermediate+ → give the challenge directly without scaffold." if f == "developer" else ""}
 {f"MARKETING extra: grade on specificity — generic copy = 4/10 max. Real brand, real audience, real hook = higher." if f == "marketing" else ""}
 {f"STUDENT extra: connect task to their actual course/career goal from profile." if f == "student" else ""}
-REALITY CHECK (drop once, naturally, early in Day 1 only):
-{threat['fear']} {threat['stat']}
-NEVER repeat yourself. SHORT replies always except for starter code or detailed feedback."""
+LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights", [daily_news["headline"]])}\nIf live context exists, cite concrete numbers/trends from it and tailor to user role.\nIf user asks for latest/current/today, do internet-backed guidance only; do not rely on stale/internal memory.\nFor submissions, if they share a URL or screenshot, acknowledge both and extract one measurable outcome.\nREALITY CHECK (use only when live context missing):\n{threat['fear']} {threat['stat']}\nTone: think like a Fortune-500 backend principal engineer mentor: precise, outcome-driven, no fluff.\nNEVER repeat yourself. SHORT replies always except for starter code or detailed feedback."""
 
     # ── URL FETCHING ──────────────────────────────────────────────────────────
     fetched_url_content = ""
@@ -685,7 +776,7 @@ NEVER repeat yourself. SHORT replies always except for starter code or detailed 
     web_ctx = ""
     try:
         yr = date.today().year
-        q  = requests.utils.quote(f"AI tools {f} professionals India {yr} practical use cases")
+        q  = requests.utils.quote(f"{profile.get('current_role', f)} AI layoffs productivity benchmarks India {yr} latest")
         r  = requests.get(f"https://r.jina.ai/https://www.google.com/search?q={q}", timeout=5)
         if r.status_code == 200 and len(r.text) > 100:
             web_ctx = r.text[:1000]
@@ -803,6 +894,7 @@ def submit_task(data: dict):
     field      = data.get("field", "student")
     proof_url  = data.get("proof_url", "").strip()
     proof_text = data.get("proof_text", "").strip()
+    screenshot_url = data.get("screenshot_url", "").strip()
 
     if not user_id:
         return {"status": "error", "message": "Missing user_id"}
@@ -830,8 +922,11 @@ def submit_task(data: dict):
         if not url_readable:
             submitted_content = f"URL submitted: {proof_url}. Content could not be read automatically."
 
+    if screenshot_url:
+        submitted_content = (submitted_content + f"\n\nScreenshot URL: {screenshot_url}").strip()
+
     if not submitted_content:
-        return {"status": "error", "message": "Please provide a URL or describe what you did"}
+        return {"status": "error", "message": "Please provide a URL, screenshot URL, or describe what you did"}
 
     is_day7 = (day == 7)
     level   = profile.get("skill_level", "beginner")
@@ -891,7 +986,7 @@ Return ONLY JSON:
 
     task_entry = {
         "day": day, "title": day_info["title"], "score": score,
-        "points": points, "proof_url": proof_url, "field": field,
+        "points": points, "proof_url": proof_url, "screenshot_url": screenshot_url, "field": field,
         "completed_at": today_str()
     }
     tasks_completed.append(task_entry)
