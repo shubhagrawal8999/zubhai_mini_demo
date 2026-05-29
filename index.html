@@ -350,6 +350,13 @@ footer{background:var(--text);border-top:none;padding:48px 0 24px}
 .promo-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:none;border-radius:50%;background:#fff;color:#333;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
 .promo-img{width:100%;display:block;max-height:72vh;object-fit:cover}
 .promo-cta{display:block;text-align:center;padding:12px 16px;background:#111;color:#fff;text-decoration:none;font-size:13px}
+.email-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:940;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.email-overlay.show{display:flex}
+.email-modal{width:min(92vw,420px);background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;position:relative;box-shadow:0 22px 60px rgba(0,0,0,.22)}
+.email-modal h3{font-family:var(--fs);font-size:28px;font-weight:400;letter-spacing:-.4px;margin-bottom:8px;color:var(--text)}
+.email-modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.email-row{display:flex;gap:8px}.email-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px}.email-row button{border:none;background:var(--accent);color:#fff;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer}
+.email-close{position:absolute;top:10px;right:12px;border:none;background:none;font-size:20px;cursor:pointer;color:var(--text3)}
 /* ── SHARE CARD ──────────────────────────── */
 .share-card{background:#fff;border:1px solid rgba(232,96,44,.3);border-radius:var(--r12);padding:18px;margin:10px 0;animation:slideUp .3s ease;box-shadow:0 2px 12px rgba(232,96,44,.1)}
 @keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
@@ -495,6 +502,20 @@ details summary>span{display:inline-block;transition:transform .2s}
     <button class="promo-close" onclick="closePromoPopup()" aria-label="Close popup">×</button>
     <img class="promo-img" src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1200&q=80" alt="Special offer image popup"/>
     <a class="promo-cta" href="#" onclick="closePromoPopup();navTo('sc-upgrade');return false;">Limited-time offer · Unlock Pro coaching →</a>
+  </div>
+</div>
+
+<div class="email-overlay" id="email-overlay">
+  <div class="email-modal">
+    <button class="email-close" onclick="closeEmailPopup()" aria-label="Close email popup">×</button>
+    <div style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Future updates</div>
+    <h3>Get the next AI challenge drop.</h3>
+    <p>Leave your email and we’ll send new tracks, live AI job signals, and early access drops. No spam — just useful Zubhai updates.</p>
+    <div class="email-row">
+      <input id="landing-email" type="email" placeholder="you@example.com"/>
+      <button onclick="submitLandingEmail()">Notify me</button>
+    </div>
+    <div id="landing-email-msg" style="font-size:11px;color:var(--text3);margin-top:10px"></div>
   </div>
 </div>
 
@@ -674,6 +695,20 @@ details summary>span{display:inline-block;transition:transform .2s}
 
     <div class="reveal" style="margin-top:44px">
       <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Your 7 Days →</button>
+    </div>
+  </div>
+</section>
+
+
+<section class="pad z2" id="reviews" style="background:#fff7f2;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">Learner Reviews</span>
+    <h2 class="stitle reveal">People don’t need more videos.<br/>They need a push.</h2>
+    <p class="ssub reveal" style="margin-bottom:34px">Short, practical feedback from early Zubhai learners using the daily challenge format.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="reveal" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">Day 1 forced me to actually publish research instead of saving another tutorial. The feedback was direct, but useful.</p><strong style="font-size:13px;color:var(--text)">Vaibhav · Developer</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Built a GitHub proof piece</div></div>
+      <div class="reveal d1" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">The marketing tasks felt like a senior teammate reviewing my copy. It asked for real audience, real offer, real metric.</p><strong style="font-size:13px;color:var(--text)">Ananya · Marketer</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Created 30 content ideas</div></div>
+      <div class="reveal d2" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">It didn’t let me hide behind vague goals. Arjun kept asking what I wanted, what tools I had, and how much time I could spend.</p><strong style="font-size:13px;color:var(--text)">Rohit · Student</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Made a public LinkedIn post</div></div>
     </div>
   </div>
 </section>
@@ -914,6 +949,13 @@ details summary>span{display:inline-block;transition:transform .2s}
                 <div class="ob-chip" onclick="pickLang(this,'Bengali')">Bengali</div>
               </div>
             </div>
+            <div style="margin-top:18px;display:none" id="ob-detail-row">
+              <div class="ob-q" style="font-size:20px;margin-bottom:6px">Tell us about you and your target outcome.</div>
+              <div class="ob-hint">Add name, current position/company/college, experience, tools, desired role, what you want from Zubhai, and the result you want in 7 days.</div>
+              <textarea id="ob-detail" class="ob-other-inp show" rows="5" style="display:block;min-height:118px;resize:vertical" placeholder="Example: I'm Vaibhav, a backend developer at __ with 2 years exp. I know Python/FastAPI and want to become an AI backend engineer. I want Zubhai to help me ship AI features faster and build a strong GitHub/LinkedIn proof portfolio."></textarea>
+              <button class="ob-next" id="ob-finish-btn" onclick="finishOb()">Build my 7-day plan →</button>
+              <div class="ob-hint" id="ob-detail-err" style="margin-top:8px;color:#ef4444;display:none"></div>
+            </div>
           </div>
         </div>
       </div>
@@ -1091,6 +1133,7 @@ let chatHistory = [], streamingMessage = null;
 let usageData = null;
 let currentDay = 1;
 let timerInterval = null;
+let onboardingMode=false, onboardingStep=0, onboardingAnswers=[];
 
 const PROGRAMS = {
   student:[
@@ -1150,6 +1193,23 @@ function showToast(msg,dur=2800){
   const t=document.createElement('div');t.className='toast';t.textContent=msg;
   document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},dur);
 }
+function showEmailPopup(){
+  if(localStorage.getItem('zubhai_email_popup_seen'))return;
+  document.getElementById('email-overlay')?.classList.add('show');
+}
+function closeEmailPopup(){
+  document.getElementById('email-overlay')?.classList.remove('show');
+  localStorage.setItem('zubhai_email_popup_seen','1');
+}
+async function submitLandingEmail(){
+  const email=(document.getElementById('landing-email')?.value||'').trim();
+  const msg=document.getElementById('landing-email-msg');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){if(msg)msg.textContent='Enter a valid email.';return;}
+  const d=await post('/newsletter',{email,source:'landing_popup'});
+  if(msg)msg.textContent=d.status==='success'?'Saved. You are on the update list ⚡':'Could not save. Try again.';
+  if(d.status==='success')setTimeout(closeEmailPopup,700);
+}
+window.addEventListener('load',()=>setTimeout(showEmailPopup,1800));
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 async function post(path,body){
   const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
@@ -1309,7 +1369,7 @@ function afterLogin(){
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
-  if(!userProfile?.field)startOnboarding();
+  if(!userProfile?.onboarding_done||!userProfile?.field)startOnboarding();
   else{goHome();}
 }
 
@@ -1410,24 +1470,54 @@ async function submitProfileNudge(){
   }catch(e){}
 }
 
-/* ── ONBOARDING ── */
+/* ── CHAT ONBOARDING ── */
+const ONBOARDING_CHAT_STEPS=[
+  {key:'name',q:'First, what should I call you? 🙂',ack:a=>`Nice, ${a.split(' ')[0]} — strong main-character entry.`},
+  {key:'work',q:'What do you do for earning or studying right now? Company/college + role if you can.',ack:a=>`Oh ya, I know this lane. ${a.toLowerCase().includes('marketing')?'Marketing people are basically black belts in making chaos look like strategy 🥋':'This gives me the map.'}`},
+  {key:'hobby',q:'What is one hobby or weird interest outside work? I use this to make examples less boring.',ack:a=>`Good. I can already make your tasks less like a government PDF and more like you.`},
+  {key:'goal',q:'What do you want Zubhai to help you achieve in the next 7 days? Be selfish.',ack:a=>`Clear. We are optimizing for outcome, not vibes.`},
+  {key:'resources',q:'What resources do you already have — laptop/phone, time per day, budget, team, audience, current project?',ack:a=>`Perfect. Constraints are where real plans are born.`},
+  {key:'tools',q:'Which tools do you already use or want to learn? ChatGPT, Claude, Perplexity, Canva, GitHub, CRM, ads tools — anything.',ack:a=>`Got it. I will not give you random tool soup.`},
+  {key:'challenge_spend',q:'Last one: how much time and money can you realistically spend on each daily challenge?',ack:a=>`Done. I have enough signal to build your 7-day sprint now ⚡`}
+];
 let pickedField='',pickedLang='English';
-function startOnboarding(){showScreen('sc-onboard');pickedField='';pickedLang='English';}
-function pickProfession(el,field){
-  document.querySelectorAll('#sc-onboard .ob-chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');pickedField=field;
-  document.getElementById('ob-lang-row').style.display='block';
+function startOnboarding(){
+  onboardingMode=true;onboardingStep=0;onboardingAnswers=[];chatHistory=[];
+  navTo('sc-chat');
+  document.getElementById('chat-day-pill').textContent='Setup';
+  document.getElementById('chat-day-title').textContent='Arjun is learning your context';
+  document.getElementById('chat-tool-badge').textContent='WhatsApp-style';
+  document.getElementById('chat-messages').innerHTML='';
+  document.getElementById('chat-input-area').style.display='block';
+  document.getElementById('chat-input').placeholder='Reply like WhatsApp...';
+  addMessage('ai','Arjun here ⚡ I’m your Zubhai coach — slightly annoying, very useful. I’ll ask a few quick questions, roast vague answers gently, then build your Day 1 challenge.');
+  setTimeout(()=>addMessage('ai',ONBOARDING_CHAT_STEPS[0].q),450);
 }
-function pickLang(el,lang){
-  el.closest('.ob-chips').querySelectorAll('.ob-chip').forEach(c=>c.classList.remove('on'));
-  el.classList.add('on');pickedLang=lang;finishOb();
-}
-async function finishOb(){
-  if(!pickedField)return;
-  await post('/onboard',{user_id:userId,field:pickedField,level:'beginner',language:pickedLang,time_per_day:15});
+function pickProfession(el,field){pickedField=field;}
+function pickLang(el,lang){pickedLang=lang;}
+async function handleOnboardingReply(msg){
+  const step=ONBOARDING_CHAT_STEPS[onboardingStep];
+  onboardingAnswers.push({key:step.key,question:step.q,answer:msg});
+  addMessage('ai',step.ack(msg));
+  onboardingStep++;
+  if(onboardingStep<ONBOARDING_CHAT_STEPS.length){
+    setTimeout(()=>addMessage('ai',ONBOARDING_CHAT_STEPS[onboardingStep].q),500);
+    return;
+  }
+  addTypingIndicator();
+  const answer=onboardingAnswers.map(x=>`${x.question}\n${x.answer}`).join('\n\n');
+  const d=await post('/onboard/parse',{user_id:userId,field:pickedField,language:pickedLang,time_per_day:15,answer});
+  removeTypingIndicator();
+  if(d.status!=='success'){
+    addMessage('ai',d.message||'Could not save your setup. Paste your details once more?');
+    onboardingStep=Math.max(0,onboardingStep-1);
+    return;
+  }
   if(!userProfile)userProfile={};
-  userProfile.field=pickedField;userProfile.language=pickedLang;
-  await showThreat();goTodaySession();
+  userProfile.field=d.field||'student';userProfile.language=d.profile?.language||pickedLang;userProfile.profile=d.profile;
+  onboardingMode=false;
+  addMessage('ai',`Locked in. I’ve got your role, resources, tools, budget/time, and target outcome. Building Day 1 now — no generic YouTube-course energy.`);
+  setTimeout(()=>goTodaySession(),1000);
 }
 
 /* ── HOME ── */
@@ -1631,6 +1721,9 @@ async function streamChatResponse(userMsg, isInit, imagePayload=null){
                 document.getElementById('tb-pts').textContent=cur+p.points_earned;
               }
             }
+            if(p.grade){
+              setTimeout(lockChatAfterGrade,900);
+            }
             if(p.share_post&&p.grade){
               const sc=p.grade.score||p.grade;
               const n=typeof sc==='object'?sc.n:sc;
@@ -1653,6 +1746,13 @@ async function streamChatResponse(userMsg, isInit, imagePayload=null){
     console.error('Stream error:',e);
   }
   if(sendBtn)sendBtn.disabled=false;
+}
+
+function lockChatAfterGrade(){
+  const area=document.getElementById('chat-input-area');
+  if(area)area.style.display='none';
+  const next=new Date();next.setDate(next.getDate()+1);next.setHours(9,0,0,0);
+  addMessage('ai',`Challenge complete. Chat is locked for this task now — next challenge unlocks tomorrow at ${next.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}. Go use what you built today.`);
 }
 
 function updateUsageMeter(left){
@@ -1723,18 +1823,57 @@ function fileToBase64(file){
     const reader=new FileReader();
     reader.onload=()=>{
       const res=String(reader.result||'');
-      const base64=res.includes(',')?res.split(',')[1]:res;
-      resolve(base64);
+      resolve(res.includes(',')?res.split(',')[1]:res);
     };
     reader.onerror=()=>reject(new Error('Failed to read image file'));
     reader.readAsDataURL(file);
   });
 }
 
+function loadImageFromFile(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Failed to load image'));};
+    img.src=url;
+  });
+}
+
+async function imageFileToUploadPayload(file){
+  const maxBytes=4.5*1024*1024;
+  if(file.size<=maxBytes){
+    return {base64:await fileToBase64(file),type:file.type||'image/png'};
+  }
+  const img=await loadImageFromFile(file);
+  const canvas=document.createElement('canvas');
+  let scale=Math.min(1,1600/Math.max(img.width,img.height));
+  let quality=.82;
+  for(let i=0;i<6;i++){
+    canvas.width=Math.max(1,Math.round(img.width*scale));
+    canvas.height=Math.max(1,Math.round(img.height*scale));
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const dataUrl=canvas.toDataURL('image/jpeg',quality);
+    const base64=dataUrl.split(',')[1];
+    const approxBytes=Math.ceil(base64.length*3/4);
+    if(approxBytes<=maxBytes)return {base64,type:'image/jpeg'};
+    scale*=.78;quality=Math.max(.55,quality-.08);
+  }
+  return {base64:canvas.toDataURL('image/jpeg',.5).split(',')[1],type:'image/jpeg'};
+}
+
 async function sendMessage(){
   const inp=document.getElementById('chat-input');
   let msg=(inp?.value||'').trim();
   if(!msg&&!pendingImage)return;
+  if(onboardingMode){
+    inp.value='';inp.style.height='auto';
+    addMessage('user',msg);
+    await handleOnboardingReply(msg);
+    return;
+  }
 
   let imagePayload=null;
   if(pendingImage&&!msg){
@@ -1745,8 +1884,7 @@ async function sendMessage(){
 
   if(pendingImage){
     try{
-      const b64=await fileToBase64(pendingImage);
-      imagePayload={base64:b64,type:pendingImage.type||'image/png'};
+      imagePayload=await imageFileToUploadPayload(pendingImage);
     }catch(e){
       addMessage('ai','Could not read screenshot. Try uploading again.');
       return;
