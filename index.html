@@ -498,24 +498,44 @@ details summary>span{display:inline-block;transition:transform .2s}
 </div>
 
 <div class="promo-overlay" id="promo-overlay">
-  <div class="promo-modal">
-    <button class="promo-close" onclick="closePromoPopup()" aria-label="Close popup">×</button>
-    <img class="promo-img" src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?auto=format&fit=crop&w=1200&q=80" alt="Special offer image popup"/>
-    <a class="promo-cta" href="#" onclick="closePromoPopup();navTo('sc-upgrade');return false;">Limited-time offer · Unlock Pro coaching →</a>
+  <div class="promo-modal" style="background:#fff;border-radius:18px;overflow:hidden;max-width:420px;width:92vw;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.22);border:1px solid var(--border)">
+    <button class="promo-close" onclick="closePromoPopup()" aria-label="Close" style="position:absolute;top:12px;right:14px;border:none;background:rgba(0,0,0,.06);border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;z-index:2">×</button>
+    <!-- Branded edtech promo — no stock photos -->
+    <div style="background:linear-gradient(135deg,#1a1714 0%,#2d2420 100%);padding:32px 28px 24px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(232,96,44,.12);border-radius:50%"></div>
+      <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:rgba(232,96,44,.08);border-radius:50%"></div>
+      <div style="font-family:var(--fm);font-size:10px;color:rgba(232,96,44,.9);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;position:relative">Limited beta offer</div>
+      <div style="font-family:var(--fs);font-size:28px;color:#fff;line-height:1.1;margin-bottom:8px;position:relative">Get Pro for<br/><span style="color:var(--accent)">₹299</span> <span style="font-size:18px;text-decoration:line-through;color:rgba(255,255,255,.3)">₹499</span></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;position:relative">First month, for early learners who commit to all 7 days.</div>
+    </div>
+    <div style="padding:20px 28px">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> Unlimited daily coaching sessions</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> All 4 tracks — switch anytime</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> Public Proof Wall + LinkedIn badge</div>
+      </div>
+      <button onclick="closePromoPopup();navTo('sc-upgrade');" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:.2s" onmouseover="this.style.background='var(--accent2)'" onmouseout="this.style.background='var(--accent)'">Claim ₹299 offer →</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:10px;cursor:pointer" onclick="closePromoPopup()">No thanks, I'll pay full price later</div>
+    </div>
   </div>
 </div>
 
 <div class="email-overlay" id="email-overlay">
-  <div class="email-modal">
-    <button class="email-close" onclick="closeEmailPopup()" aria-label="Close email popup">×</button>
-    <div style="font-size:11px;color:var(--accent);text-transform:uppercase;letter-spacing:.12em;margin-bottom:8px">Future updates</div>
-    <h3>Get the next AI challenge drop.</h3>
-    <p>Leave your email and we’ll send new tracks, live AI job signals, and early access drops. No spam — just useful Zubhai updates.</p>
-    <div class="email-row">
-      <input id="landing-email" type="email" placeholder="you@example.com"/>
-      <button onclick="submitLandingEmail()">Notify me</button>
+  <div style="background:#fff;border:1px solid var(--border);border-radius:20px;padding:0;max-width:420px;width:92vw;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden">
+    <button onclick="closeEmailPopup()" style="position:absolute;top:14px;right:14px;border:none;background:var(--bg3);border-radius:50%;width:28px;height:28px;font-size:15px;cursor:pointer;color:var(--text2);z-index:2">×</button>
+    <div style="background:linear-gradient(135deg,#fff7f4 0%,#fff 100%);padding:28px 28px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Early access</div>
+      <div style="font-family:var(--fs);font-size:26px;font-weight:400;letter-spacing:-.5px;color:var(--text);line-height:1.15;margin-bottom:8px">New AI tracks drop<br/>every month.</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.75">Sales, Design, Finance, HR — new 7-day sprints coming. Be first to know + get early access pricing.</div>
     </div>
-    <div id="landing-email-msg" style="font-size:11px;color:var(--text3);margin-top:10px"></div>
+    <div style="padding:20px 28px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="landing-email" type="email" placeholder="your@email.com" style="flex:1;border:1.5px solid var(--border2);border-radius:10px;padding:11px 13px;font-size:14px;font-family:var(--fb);outline:none;transition:.2s;background:#fff"/>
+        <button onclick="submitLandingEmail()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--fb);white-space:nowrap">Notify me</button>
+      </div>
+      <div id="landing-email-msg" style="font-size:12px;color:var(--text3);min-height:16px"></div>
+      <div style="font-size:11px;color:var(--text4);margin-top:8px">No spam. Unsubscribe anytime. Built in India 🇮🇳</div>
+    </div>
   </div>
 </div>
 
@@ -600,35 +620,121 @@ details summary>span{display:inline-block;transition:transform .2s}
   </div>
 </div>
 
-<!-- ═══ JOURNEY SECTION — What happens after you sign up ═══ -->
+<!-- ═══ HOW IT WORKS ═══ -->
 <section id="how-it-works" class="pad z2" style="background:#fff;padding-top:80px;padding-bottom:80px">
   <div class="wrap">
-    <span class="stag reveal">The Exact Journey</span>
-    <h2 class="stitle reveal">Here's what happens<br/>after you click Sign Up.</h2>
-    <p class="ssub reveal" style="margin-bottom:52px">Most platforms hide this. We don't. Every step, spelled out — no surprises.</p>
+    <span class="stag reveal">How It Works</span>
+    <h2 class="stitle reveal">Here's exactly what happens<br/>after you sign up.</h2>
+    <p class="ssub reveal" style="margin-bottom:52px">No surprises. Every step, spelled out.</p>
 
-    <div style="display:flex;flex-direction:column;gap:0">
-      <div class="reveal" style="display:grid;grid-template-columns:52px 1fr;gap:24px;padding:32px 0;border-bottom:1px solid var(--border)">
-        <div><div style="width:48px;height:48px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">1</div></div>
-        <div>
-          <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Immediately after signup</div>
-          <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">You answer one question. That's the whole onboarding.</div>
-          <div style="font-size:14px;color:var(--text2);line-height:1.85">We ask: <em>"What's your current situation and what do you want to achieve with AI?"</em> — 2 sentences. No dropdowns, no forms. Our AI reads your answer and builds a personalized 7-day plan for your role, skill level, and goal. A Python developer gets different Day 1 tasks than a marketing student.</div>
-          <div style="margin-top:10px;background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:8px;padding:10px 14px;font-size:12px;color:var(--accent2)">⚡ Why one question? Generic programs fail. We need to know you. One honest sentence = a program that actually fits your life.</div>
+    <!-- STEPS + CHAT MOCKUP SIDE BY SIDE -->
+    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
+
+      <!-- LEFT: STEPS -->
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">1</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Right after signup</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Arjun introduces himself in a chat.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">He asks 7 short questions — your name, role, goal, tools, time available, budget. Conversational, not a form. Takes under 3 minutes.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">2</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Your profile is built</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Arjun builds your personalised 7-day plan.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">A developer gets different tasks than a marketer. A beginner gets different tasks than someone with 2 years of AI experience. The same conversation, different plan every time.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">3</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Day 1 begins</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">You get your task. Exact tool. Exact prompt.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">Arjun tells you what to open, what to type, and what good output looks like. You do it. You paste back what you built. He grades it honestly — 1–10 with specific feedback.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0">
+          <div style="width:40px;height:40px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">7</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Day 7 milestone</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">You publish something real. LinkedIn. GitHub. Medium.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">Your Day 7 output goes on your Proof Wall — a shareable link with your published AI work. This is your portfolio, not a certificate.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: ARJUN CHAT MOCKUP -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+        <!-- chat header -->
+        <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">A</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Arjun · Your AI Coach</div>
+            <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block"></span>Online — Setup Chat</div>
+          </div>
+        </div>
+        <!-- chat messages -->
+        <div style="padding:14px;background:#f8f7f4;display:flex;flex-direction:column;gap:10px;min-height:280px">
+          <!-- Arjun msg -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Hey! Arjun here ⚡ I'm your Zubhai coach. Quick 7 questions and I'll have your Day 1 task ready. First — what should I call you?
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:01 AM</div>
+          </div>
+          <!-- User reply -->
+          <div style="max-width:75%;align-self:flex-end">
+            <div style="background:var(--accent);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6">
+              Vaibhav
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm);text-align:right">9:01 AM</div>
+          </div>
+          <!-- Arjun ack + next q -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Nice to meet you Vaibhav 👋 What do you do for work or study right now? Role + company/college if you can.
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:01 AM</div>
+          </div>
+          <!-- User reply -->
+          <div style="max-width:75%;align-self:flex-end">
+            <div style="background:var(--accent);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6">
+              Backend dev at a startup. 2 yrs exp, mostly Python + FastAPI
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm);text-align:right">9:02 AM</div>
+          </div>
+          <!-- Arjun funny ack -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Developer bhai! 💻 I once had a bug so mysterious I started questioning reality. Got it — what do you want to achieve in 7 days?
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:02 AM</div>
+          </div>
+          <!-- typing indicator -->
+          <div style="max-width:85%;align-self:flex-end">
+            <div style="background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.2);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:12px;color:var(--text2);font-style:italic">
+              Vaibhav is typing...
+            </div>
+          </div>
+        </div>
+        <!-- chat footer label -->
+        <div style="background:#fff;border-top:1px solid var(--border);padding:10px 14px;font-size:11px;color:var(--text3);text-align:center">
+          3 questions left · Your Day 1 task builds as you answer
         </div>
       </div>
-      <div class="reveal d1" style="display:grid;grid-template-columns:52px 1fr;gap:24px;padding:32px 0;border-bottom:1px solid var(--border)">
-        <div><div style="width:48px;height:48px;background:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:15px;flex-shrink:0">2</div></div>
-        <div>
-          <div style="font-family:var(--fm);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px">Day 1 — first 5 minutes</div>
-          <div style="font-size:17px;font-weight:600;color:var(--text);margin-bottom:8px">Arjun (your AI coach) gives you today's task. No warmup, no video to watch.</div>
-          <div style="font-size:14px;color:var(--text2);line-height:1.85">Arjun knows your profile. He tells you: exactly what to do today, which tool to open (Claude / Perplexity / ChatGPT), the exact prompt to copy-paste, and what a finished result looks like. You chat with him like WhatsApp — he pushes you, helps you, and grades your output honestly.</div>
-        </div>
-      </div>
+
     </div>
 
     <div class="reveal" style="text-align:center;margin-top:56px;padding-top:40px;border-top:1px solid var(--border)">
-      <div style="font-size:15px;color:var(--text2);margin-bottom:20px">The whole thing takes 15–30 minutes a day. Day 1 takes about 20 minutes.</div>
+      <div style="font-size:15px;color:var(--text2);margin-bottom:20px">15–30 minutes a day. Day 1 takes about 20 minutes.</div>
       <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Day 1 — It's Free →</button>
       <div style="font-size:12px;color:var(--text3);margin-top:10px">Questions? Email hello@zubhai.com — Shubh replies personally.</div>
     </div>
@@ -926,39 +1032,8 @@ details summary>span{display:inline-block;transition:transform .2s}
         </div>
       </div>
 
-      <!-- ONBOARD -->
-      <div class="screen" id="sc-onboard">
-        <div class="ob-center">
-          <div class="ob-wrap">
-            <div class="ob-q" style="font-size:clamp(20px,3vw,30px);margin-bottom:6px">What do you do?</div>
-            <div class="ob-hint">We build your 7-day program around this. Pick the closest match.</div>
-            <div class="ob-chips" style="margin-top:16px">
-              <div class="ob-chip" onclick="pickProfession(this,'student')">🎓 Student</div>
-              <div class="ob-chip" onclick="pickProfession(this,'developer')">💻 Developer</div>
-              <div class="ob-chip" onclick="pickProfession(this,'marketing')">📣 Marketing</div>
-              <div class="ob-chip" onclick="pickProfession(this,'sales')">🤝 Sales</div>
-            </div>
-            <div style="margin-top:18px;display:none" id="ob-lang-row">
-              <div class="ob-hint" style="margin-bottom:10px">Which language do you think best in?</div>
-              <div class="ob-chips">
-                <div class="ob-chip" onclick="pickLang(this,'English')">English</div>
-                <div class="ob-chip" onclick="pickLang(this,'Hindi')">Hindi</div>
-                <div class="ob-chip" onclick="pickLang(this,'Hinglish')">Hinglish</div>
-                <div class="ob-chip" onclick="pickLang(this,'Marathi')">Marathi</div>
-                <div class="ob-chip" onclick="pickLang(this,'Tamil')">Tamil</div>
-                <div class="ob-chip" onclick="pickLang(this,'Bengali')">Bengali</div>
-              </div>
-            </div>
-            <div style="margin-top:18px;display:none" id="ob-detail-row">
-              <div class="ob-q" style="font-size:20px;margin-bottom:6px">Tell us about you and your target outcome.</div>
-              <div class="ob-hint">Add name, current position/company/college, experience, tools, desired role, what you want from Zubhai, and the result you want in 7 days.</div>
-              <textarea id="ob-detail" class="ob-other-inp show" rows="5" style="display:block;min-height:118px;resize:vertical" placeholder="Example: I'm Vaibhav, a backend developer at __ with 2 years exp. I know Python/FastAPI and want to become an AI backend engineer. I want Zubhai to help me ship AI features faster and build a strong GitHub/LinkedIn proof portfolio."></textarea>
-              <button class="ob-next" id="ob-finish-btn" onclick="finishOb()">Build my 7-day plan →</button>
-              <div class="ob-hint" id="ob-detail-err" style="margin-top:8px;color:#ef4444;display:none"></div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- ONBOARD — handled via Arjun chat conversation, not forms -->
+      <div class="screen" id="sc-onboard" style="display:none!important"></div>
 
       <!-- LOBBY / HOME -->
       <div class="screen" id="sc-lobby">
@@ -1205,7 +1280,7 @@ async function submitLandingEmail(){
   const email=(document.getElementById('landing-email')?.value||'').trim();
   const msg=document.getElementById('landing-email-msg');
   if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){if(msg)msg.textContent='Enter a valid email.';return;}
-  const d=await post('/newsletter',{email,source:'landing_popup'});
+  const d=await post('/waitlist',{email,name:''});
   if(msg)msg.textContent=d.status==='success'?'Saved. You are on the update list ⚡':'Could not save. Try again.';
   if(d.status==='success')setTimeout(closeEmailPopup,700);
 }
@@ -1251,8 +1326,8 @@ function showScreen(id){
     'sc-proof':'Proof Wall','sc-lb':'Leaderboard','sc-upgrade':'Upgrade'
   };
   document.getElementById('top-title').textContent=titles[id]||'Zubhai';
-  const isAuth=id==='sc-auth'||id==='sc-onboard';
-  document.getElementById('app').classList.toggle('auth-mode',isAuth&&!userId);
+  const isAuth=(id==='sc-auth')&&!userId;
+  document.getElementById('app').classList.toggle('auth-mode',isAuth);
 }
 function navTo(id){
   showScreen(id);closeMenu();
@@ -1506,7 +1581,14 @@ async function handleOnboardingReply(msg){
   }
   addTypingIndicator();
   const answer=onboardingAnswers.map(x=>`${x.question}\n${x.answer}`).join('\n\n');
-  const d=await post('/onboard/parse',{user_id:userId,field:pickedField,language:pickedLang,time_per_day:15,answer});
+  // Infer field from answers if not explicitly set
+  const inferredField = pickedField || 
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('develop')||x.answer.toLowerCase().includes('code')||x.answer.toLowerCase().includes('engineer'))&&'developer') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('market')||x.answer.toLowerCase().includes('content')||x.answer.toLowerCase().includes('ads'))&&'marketing') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('sales')||x.answer.toLowerCase().includes('sell')||x.answer.toLowerCase().includes('leads'))&&'sales') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('student')||x.answer.toLowerCase().includes('college')||x.answer.toLowerCase().includes('university'))&&'student') ||
+    'student';
+  const d=await post('/onboard/parse',{user_id:userId,field:inferredField,language:pickedLang,time_per_day:15,answer});
   removeTypingIndicator();
   if(d.status!=='success'){
     addMessage('ai',d.message||'Could not save your setup. Paste your details once more?');
@@ -1527,8 +1609,7 @@ function goHome(){
   const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
   document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
   loadProfileNudge();
-  const todayKey=new Date().toISOString().slice(0,10);
-  if(localStorage.getItem('zubhai_promo_seen_on')!==todayKey) setTimeout(showPromoPopup,450);
+  // Promo shown only intentionally, not on every home visit
 }
 function goTodaySession(){
   chatHistory=[];navTo('sc-chat');initChat();
