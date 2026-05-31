@@ -1150,6 +1150,23 @@ details summary>span{display:inline-block;transition:transform .2s}
         <div class="proof-wrap">
           <div class="proof-pg-title">Your Proof Wall</div>
           <div class="proof-pg-sub" id="proof-sub">Things you've actually built with AI.</div>
+          <!-- Screenshot upload for proof -->
+          <div id="proof-upload-section" style="background:#fff;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;display:none">
+            <div style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:4px">📸 Add proof screenshot</div>
+            <div style="font-size:11px;color:var(--text3);margin-bottom:10px">Upload a screenshot of your LinkedIn post, GitHub repo, published article, or any output you built.</div>
+            <input type="file" id="proof-img-upload" accept="image/*" style="display:none" onchange="handleProofScreenshot(this)"/>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+              <button onclick="document.getElementById('proof-img-upload').click()" style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;font-size:12px;cursor:pointer;font-family:var(--fb)">Choose screenshot</button>
+              <span id="proof-img-name" style="font-size:11px;color:var(--text3)"></span>
+            </div>
+            <div id="proof-img-preview" style="margin-top:10px;display:none">
+              <img id="proof-img-thumb" style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);object-fit:cover" src="" alt="preview"/>
+              <div style="display:flex;gap:8px;margin-top:8px">
+                <input id="proof-caption" placeholder="Caption: what did you build?" style="flex:1;border:1px solid var(--border2);border-radius:8px;padding:8px 10px;font-size:12px;font-family:var(--fb);outline:none"/>
+                <button onclick="submitProofScreenshot()" id="proof-submit-btn" style="background:var(--accent);color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;cursor:pointer;font-family:var(--fb);white-space:nowrap">Save to wall</button>
+              </div>
+            </div>
+          </div>
           <div id="proof-list"></div>
         </div>
       </div>
@@ -1385,35 +1402,73 @@ function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI(
 
 /* ── GOOGLE AUTH ── */
 async function signInGoogle(){
-  if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
+  if(!sb){showToast('Google login unavailable — use email signup');return;}
   try{
     const {data,error}=await sb.auth.signInWithOAuth({
       provider:'google',
-      options:{redirectTo:window.location.origin}
+      options:{
+        redirectTo: window.location.href.split('#')[0].split('?')[0],
+        queryParams:{access_type:'offline',prompt:'consent'}
+      }
     });
     if(error)throw error;
-  }catch(e){showToast('Google auth error: '+e.message);}
+  }catch(e){
+    console.error('Google OAuth error:',e);
+    showToast('Google sign-in failed. Try email signup instead.');
+  }
 }
 
-// Handle Google OAuth redirect
+// Handle Google OAuth redirect — fires on BOTH fresh page load and after redirect
 (async()=>{
   if(!sb)return;
   try{
+    // onAuthStateChange is the reliable way to catch the OAuth callback
+    sb.auth.onAuthStateChange(async(event, session)=>{
+      if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED') && session?.access_token && !userId){
+        try{
+          const d=await post('/auth/google',{
+            access_token:session.access_token,
+            refresh_token:session.refresh_token||''
+          });
+          if(d.status==='success'){
+            userId=d.user_id;
+            userProfile=d.user;
+            localStorage.setItem('zubhai_uid',userId);
+            // Clean the URL so refresh doesn't re-trigger
+            if(window.history?.replaceState){
+              window.history.replaceState({},'',window.location.pathname);
+            }
+            document.getElementById('land').style.display='none';
+            document.getElementById('app').classList.add('open');
+            document.getElementById('sb').style.display='flex';
+            afterLogin();
+          }
+        }catch(err){
+          console.error('Backend google auth error:',err);
+          showToast('Sign-in error. Try again.');
+        }
+      }
+    });
+    // Also try getSession for users already signed in
     const {data:{session}}=await sb.auth.getSession();
-    if(session?.access_token&&!userId){
-      const d=await post('/auth/google',{
-        access_token:session.access_token,
-        refresh_token:session.refresh_token
-      });
-      if(d.status==='success'){
-        userId=d.user_id;userProfile=d.user;
-        localStorage.setItem('zubhai_uid',userId);
-        document.getElementById('land').style.display='none';
-        document.getElementById('app').classList.add('open');
-        afterLogin();
+    if(session?.access_token && !userId){
+      const uid=localStorage.getItem('zubhai_uid');
+      if(!uid){
+        const d=await post('/auth/google',{
+          access_token:session.access_token,
+          refresh_token:session.refresh_token||''
+        });
+        if(d.status==='success'){
+          userId=d.user_id;userProfile=d.user;
+          localStorage.setItem('zubhai_uid',userId);
+          document.getElementById('land').style.display='none';
+          document.getElementById('app').classList.add('open');
+          document.getElementById('sb').style.display='flex';
+          afterLogin();
+        }
       }
     }
-  }catch(e){console.log('OAuth check:',e);}
+  }catch(e){console.log('OAuth init:',e);}
 })();
 
 /* ── EMAIL AUTH ── */
@@ -1637,6 +1692,7 @@ function initChat(initialMsg){
   const startMsg = initialMsg
     ? `Context from user: "${initialMsg}". Now start Day ${dayIdx+1}.`
     : `start`;
+  checkScreenshotPrompt(currentDay||1);
   streamChatResponse(startMsg, true);
 }
 
@@ -1985,28 +2041,119 @@ function afterScore(){
 }
 
 /* ── PROOF WALL ── */
+let currentProofDay = null;
+let pendingProofImage = null;
+
 async function loadProofWall(){
   if(!userId)return;
   document.getElementById('proof-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div><p>Loading...</p></div>';
+  // Always show upload section
+  const uploadSec=document.getElementById('proof-upload-section');
+  if(uploadSec)uploadSec.style.display='block';
+  currentProofDay=currentDay||1;
   try{
-    const d=await fetch(API+'/proof-wall/'+userId).then(r=>r.json());
+    const d=await fetch(API+'/proof-wall-v2/'+userId).then(r=>r.json());
     document.getElementById('proof-sub').textContent=`${d.tasks_completed||0} tasks completed · ${d.points||0} points earned`;
     const pw=d.proof_wall||[];
-    if(!pw.length){
-      document.getElementById('proof-list').innerHTML='<div class="proof-empty"><div style="font-size:32px;opacity:.4">🏆</div><p>Complete Day 7 to publish your first Proof Wall entry. It becomes your shareable AI portfolio.</p></div>';
+    const screenshots=d.screenshots||[];
+    const allItems=[
+      ...pw.map(p=>({...p,type:'proof'})),
+      ...screenshots.map(s=>({...s,type:'screenshot'}))
+    ].sort((a,b)=>new Date(b.date||0)-new Date(a.date||0));
+    if(!allItems.length){
+      document.getElementById('proof-list').innerHTML='<div class="proof-empty"><div style="font-size:32px;opacity:.4">🏆</div><p style="font-size:13px;color:var(--text3);margin-top:8px;line-height:1.7">Upload screenshots of your work above, or complete Day 7 to publish your first official proof entry.</p></div>';
     } else {
-      document.getElementById('proof-list').innerHTML=pw.map(p=>`
-        <div class="proof-item">
-          <div style="flex:1">
-            <div class="proof-item-day">Day ${p.day} · ${(p.field||'').toUpperCase()}</div>
-            <div class="proof-item-title">${esc(p.title||'Project')}</div>
-            <div class="proof-item-score">Score: ${p.score}/10</div>
-            ${p.url?`<a class="proof-item-link" href="${esc(p.url)}" target="_blank">${esc(p.url)}</a>`:''}
-            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--fm)">${p.date||''}</div>
+      document.getElementById('proof-list').innerHTML=allItems.map(p=>`
+        <div class="proof-item" style="flex-direction:column;gap:8px">
+          <div style="display:flex;align-items:flex-start;gap:10px;width:100%">
+            <div style="flex:1">
+              <div class="proof-item-day">Day ${p.day||'?'} · ${(p.field||'').toUpperCase()} · ${p.type==='screenshot'?'📸 Screenshot':'✅ Task done'}</div>
+              <div class="proof-item-title">${esc(p.title||p.caption||'Proof')}</div>
+              ${p.score?`<div class="proof-item-score">Score: ${p.score}/10</div>`:''}
+              ${p.url?`<a class="proof-item-link" href="${esc(p.url)}" target="_blank">${esc(p.url)}</a>`:''}
+              <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">${p.date||''}</div>
+            </div>
           </div>
+          ${p.screenshot_data?`<img src="${p.screenshot_data}" style="width:100%;max-height:200px;object-fit:cover;border-radius:8px;border:1px solid var(--border)" alt="proof screenshot"/>`:''}
         </div>`).join('');
     }
   }catch(e){document.getElementById('proof-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading proof wall.</p>';}
+}
+
+function handleProofScreenshot(input){
+  const file=input.files[0];
+  if(!file)return;
+  pendingProofImage=file;
+  document.getElementById('proof-img-name').textContent=file.name;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const thumb=document.getElementById('proof-img-thumb');
+    const preview=document.getElementById('proof-img-preview');
+    if(thumb)thumb.src=e.target.result;
+    if(preview)preview.style.display='block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitProofScreenshot(){
+  if(!pendingProofImage||!userId)return;
+  const btn=document.getElementById('proof-submit-btn');
+  const caption=(document.getElementById('proof-caption')?.value||'').trim()||'My work — Day '+(currentProofDay||currentDay||1);
+  if(btn){btn.disabled=true;btn.textContent='Saving...';}
+  try{
+    const payload=await imageFileToUploadPayload(pendingProofImage);
+    const d=await post('/proof/screenshot',{
+      user_id:userId,
+      day:currentProofDay||currentDay||1,
+      field:userProfile?.field||'student',
+      caption,
+      image_base64:payload.base64,
+      image_type:payload.type
+    });
+    if(d.status==='success'){
+      showToast('Screenshot saved to your Proof Wall ✓');
+      document.getElementById('proof-img-preview').style.display='none';
+      document.getElementById('proof-img-name').textContent='';
+      document.getElementById('proof-caption').value='';
+      pendingProofImage=null;
+      document.getElementById('proof-img-upload').value='';
+      await loadProofWall();
+    }else{
+      showToast(d.message||'Could not save. Try again.');
+    }
+  }catch(e){
+    showToast('Upload failed. Check connection.');
+  }
+  if(btn){btn.disabled=false;btn.textContent='Save to wall';}
+}
+
+function checkScreenshotPrompt(day){
+  if(!day||day<2)return;
+  const key='zubhai_ss_prompt_d'+day;
+  if(localStorage.getItem(key))return;
+  const msgs={
+    2:'📸 Quick one — upload a screenshot of yesterday's output so Arjun can see how the task actually went. Helps him calibrate Day 2.',
+    3:'📊 Day 3 check-in: drop a screenshot of your best output from Days 1-2. Arjun will tell you what's working.',
+    5:'🔍 Halfway point — screenshot your best Day 1-4 output and drop it in your Proof Wall. Gets you the most useful feedback before the final stretch.'
+  };
+  const msg=msgs[day];
+  if(!msg)return;
+  localStorage.setItem(key,'1');
+  setTimeout(()=>{
+    const el=document.getElementById('chat-messages');
+    if(!el)return;
+    const div=document.createElement('div');
+    div.className='chat-msg ai';
+    div.innerHTML=`<div class="chat-msg-inner" style="background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.18);border-radius:12px 12px 12px 2px">
+      <div style="font-size:13px;line-height:1.7;color:var(--text);margin-bottom:10px">${msg}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button onclick="document.getElementById('img-upload').click()" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:var(--fb)">Upload screenshot here</button>
+        <button onclick="navTo('sc-proof');loadProofWall()" style="background:none;border:1px solid var(--border2);color:var(--text2);border-radius:6px;padding:7px 14px;font-size:12px;cursor:pointer;font-family:var(--fb)">Go to Proof Wall</button>
+      </div>
+    </div>`;
+    el.appendChild(div);
+    el.scrollTop=el.scrollHeight;
+  },1800);
 }
 
 /* ── LEADERBOARD ── */
