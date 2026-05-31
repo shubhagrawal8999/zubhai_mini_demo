@@ -2132,9 +2132,9 @@ function checkScreenshotPrompt(day){
   const key='zubhai_ss_prompt_d'+day;
   if(localStorage.getItem(key))return;
   const msgs={
-    2:'📸 Quick one — upload a screenshot of yesterday's output so Arjun can see how the task actually went. Helps him calibrate Day 2.',
-    3:'📊 Day 3 check-in: drop a screenshot of your best output from Days 1-2. Arjun will tell you what's working.',
-    5:'🔍 Halfway point — screenshot your best Day 1-4 output and drop it in your Proof Wall. Gets you the most useful feedback before the final stretch.'
+    2:`📸 Quick one — upload a screenshot of yesterday's output so Arjun can see how the task actually went. Helps him calibrate Day 2.`,
+    3:`📊 Day 3 check-in: drop a screenshot of your best output from Days 1-2. Arjun will tell you what's working.`,
+    5:`🔍 Halfway point — screenshot your best Day 1-4 output and drop it in your Proof Wall. Gets you the most useful feedback before the final stretch.`
   };
   const msg=msgs[day];
   if(!msg)return;
