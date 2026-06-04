@@ -39,6 +39,37 @@ nav.solid{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bot
 .btn-pri{background:var(--accent);color:#fff;padding:8px 18px;border-radius:var(--r6);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;font-family:var(--fb)}
 .btn-pri:hover{background:var(--accent2)}
 
+/* ── COPY PROMPT BLOCK ───────────────────────────── */
+.prompt-copy-block{
+    background:rgba(232,96,44,.04);
+    border:1px solid rgba(232,96,44,.2);
+    border-radius:var(--r8);
+    margin:12px 0;
+    overflow:hidden;
+}
+.prompt-copy-header{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:8px 14px;
+    background:rgba(232,96,44,.08);
+    border-bottom:1px solid rgba(232,96,44,.15);
+}
+.prompt-copy-label{
+    font-family:var(--fm);font-size:10px;color:var(--accent);
+    letter-spacing:1.5px;text-transform:uppercase;font-weight:600;
+}
+.prompt-copy-btn{
+    background:var(--accent);color:#fff;border:none;
+    border-radius:var(--r6);padding:5px 14px;font-size:12px;
+    font-weight:500;cursor:pointer;font-family:var(--fb);
+    transition:.2s;
+}
+.prompt-copy-btn:hover{background:var(--accent2);}
+.prompt-copy-text{
+    padding:14px;font-size:12px;color:var(--text);
+    line-height:1.8;font-family:var(--fb);
+    max-height:280px;overflow-y:auto;
+}
+
 .hero{min-height:100vh;display:flex;align-items:center;padding-top:70px}
 .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
 .hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
