@@ -1,126 +1,1019 @@
-"""
-Zubhai Frontend Patch Script
-Applies all 7 feature additions to index.html
-Run: python3 patch_frontend.py index.html
-"""
-import sys, re
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Zubhai — Learn AI by Doing Real Work. 7 Days. Verified.</title>
+<meta name="description" content="Stop watching AI tutorials that change nothing. Zubhai gives you one real task per day — built for your job. 7 days. AI coach grades your output. Publish real work on Day 7. Free trial, no card."/>
+<link rel="icon" type="image/svg+xml" href="./logo-mark.svg"/>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 
-def patch(content: str) -> str:
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f8f7f4;--bg3:#f0ede8;--bg4:#e8e4de;
+  --border:#e2ddd7;--border2:#d4cfc8;--border3:#c0b9b0;
+  --text:#1a1714;--text2:#5a5450;--text3:#9a9490;--text4:#c4c0bb;
+  --accent:#e8602c;--accent2:#d44e1a;
+  --blue:#2563eb;--green:#16a34a;--gold:#d97706;
+  --fs:'Instrument Serif',Georgia,serif;
+  --fb:'Geist','Segoe UI',system-ui,sans-serif;
+  --fm:'Geist Mono',monospace;
+  --sb:52px;--r6:6px;--r8:8px;--r12:12px;--r16:16px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--fb);overflow-x:hidden;-webkit-font-smoothing:antialiased}
+canvas#bg{position:fixed;inset:0;z-index:0;opacity:.04;pointer-events:none}
+.z2{position:relative;z-index:2}
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 1. ADD CSS for milestone popup, OTP flow, feedback modal, copy btn
-    # ═══════════════════════════════════════════════════════════════════
-    new_css = """
-/* ── MILESTONE CELEBRATION ───────────────────────────── */
-.milestone-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:1000;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(6px)}
-.milestone-overlay.show{display:flex}
-.milestone-modal{background:#fff;border-radius:20px;padding:40px 36px;max-width:420px;width:100%;text-align:center;position:relative;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.3)}
-.milestone-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:var(--milestone-color,var(--accent));border-radius:20px 20px 0 0}
-.milestone-emoji{font-size:56px;display:block;margin-bottom:14px;animation:bounceIn .6s cubic-bezier(.68,-.55,.27,1.55)}
-.milestone-title{font-family:var(--fs);font-size:28px;color:var(--text);font-weight:400;letter-spacing:-.5px;margin-bottom:6px}
-.milestone-sub{font-size:13px;color:var(--text2);margin-bottom:16px}
-.milestone-body{font-size:14px;color:var(--text2);line-height:1.85;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:14px;margin-bottom:18px;text-align:left}
-.milestone-cta-text{font-size:13px;color:var(--accent2);margin-bottom:18px;font-weight:500}
-.milestone-close-btn{width:100%;background:var(--text);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
-.milestone-close-btn:hover{background:#333}
-@keyframes bounceIn{0%{transform:scale(0);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
-/* confetti particles */
-.confetti-piece{position:absolute;width:8px;height:8px;border-radius:2px;animation:confettiFall 3s linear forwards;pointer-events:none}
-@keyframes confettiFall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(500px) rotate(720deg);opacity:0}}
+/* ══ LANDING ══════════════════════════════════════════════════════════ */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:.3s}
+nav.solid{background:rgba(255,255,255,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-i{display:flex;align-items:center;justify-content:space-between;max-width:1060px;margin:0 auto;padding:0 24px}
+.nav-logo{font-family:var(--fs);font-size:32px;color:var(--text);text-decoration:none;line-height:1}
+.nav-logo em{color:var(--accent);font-style:normal}
+.nav-r{display:flex;gap:8px;align-items:center}
+.btn-ghost{border:1px solid var(--border2);color:var(--text2);padding:7px 16px;border-radius:var(--r6);font-size:13px;cursor:pointer;background:none;transition:.2s;font-family:var(--fb)}
+.btn-ghost:hover{border-color:var(--text3);color:var(--text)}
+.btn-pri{background:var(--accent);color:#fff;padding:8px 18px;border-radius:var(--r6);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.2s;font-family:var(--fb)}
+.btn-pri:hover{background:var(--accent2)}
 
-/* ── OTP AUTH FLOW ───────────────────────────────────── */
-.otp-step{display:none}.otp-step.show{display:block}
-.otp-digits{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
-.otp-digit{width:44px;height:52px;text-align:center;font-size:22px;font-family:var(--fm);border:1.5px solid var(--border2);border-radius:var(--r8);background:#fff;color:var(--text);transition:.2s}
-.otp-digit:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,96,44,.1)}
-.otp-resend{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;cursor:pointer;transition:.2s}
-.otp-resend:hover{color:var(--text2)}
-.otp-resend.disabled{pointer-events:none;opacity:.4}
-.otp-email-display{font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px}
-.otp-email-display strong{color:var(--text)}
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:70px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+.hero-grid{display:grid;grid-template-columns:1fr 1fr;gap:72px;align-items:center}
+.kicker{display:inline-flex;align-items:center;gap:7px;background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.25);padding:6px 16px;border-radius:100px;font-size:13px;color:var(--accent);font-family:var(--fm);margin-bottom:22px;letter-spacing:.3px;font-weight:500}
+.kicker::before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+.hero h1{font-family:var(--fs);font-size:clamp(44px,5vw,70px);font-weight:400;line-height:1.03;margin-bottom:16px;letter-spacing:-1px}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:17px;color:var(--text2);line-height:1.9;margin-bottom:32px;max-width:440px}
+.hero-btns{display:flex;gap:10px;flex-wrap:wrap}
+.btn-lg{padding:12px 26px;border-radius:var(--r8);font-size:14px;font-weight:500;text-decoration:none;transition:.2s;display:inline-block;cursor:pointer;border:none;font-family:var(--fb)}
+.btn-lg.p{background:var(--accent);color:#fff}
+.btn-lg.p:hover{background:var(--accent2)}
+.btn-lg.g{border:1.5px solid var(--border2);color:var(--text);background:none}
+.btn-lg.g:hover{border-color:var(--text3);color:var(--text)}
+.reveal{opacity:0;transform:translateY(18px);transition:all .55s cubic-bezier(.25,.46,.45,.94)}
+.reveal.on{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}
 
-/* ── FEEDBACK MODAL ──────────────────────────────────── */
-.feedback-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:900;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
-.feedback-overlay.show{display:flex}
-.feedback-modal{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:28px;max-width:400px;width:100%;box-shadow:0 12px 48px rgba(0,0,0,.15)}
-.feedback-modal h3{font-family:var(--fs);font-size:22px;font-weight:400;color:var(--text);margin-bottom:6px;letter-spacing:-.3px}
-.feedback-modal p{font-size:13px;color:var(--text3);margin-bottom:16px}
-.feedback-type-row{display:flex;gap:6px;margin-bottom:12px}
-.feedback-type-btn{flex:1;padding:8px;border:1px solid var(--border2);border-radius:var(--r6);font-size:11px;font-family:var(--fb);cursor:pointer;background:none;color:var(--text2);transition:.15s;text-align:center}
-.feedback-type-btn:hover,.feedback-type-btn.on{border-color:var(--accent);color:var(--accent);background:rgba(232,96,44,.06)}
-.feedback-ta{width:100%;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r8);padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--fb);height:90px;resize:none;margin-bottom:10px}
-.feedback-ta:focus{outline:none;border-color:var(--border3)}
-.feedback-send-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
-.feedback-send-btn:hover{background:var(--accent2)}
-.feedback-cancel{width:100%;background:none;border:none;font-size:12px;color:var(--text3);cursor:pointer;padding:8px;font-family:var(--fb);transition:.2s;margin-top:4px}
-.feedback-cancel:hover{color:var(--text2)}
+/* hero card */
+.hero-card{background:#fff;border:1px solid var(--border);border-radius:var(--r16);overflow:hidden;animation:float 4s ease-in-out infinite;box-shadow:0 8px 40px rgba(0,0,0,.1)}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.hc-top{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+.hc-logo{font-family:var(--fs);font-size:13px}
+.hc-logo em{color:var(--accent);font-style:normal}
+.hc-badge{font-size:10px;color:var(--accent);font-family:var(--fm);background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);padding:3px 10px;border-radius:100px}
+.hc-body{padding:16px}
+.hc-threat{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px 12px;font-size:12px;color:var(--accent2);margin-bottom:12px;line-height:1.6}
+.hc-msg{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:8px 8px 8px 2px;padding:10px 14px;font-size:13px;color:var(--text2);line-height:1.65;margin-bottom:8px}
+.hc-user{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:8px 8px 2px 8px;padding:10px 14px;font-size:13px;color:var(--text);text-align:right;margin-bottom:10px}
+.hc-chips{display:flex;gap:6px}
+.hc-chip{flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:var(--r6);padding:7px;text-align:center}
+.hc-chip-v{font-size:14px;font-weight:500;color:var(--text)}
+.hc-chip-l{font-size:10px;color:var(--text2);margin-top:3px;font-family:var(--fm)}
 
-/* ── COPY PROMPT BUTTON ──────────────────────────────── */
-.prompt-block{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:12px 14px;margin:10px 0;position:relative}
-.prompt-block-label{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;display:block}
-.prompt-block-text{font-size:13px;color:var(--text);line-height:1.75;white-space:pre-wrap;word-break:break-word;font-family:var(--fb)}
-.prompt-copy-btn{position:absolute;top:10px;right:10px;padding:5px 12px;background:var(--accent);color:#fff;border:none;border-radius:var(--r6);font-size:11px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:4px}
-.prompt-copy-btn:hover{background:var(--accent2)}
-.prompt-copy-btn.copied{background:var(--green)}
-"""
-    content = content.replace(
-        "/* responsive */",
-        new_css + "\n/* responsive */"
-    )
+/* stats */
+.stats-bar{background:var(--text);border-top:none;border-bottom:none;padding:28px 0}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr)}
+.stat{text-align:center;padding:0 16px;border-right:1px solid var(--border)}
+.stat:last-child{border:none}
+.stat-n{font-family:var(--fs);font-size:36px;color:#ffffff;line-height:1;letter-spacing:-1px}
+.stat-l{font-size:13px;color:rgba(255,255,255,.65);margin-top:4px;font-weight:500}
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 2. ADD HTML: milestone overlay, feedback overlay, feedback sidebar btn
-    # ═══════════════════════════════════════════════════════════════════
+/* sections */
+section.pad{padding:80px 0}
+.stag{font-family:var(--fm);font-size:12px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:block}
+.stitle{font-family:var(--fs);font-size:clamp(30px,4vw,48px);font-weight:400;line-height:1.06;margin-bottom:10px;letter-spacing:-.5px}
+.ssub{font-size:16px;color:var(--text2);line-height:1.9;max-width:520px}
 
-    milestone_html = """
-<!-- ════════ MILESTONE CELEBRATION ════════ -->
-<div class="milestone-overlay" id="milestone-overlay">
-  <div class="milestone-modal" id="milestone-modal">
-    <span class="milestone-emoji" id="milestone-emoji">🔥</span>
-    <div class="milestone-title" id="milestone-title">Milestone!</div>
-    <div class="milestone-sub" id="milestone-sub"></div>
-    <div class="milestone-body" id="milestone-body"></div>
-    <div class="milestone-cta-text" id="milestone-cta"></div>
-    <button class="milestone-close-btn" onclick="closeMilestone()">Continue →</button>
+/* threat cards */
+.threat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:44px}
+.threat-card{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:24px;transition:.2s;position:relative;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.threat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--accent),transparent)}
+.threat-card:hover{border-color:var(--accent);box-shadow:0 4px 20px rgba(0,0,0,.1);transform:translateY(-2px)}
+.threat-field{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.threat-risk{font-family:var(--fs);font-size:36px;color:var(--accent);line-height:1;margin-bottom:4px}
+.threat-title{font-size:13px;color:var(--text);line-height:1.6;margin-bottom:8px;font-weight:500}
+.threat-stat{font-size:13px;color:var(--text2);line-height:1.7;border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+
+/* steps */
+.steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:44px}
+.step{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:24px;transition:.2s;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.step:hover{border-color:var(--accent);transform:translateY(-3px);box-shadow:0 6px 24px rgba(0,0,0,.1)}
+.step-n{font-family:var(--fm);font-size:11px;color:var(--accent);letter-spacing:1px;margin-bottom:10px;display:block;font-weight:600}
+.step-ico{font-size:28px;margin-bottom:12px;display:block}
+.step h3{font-size:15px;font-weight:600;margin-bottom:7px;color:var(--text)}
+.step p{font-size:13px;color:var(--text2);line-height:1.75}
+
+/* plans */
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:44px}
+.plan-card{background:#fff;border:1px solid #e5e5e5;border-radius:var(--r16);padding:28px;transition:.2s;position:relative}
+.plan-card.featured{border-color:#000;box-shadow:0 0 0 2px #000}
+.plan-card.featured::before{content:'Most Popular';position:absolute;top:-10px;left:50%;transform:translateX(-50%);background:#000;color:#fff;font-size:11px;font-family:var(--fm);padding:4px 14px;border-radius:100px;letter-spacing:1px;white-space:nowrap}
+.plan-name{font-family:var(--fm);font-size:10px;color:#888;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.plan-price{font-family:var(--fs);font-size:48px;color:#000;line-height:1;margin-bottom:4px;letter-spacing:-2px;font-weight:700}
+.plan-period{font-size:13px;color:#666}
+.plan-desc{font-size:14px;color:#444;margin:14px 0;line-height:1.7;border-top:1px solid #eee;padding-top:14px}
+.plan-feature{font-size:13px;color:#222;margin-bottom:8px;display:flex;align-items:flex-start;gap:7px}
+.plan-feature::before{content:'✓';color:#16a34a;flex-shrink:0;margin-top:2px;font-weight:700}
+.plan-btn{width:100%;padding:13px;border-radius:var(--r8);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:18px;border:1.5px solid #ddd;background:none;color:#555}
+.plan-btn:hover{background:#f5f5f5;color:#000;border-color:#bbb}
+.plan-btn.primary{background:#000;color:#fff;border:none}
+.plan-btn.primary:hover{background:#222}
+
+/* proof wall preview */
+.proof-preview{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:44px}
+.proof-card{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:20px;transition:.2s;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.proof-card:hover{border-color:var(--accent);box-shadow:0 4px 16px rgba(0,0,0,.08)}
+.proof-field{font-family:var(--fm);font-size:11px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:600}
+.proof-title{font-size:14px;font-weight:500;margin-bottom:6px;color:var(--text);line-height:1.5}
+.proof-score{font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600}
+
+footer{background:var(--text);border-top:none;padding:48px 0 24px}
+.foot-grid{display:grid;grid-template-columns:2fr 1fr 1fr;gap:36px;margin-bottom:24px}
+.foot-logo{font-family:var(--fs);font-size:18px;color:#fff;display:block;margin-bottom:6px}
+.foot-logo em{color:var(--accent);font-style:normal}
+.foot-desc{font-size:13px;color:rgba(255,255,255,.5);line-height:1.8;max-width:220px}
+.foot-col h4{font-size:11px;font-weight:700;color:rgba(255,255,255,.4);margin-bottom:12px;letter-spacing:1.5px;text-transform:uppercase}
+.foot-col ul{list-style:none;display:flex;flex-direction:column;gap:5px}
+.foot-col a{font-size:14px;color:rgba(255,255,255,.7);text-decoration:none;transition:.2s}
+.foot-col a:hover{color:#fff}
+.foot-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:18px;display:flex;justify-content:space-between}
+.foot-bottom p{font-size:13px;color:rgba(255,255,255,.4)}
+
+/* ══ APP SHELL ════════════════════════════════════════════════════════ */
+#app{position:fixed;inset:0;background:#f8f7f4;z-index:500;display:none;flex-direction:row}
+#app.open{display:flex}
+#app.auth-mode .sb,#app.auth-mode .app-top{display:none!important}
+#app.auth-mode .app-body{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sb{width:var(--sb);min-width:var(--sb);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;height:100vh;position:relative;flex-shrink:0}
+.sb-top{padding:10px 8px 6px;display:flex;flex-direction:column;align-items:center;gap:2px}
+.sb-logo{font-family:var(--fs);font-size:15px;color:var(--text);padding:6px 0;text-align:center;cursor:default}
+.sb-logo em{color:var(--accent);font-style:normal}
+.sb-icon{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:var(--r8);cursor:pointer;transition:.15s;color:var(--text3);position:relative}
+.sb-icon:hover{background:var(--bg3);color:var(--text)}
+.sb-icon.on{background:var(--accent);color:#fff}
+.sb-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.sb-tip{position:absolute;left:calc(100% + 8px);top:50%;transform:translateY(-50%);background:var(--text);border:1px solid var(--border2);color:#fff;font-size:11px;padding:4px 9px;border-radius:var(--r6);white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .15s;z-index:999;font-family:var(--fb)}
+.sb-icon:hover .sb-tip{opacity:1}
+.sb-divider{width:24px;height:1px;background:var(--border);margin:4px auto}
+.sb-bottom-area{padding:8px;border-top:1px solid var(--border);margin-top:auto}
+.sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#2a3040,#1a2820);border:1.5px solid var(--border2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text);font-family:var(--fb);transition:.15s;margin:0 auto}
+.sb-avatar:hover{border-color:var(--text3)}
+
+/* usage bar in sidebar */
+.sb-usage{padding:6px 8px;margin-bottom:4px}
+.sb-usage-bar-bg{height:3px;background:var(--border);border-radius:100px;overflow:hidden}
+.sb-usage-bar-fill{height:100%;background:var(--accent);border-radius:100px;transition:width .3s}
+.sb-usage-label{font-size:10px;color:var(--text2);font-family:var(--fm);text-align:center;margin-top:3px}
+
+/* ── USER MENU ───────────────────────────── */
+.user-menu{position:fixed;bottom:60px;left:8px;width:272px;background:#fff;border:1px solid var(--border);border-radius:var(--r12);z-index:900;display:none;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.user-menu.show{display:block}
+.um-head{padding:14px 16px 12px;border-bottom:1px solid var(--border)}
+.um-email{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:1px}
+.um-name{font-size:13px;font-weight:500;color:var(--text)}
+.um-plan-pill{display:inline-block;margin-top:4px;background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);color:var(--accent2);font-size:9px;font-family:var(--fm);padding:2px 8px;border-radius:100px;letter-spacing:.5px;text-transform:uppercase}
+.um-sec{padding:4px}
+.um-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r6);cursor:pointer;transition:.15s;color:var(--text);font-size:14px}
+.um-item:hover{background:var(--bg2);color:var(--accent)}
+.um-item svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0;color:var(--text3)}
+.um-item:hover svg{color:var(--text2)}
+.um-hint{margin-left:auto;font-size:11px;color:var(--text3);font-family:var(--fm)}
+.um-sep{height:1px;background:var(--border);margin:4px 0}
+.um-item.danger:hover{background:rgba(220,60,60,.08);color:#ff6b6b}
+.um-item.danger:hover svg{color:#ff6b6b}
+
+/* ── MAIN ───────────────────────────────── */
+.app-main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.app-top{height:48px;padding:0 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:#fff;flex-shrink:0;position:relative}
+.app-top-title{font-size:13px;color:var(--text2)}
+.top-badges{display:flex;gap:6px}
+.tbadge{padding:4px 12px;border-radius:100px;font-size:11px;border:1px solid;font-family:var(--fm)}
+.tb-streak{color:#f97316;border-color:rgba(249,115,22,.25)}
+.tb-pts{color:var(--accent);border-color:rgba(232,96,44,.25)}
+.tb-day{color:var(--blue);border-color:rgba(74,158,255,.25)}
+.tb-sessions{color:var(--green);border-color:rgba(34,197,94,.25)}
+.tb-sessions.warn{color:var(--gold);border-color:rgba(245,158,11,.25)}
+.tb-sessions.danger{color:#ef4444;border-color:rgba(239,68,68,.25)}
+
+/* plan badge center */
+.plan-top-badge{position:absolute;left:50%;transform:translateX(-50%);display:flex;background:rgba(255,255,255,.05);border:1px solid var(--border2);border-radius:100px;font-size:11px;overflow:hidden}
+.plan-top-badge span{padding:4px 12px;color:var(--text2)}
+.plan-top-badge button{padding:4px 12px;color:var(--text);background:rgba(255,255,255,.08);cursor:pointer;border:none;font-size:11px;font-family:var(--fb);transition:.15s}
+.plan-top-badge button:hover{background:rgba(255,255,255,.14)}
+
+.app-body{flex:1;overflow-y:auto;padding:0;scrollbar-width:thin;scrollbar-color:var(--border) transparent;position:relative}
+.screen{display:none;height:100%}
+.screen.on{display:flex;flex-direction:column}
+
+/* ── AUTH ────────────────────────────────── */
+.auth-wrap{width:100%;max-width:360px}
+.auth-back{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);cursor:pointer;margin-bottom:18px;transition:.2s}
+.auth-back:hover{color:var(--text)}
+.auth-logo{font-family:var(--fs);font-size:20px;margin-bottom:3px}
+.auth-logo em{color:var(--accent);font-style:normal}
+.auth-tagline{font-size:12px;color:var(--text3);margin-bottom:22px;line-height:1.6}
+.inp{width:100%;background:#fff;border:1px solid var(--border2);border-radius:var(--r8);padding:12px 14px;color:var(--text);font-size:14px;margin-bottom:10px;transition:.2s;font-family:var(--fb)}
+.inp:focus{outline:none;border-color:var(--accent);background:#fff;box-shadow:0 0 0 3px rgba(232,96,44,.08)}
+.inp::placeholder{color:var(--text3)}
+.auth-btn{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:13px;font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:4px}
+.auth-btn:hover{background:var(--accent2)}
+.auth-btn:disabled{opacity:.4;cursor:not-allowed}
+.auth-google{width:100%;background:none;border:1px solid var(--border2);color:var(--text2);border-radius:var(--r8);padding:11px;font-size:13px;font-family:var(--fb);cursor:pointer;transition:.2s;display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:14px}
+.auth-google:hover{border-color:var(--border3);color:var(--text);background:rgba(255,255,255,.04)}
+.auth-google svg{width:16px;height:16px;flex-shrink:0}
+.auth-divider{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.auth-divider span{font-size:11px;color:var(--text3)}
+.auth-err{color:#ff6b6b;font-size:11px;margin-top:5px;min-height:14px}
+.auth-sw{color:var(--text3);font-size:11px;margin-top:10px;text-align:center}
+.auth-sw span.lnk{color:var(--text2);cursor:pointer;text-decoration:underline}
+
+/* ── THREAT POPUP ────────────────────────── */
+.threat-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:800;display:none;align-items:center;justify-content:center;padding:24px}
+.threat-overlay.show{display:flex}
+.threat-modal{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:36px;max-width:460px;width:100%;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.15)}
+.threat-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),transparent);border-radius:var(--r16) var(--r16) 0 0}
+.threat-field-badge{font-family:var(--fm);font-size:9px;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px;display:block}
+.threat-risk-big{font-family:var(--fs);font-size:56px;color:var(--accent);line-height:1;margin-bottom:8px}
+.threat-headline{font-size:16px;color:var(--text);font-weight:600;margin-bottom:14px;line-height:1.5}
+.threat-body{font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:18px}
+.threat-stat-box{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px 13px;font-size:11px;color:var(--accent2);line-height:1.6;margin-bottom:18px}
+.threat-cta{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
+.threat-cta:hover{background:#ddd}
+.threat-skip{display:block;text-align:center;font-size:11px;color:var(--text3);margin-top:10px;cursor:pointer;transition:.2s}
+.threat-skip:hover{color:var(--text2)}
+
+/* ── ONBOARD ─────────────────────────────── */
+.ob-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px}
+.ob-wrap{width:100%;max-width:520px}
+.ob-progress{display:flex;gap:3px;margin-bottom:24px}
+.ob-dot{flex:1;height:2px;border-radius:100px;background:var(--border);transition:.3s}
+.ob-dot.done{background:var(--text2)}
+.ob-dot.cur{background:var(--accent)}
+.ob-q{font-family:var(--fs);font-size:clamp(20px,2.8vw,28px);color:var(--text);margin-bottom:5px;font-weight:400;letter-spacing:-.3px;line-height:1.2}
+.ob-hint{font-size:12px;color:var(--text3);margin-bottom:18px;line-height:1.5}
+.ob-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:13px}
+.ob-chip{padding:8px 16px;border:1px solid var(--border2);border-radius:100px;font-size:12px;cursor:pointer;transition:.15s;color:var(--text2);background:none;font-family:var(--fb)}
+.ob-chip:hover{border-color:var(--border3);color:var(--text)}
+.ob-chip.on{border-color:var(--text);background:rgba(255,255,255,.06);color:var(--text)}
+.ob-other-link{font-size:11px;color:var(--text3);cursor:pointer;text-decoration:underline;margin-bottom:6px;display:inline-block}
+.ob-other-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:10px 12px;color:var(--text);font-size:13px;font-family:var(--fb);margin-bottom:9px;display:none}
+.ob-other-inp.show{display:block}
+.ob-other-inp:focus{outline:none;border-color:var(--border3)}
+.ob-next{background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:11px 26px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-top:5px}
+.ob-next:hover{background:#ddd}
+.ob-next:disabled{opacity:.3;cursor:not-allowed}
+
+/* ── DAILY DISPATCH ──────────────────────── */
+.dispatch-banner{background:#fff7f4;border-bottom:1px solid rgba(232,96,44,.2);padding:10px 20px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.dispatch-tag{font-family:var(--fm);font-size:9px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;flex-shrink:0}
+.dispatch-text{font-size:13px;color:var(--text2);line-height:1.55;flex:1}
+.dispatch-close{color:var(--text3);cursor:pointer;font-size:14px;flex-shrink:0;transition:.2s;background:none;border:none}
+.dispatch-close:hover{color:var(--text)}
+
+/* ── CHAT SCREEN ─────────────────────────── */
+.chat-screen{flex:1;display:flex;flex-direction:column;min-height:0}
+.chat-header{padding:14px 20px;border-bottom:1px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:space-between;background:#fff}
+.chat-day-info{display:flex;align-items:center;gap:8px}
+.chat-day-pill{font-family:var(--fm);font-size:11px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:100px;padding:4px 12px;letter-spacing:1px;text-transform:uppercase}
+.chat-day-title{font-size:13px;font-weight:500;color:var(--text)}
+.chat-tool-badge{font-family:var(--fm);font-size:12px;color:var(--blue);background:rgba(74,158,255,.06);border:1px solid rgba(74,158,255,.15);border-radius:100px;padding:4px 12px}
+.chat-messages{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--border) transparent;display:flex;flex-direction:column;gap:14px;background:#f8f7f4}
+.chat-msg{max-width:78%;line-height:1.8;font-size:15px}
+.chat-msg.ai{align-self:flex-start}
+.chat-msg.user{align-self:flex-end}
+.chat-msg-inner{padding:10px 14px;border-radius:12px;word-break:break-word}
+.chat-msg.ai .chat-msg-inner{background:#fff;border:1px solid var(--border);border-radius:12px 12px 12px 2px;color:var(--text);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.chat-msg.user .chat-msg-inner{background:var(--accent);border:1px solid var(--accent);border-radius:12px 12px 2px 12px;color:#fff}
+.chat-msg-time{font-size:11px;color:var(--text3);margin-top:4px;font-family:var(--fm)}
+.chat-msg.user .chat-msg-time{text-align:right}
+.typing-dot{display:inline-block;width:6px;height:6px;background:var(--accent);border-radius:50%;animation:typing .8s infinite;margin:0 1px}
+.typing-dot:nth-child(2){animation-delay:.15s}
+.typing-dot:nth-child(3){animation-delay:.3s}
+@keyframes typing{0%,80%,100%{transform:scale(.8);opacity:.5}40%{transform:scale(1);opacity:1}}
+
+/* task submit panel */
+.task-submit{padding:12px 16px;background:var(--bg2);border-top:1px solid var(--border);flex-shrink:0}
+.task-submit-header{font-size:11px;color:var(--text3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.task-submit-inputs{display:flex;flex-direction:column;gap:6px;margin-bottom:8px}
+.task-inp{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--fb)}
+.task-inp:focus{outline:none;border-color:var(--border3)}
+.task-inp::placeholder{color:var(--text3)}
+.task-or{font-size:10px;color:var(--text3);text-align:center}
+.task-ta{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r8);padding:9px 12px;color:var(--text);font-size:12px;font-family:var(--fb);height:70px;resize:none}
+.task-ta:focus{outline:none;border-color:var(--border3)}
+.task-btn{background:var(--green);color:#fff;border:none;border-radius:var(--r8);padding:10px 22px;font-size:12px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
+.task-btn:hover{filter:brightness(1.1)}
+.task-btn:disabled{opacity:.4;cursor:not-allowed}
+
+/* chat input */
+.chat-input-area{padding:14px 20px;border-top:1px solid var(--border);flex-shrink:0;background:#fff}
+.chat-input-wrap{background:#f8f7f4;border:1px solid var(--border2);border-radius:var(--r12);display:flex;align-items:flex-end;gap:8px;padding:10px 14px;transition:.2s}
+.chat-input-wrap:focus-within{border-color:var(--border3)}
+.chat-input{flex:1;background:none;border:none;color:var(--text);font-size:14px;font-family:var(--fb);outline:none;resize:none;max-height:120px;line-height:1.6}
+.chat-input::placeholder{color:var(--text3)}
+.chat-send{width:36px;height:36px;background:var(--accent);border:none;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:.2s}
+.chat-send:hover{background:var(--accent2)}
+.chat-send:disabled{opacity:.35;cursor:not-allowed}
+.chat-send svg{width:14px;height:14px;fill:#fff}
+
+.chat-attach-btn{width:28px;height:28px;background:none;border:none;cursor:pointer;color:var(--text3);display:flex;align-items:center;justify-content:center;border-radius:var(--r6);transition:.15s;flex-shrink:0}
+.chat-attach-btn:hover{background:rgba(255,255,255,.07);color:var(--text2)}
+
+
+/* limit banner */
+/* ── LIMIT OVERLAY (Claude-style) ────────── */
+.limit-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:700;display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(4px)}
+.limit-overlay.show{display:flex}
+.limit-modal{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:32px 28px;max-width:340px;width:100%;text-align:center;position:relative;box-shadow:0 16px 48px rgba(0,0,0,.15)}
+.limit-modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,#ef4444,transparent);border-radius:var(--r16) var(--r16) 0 0}
+.limit-modal-icon{font-size:32px;margin-bottom:12px;display:block}
+.limit-modal h3{font-size:16px;font-weight:500;color:var(--text);margin-bottom:6px}
+.limit-modal p{font-size:12px;color:var(--text3);line-height:1.7;margin-bottom:16px}
+.limit-timer-big{font-family:var(--fm);font-size:28px;color:#ef4444;margin-bottom:6px;letter-spacing:2px}
+.limit-timer-label{font-size:10px;color:var(--text3);font-family:var(--fm);letter-spacing:1px;text-transform:uppercase;margin-bottom:18px}
+.limit-progress{height:3px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:18px}
+.limit-progress-fill{height:100%;border-radius:100px;transition:width .5s}
+.limit-modal-upgrade{width:100%;background:var(--accent);color:#fff;border:none;border-radius:var(--r8);padding:12px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;margin-bottom:8px}
+.limit-modal-upgrade:hover{background:var(--accent2)}
+.limit-modal-later{font-size:11px;color:var(--text3);cursor:pointer;transition:.2s;background:none;border:none;width:100%;padding:6px;font-family:var(--fb)}
+.limit-modal-later:hover{color:var(--text2)}
+.promo-overlay{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:950;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.promo-overlay.show{display:flex}
+.promo-modal{width:min(92vw,620px);background:#fff;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 28px 70px rgba(0,0,0,.35);border:1px solid #f0d9d1}
+.promo-close{position:absolute;top:10px;right:10px;width:32px;height:32px;border:none;border-radius:50%;background:#fff;color:#333;cursor:pointer;font-size:18px;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+.promo-img{width:100%;display:block;max-height:72vh;object-fit:cover}
+.promo-cta{display:block;text-align:center;padding:12px 16px;background:#111;color:#fff;text-decoration:none;font-size:13px}
+.email-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:940;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(2px)}
+.email-overlay.show{display:flex}
+.email-modal{width:min(92vw,420px);background:#fff;border:1px solid var(--border);border-radius:18px;padding:24px;position:relative;box-shadow:0 22px 60px rgba(0,0,0,.22)}
+.email-modal h3{font-family:var(--fs);font-size:28px;font-weight:400;letter-spacing:-.4px;margin-bottom:8px;color:var(--text)}
+.email-modal p{font-size:13px;color:var(--text2);line-height:1.7;margin-bottom:16px}
+.email-row{display:flex;gap:8px}.email-row input{flex:1;border:1px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px}.email-row button{border:none;background:var(--accent);color:#fff;border-radius:10px;padding:0 14px;font-weight:600;cursor:pointer}
+.email-close{position:absolute;top:10px;right:12px;border:none;background:none;font-size:20px;cursor:pointer;color:var(--text3)}
+/* ── SHARE CARD ──────────────────────────── */
+.share-card{background:#fff;border:1px solid rgba(232,96,44,.3);border-radius:var(--r12);padding:18px;margin:10px 0;animation:slideUp .3s ease;box-shadow:0 2px 12px rgba(232,96,44,.1)}
+@keyframes slideUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.share-card-header{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.share-card-score{font-family:var(--fm);font-size:10px;color:var(--accent);background:rgba(232,96,44,.1);border:1px solid rgba(232,96,44,.2);border-radius:100px;padding:2px 9px}
+.share-card-title{font-size:12px;font-weight:500;color:var(--text)}
+.share-card-post{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:14px;font-size:13px;color:var(--text);line-height:1.8;margin-bottom:12px;white-space:pre-wrap;font-family:var(--fb)}
+.share-card-btns{display:flex;gap:7px}
+.share-btn{flex:1;padding:10px;border-radius:var(--r8);font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s;border:1px solid var(--border2);background:none;color:var(--text2);display:flex;align-items:center;justify-content:center;gap:5px}
+.share-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.share-btn.linkedin{border-color:rgba(10,102,194,.4);color:#0a66c2}
+.share-btn.linkedin:hover{background:rgba(10,102,194,.08)}
+.share-btn.twitter{border-color:rgba(255,255,255,.2);color:var(--text2)}
+.share-btn.twitter:hover{background:rgba(255,255,255,.06)}
+.share-btn.copy{color:var(--green);border-color:rgba(34,197,94,.3)}
+.share-btn.copy:hover{background:rgba(34,197,94,.06)}
+/* ── GRADE BUBBLE ────────────────────────── */
+.grade-bubble{display:inline-flex;align-items:center;gap:5px;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.2);border-radius:100px;padding:4px 12px;font-size:12px;font-family:var(--fm);color:#4ade80;margin-top:8px}
+.grade-bubble.low{background:rgba(249,115,22,.08);border-color:rgba(249,115,22,.2);color:#fb923c}
+
+/* ── HOME / LOBBY ─────────────────────────── */
+.lobby-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#f8f7f4}
+.lobby-tagline{font-family:var(--fs);font-size:clamp(24px,3vw,38px);color:var(--text);margin-bottom:28px;text-align:center;font-weight:400;letter-spacing:-.3px;line-height:1.2}
+.lobby-tagline em{font-style:italic;color:var(--accent)}
+.lobby-input-box{width:100%;max-width:580px;background:#fff;border:1px solid var(--border);border-radius:var(--r16);overflow:hidden;margin-bottom:18px;transition:.2s;box-shadow:0 2px 16px rgba(0,0,0,.08)}
+.lobby-input-box:focus-within{border-color:var(--accent);box-shadow:0 2px 20px rgba(232,96,44,.12)}
+.lobby-textarea{width:100%;background:none;border:none;padding:14px 16px 6px;color:var(--text);font-size:15px;font-family:var(--fb);resize:none;outline:none;line-height:1.6}
+.lobby-textarea::placeholder{color:var(--text3)}
+.lobby-input-foot{display:flex;align-items:center;justify-content:space-between;padding:6px 10px 10px}
+.lobby-input-meta{font-size:13px;color:var(--text2)}
+.lobby-send-btn{width:32px;height:32px;background:var(--accent);border:none;border-radius:var(--r8);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s}
+.lobby-send-btn:hover{background:var(--accent2)}
+.lobby-send-btn svg{width:13px;height:13px;fill:#fff}
+.lobby-suggestions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;max-width:580px}
+.lobby-chip{padding:8px 16px;border:1px solid var(--border);border-radius:100px;font-size:13px;color:var(--text2);cursor:pointer;transition:.2s;display:flex;align-items:center;gap:6px;white-space:nowrap;background:#fff;font-family:var(--fb);box-shadow:0 1px 4px rgba(0,0,0,.06)}
+.lobby-chip:hover{border-color:var(--accent);color:var(--accent);background:#fff}
+.lobby-chip svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+
+/* ── SCORE CARD ──────────────────────────── */
+.score-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;background:#f8f7f4}
+.score-card{background:#fff;border:1px solid var(--border);border-radius:var(--r16);padding:32px;width:100%;max-width:440px;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.score-ring{width:100px;height:100px;border-radius:50%;border:1.5px solid var(--border2);margin:0 auto 16px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-n{font-family:var(--fs);font-size:44px;color:var(--text);line-height:1}
+.score-d{color:var(--text3);font-size:11px}
+.score-fb{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r8);padding:14px;text-align:left;font-size:13px;color:var(--text);line-height:1.75;margin-bottom:10px}
+.score-good{background:rgba(34,197,94,.04);border:1px solid rgba(34,197,94,.15);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:#4ade80;margin-bottom:6px;text-align:left}
+.score-improve{background:rgba(249,115,22,.04);border:1px solid rgba(249,115,22,.15);border-radius:var(--r8);padding:9px 12px;font-size:11px;color:#fb923c;margin-bottom:10px;text-align:left}
+.score-pts{font-size:14px;font-weight:500;color:var(--text);margin-bottom:4px}
+.score-mot{font-size:11px;color:var(--text3);font-style:italic;margin-bottom:16px}
+.score-next{width:100%;background:var(--text);color:var(--bg);border:none;border-radius:var(--r8);padding:11px;font-size:13px;font-weight:500;font-family:var(--fb);cursor:pointer;transition:.2s}
+.score-next:hover{background:#ddd}
+.proof-wall-note{background:rgba(232,96,44,.06);border:1px solid rgba(232,96,44,.15);border-radius:var(--r8);padding:10px;font-size:11px;color:var(--accent2);margin-bottom:10px;text-align:left}
+
+/* ── LEADERBOARD ─────────────────────────── */
+.lb-wrap{flex:1;padding:24px;overflow-y:auto;max-width:480px;margin:0 auto;width:100%;background:#f8f7f4}
+.lb-row{display:flex;align-items:center;background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:12px 16px;margin-bottom:8px;transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.lb-row:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.08)}
+.lb-rank{font-family:var(--fm);font-size:13px;width:26px;color:var(--text3)}
+.lb-rank.top{color:var(--accent)}
+.lb-info{flex:1;min-width:0}
+.lb-name{font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lb-sub{font-size:12px;color:var(--text2);margin-top:2px}
+.lb-pts{font-family:var(--fm);font-size:14px;color:var(--text)}
+
+/* ── PLAN UPGRADE SCREEN ─────────────────── */
+.upgrade-center{flex:1;display:flex;flex-direction:column;align-items:center;padding:32px 20px;overflow-y:auto;background:#f8f7f4}
+.upgrade-wrap{width:100%;max-width:580px}
+.upgrade-wrap .stitle{font-size:clamp(22px,3vw,32px)}
+.in-app-plans{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:20px}
+.in-app-plan{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:22px;transition:.2s;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.in-app-plan.featured{border-color:var(--accent);box-shadow:0 4px 20px rgba(232,96,44,.12)}
+.in-app-plan-name{font-family:var(--fm);font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.in-app-plan-price{font-family:var(--fs);font-size:40px;color:var(--text);line-height:1;letter-spacing:-1px;margin-bottom:3px;font-weight:700}
+.in-app-plan-period{font-size:13px;color:var(--text3);margin-bottom:14px}
+.in-app-plan-features{font-size:13px;color:var(--text2);line-height:2;border-top:1px solid var(--border);padding-top:12px;margin-bottom:16px}
+.in-app-plan-btn{width:100%;padding:12px;border-radius:var(--r8);font-size:14px;font-weight:600;font-family:var(--fb);cursor:pointer;transition:.2s;border:1.5px solid var(--border);background:none;color:var(--text)}
+.in-app-plan-btn:hover{background:rgba(255,255,255,.06);color:var(--text)}
+.in-app-plan-btn.primary{background:var(--accent);color:#fff;border:none}
+.in-app-plan-btn.primary:hover{background:var(--accent2)}
+
+/* ── PROOF WALL SCREEN ───────────────────── */
+.proof-wrap{flex:1;padding:28px;overflow-y:auto;max-width:580px;margin:0 auto;width:100%;background:#f8f7f4}
+.proof-pg-title{font-family:var(--fs);font-size:24px;font-weight:400;color:var(--text);margin-bottom:3px;letter-spacing:-.3px}
+.proof-pg-sub{font-size:12px;color:var(--text3);margin-bottom:16px}
+.proof-empty{text-align:center;padding:40px 24px}
+.proof-empty p{font-size:13px;color:var(--text3);margin-top:8px;line-height:1.7}
+.proof-item{background:#fff;border:1px solid var(--border);border-radius:var(--r12);padding:18px;margin-bottom:10px;display:flex;align-items:flex-start;gap:12px;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.proof-item:hover{border-color:var(--accent)}
+.proof-item-day{font-family:var(--fm);font-size:11px;color:var(--accent2);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px;font-weight:600}
+.proof-item-title{font-size:14px;font-weight:500;margin-bottom:5px;line-height:1.5}
+.proof-item-score{font-family:var(--fm);font-size:12px;color:var(--accent);font-weight:600}
+.proof-item-link{font-size:11px;color:var(--blue);text-decoration:none;transition:.2s;display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.proof-item-link:hover{color:var(--text)}
+
+/* spinner */
+.spin-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:44px;flex:1}
+.spinner{width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin-wrap p{color:var(--text3);font-size:12px;margin-top:10px;text-align:center}
+
+/* toast */
+.toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:var(--text);border:none;color:#fff;padding:10px 22px;border-radius:100px;font-size:14px;z-index:9999;transition:opacity .3s;white-space:nowrap;pointer-events:none;box-shadow:0 4px 16px rgba(0,0,0,.2)}
+
+/* responsive */
+@media(max-width:768px){
+  .wrap{padding:0 16px}
+  .hero-grid,.stats-grid,.threat-grid,.steps-grid,.plans-grid,.proof-preview,[style*='grid-template-columns:1fr 1fr']{grid-template-columns:1fr!important}
+  .hero-visual{display:none}
+  .foot-grid{grid-template-columns:1fr;gap:18px}
+  .foot-bottom{flex-direction:column;gap:4px}
+  .sb{width:0;min-width:0;border:none}
+  .plan-top-badge{display:none}
+}
+/* FAQ details */
+details summary::-webkit-details-marker{display:none}
+details[open]>summary>span{transform:rotate(45deg)}
+details summary>span{display:inline-block;transition:transform .2s}
+/* Journey section mobile */
+@media(max-width:600px){
+  [style*="grid-template-columns:52px"]{grid-template-columns:1fr!important}
+  [style*="grid-template-columns:1fr 1fr"]{grid-template-columns:1fr!important}
+}
+</style>
+</head>
+<body>
+<canvas id="bg"></canvas>
+
+<!-- ════════ THREAT POPUP ════════ -->
+<div class="threat-overlay" id="threat-overlay">
+  <div class="threat-modal">
+    <span class="threat-field-badge" id="tp-field">Loading...</span>
+    <div class="threat-risk-big" id="tp-risk">—%</div>
+    <div class="threat-headline" id="tp-headline"></div>
+    <div class="threat-body" id="tp-body"></div>
+    <div class="threat-stat-box" id="tp-stat"></div>
+    <button class="threat-cta" onclick="closeThreat()">I want to be in the other % — Start Day 1 →</button>
+    <span class="threat-skip" onclick="closeThreat()">Skip for now</span>
   </div>
 </div>
 
-<!-- ════════ FEEDBACK MODAL ════════ -->
-<div class="feedback-overlay" id="feedback-overlay">
-  <div class="feedback-modal">
-    <h3>Tell Shubh directly.</h3>
-    <p>Bug, complaint, feature idea, or just feedback — all of it reaches Shubh personally.</p>
-    <div class="feedback-type-row">
-      <button class="feedback-type-btn on" id="ft-bug" onclick="pickFeedbackType('bug',this)">🐛 Bug</button>
-      <button class="feedback-type-btn" id="ft-feature" onclick="pickFeedbackType('feature',this)">💡 Feature</button>
-      <button class="feedback-type-btn" id="ft-other" onclick="pickFeedbackType('other',this)">💬 Other</button>
+<div class="promo-overlay" id="promo-overlay">
+  <div class="promo-modal" style="background:#fff;border-radius:18px;overflow:hidden;max-width:420px;width:92vw;position:relative;box-shadow:0 24px 60px rgba(0,0,0,.22);border:1px solid var(--border)">
+    <button class="promo-close" onclick="closePromoPopup()" aria-label="Close" style="position:absolute;top:12px;right:14px;border:none;background:rgba(0,0,0,.06);border-radius:50%;width:28px;height:28px;font-size:16px;cursor:pointer;color:var(--text2);display:flex;align-items:center;justify-content:center;z-index:2">×</button>
+    <!-- Branded edtech promo — no stock photos -->
+    <div style="background:linear-gradient(135deg,#1a1714 0%,#2d2420 100%);padding:32px 28px 24px;position:relative;overflow:hidden">
+      <div style="position:absolute;top:-20px;right:-20px;width:120px;height:120px;background:rgba(232,96,44,.12);border-radius:50%"></div>
+      <div style="position:absolute;bottom:-30px;left:-10px;width:80px;height:80px;background:rgba(232,96,44,.08);border-radius:50%"></div>
+      <div style="font-family:var(--fm);font-size:10px;color:rgba(232,96,44,.9);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;position:relative">Limited beta offer</div>
+      <div style="font-family:var(--fs);font-size:28px;color:#fff;line-height:1.1;margin-bottom:8px;position:relative">Get Pro for<br/><span style="color:var(--accent)">₹299</span> <span style="font-size:18px;text-decoration:line-through;color:rgba(255,255,255,.3)">₹499</span></div>
+      <div style="font-size:13px;color:rgba(255,255,255,.6);line-height:1.6;position:relative">First month, for early learners who commit to all 7 days.</div>
     </div>
-    <textarea class="feedback-ta" id="feedback-text" placeholder="Describe the issue or idea..."></textarea>
-    <button class="feedback-send-btn" onclick="submitFeedback()">Send to Shubh →</button>
-    <button class="feedback-cancel" onclick="closeFeedback()">Cancel</button>
+    <div style="padding:20px 28px">
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> Unlimited daily coaching sessions</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> All 4 tracks — switch anytime</div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2)"><span style="color:var(--green);font-size:15px">✓</span> Public Proof Wall + LinkedIn badge</div>
+      </div>
+      <button onclick="closePromoPopup();navTo('sc-upgrade');" style="width:100%;background:var(--accent);color:#fff;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--fb);transition:.2s" onmouseover="this.style.background='var(--accent2)'" onmouseout="this.style.background='var(--accent)'">Claim ₹299 offer →</button>
+      <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:10px;cursor:pointer" onclick="closePromoPopup()">No thanks, I'll pay full price later</div>
+    </div>
   </div>
 </div>
-"""
-    content = content.replace(
-        '<!-- ════════ THREAT POPUP ════════ -->',
-        milestone_html + '\n<!-- ════════ THREAT POPUP ════════ -->'
-    )
 
-    # Add feedback icon to sidebar (after upgrade icon)
-    feedback_sb_icon = """      <div class="sb-icon" id="nav-feedback" onclick="openFeedback()">
-        <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
-        <div class="sb-tip">Feedback</div>
-      </div>"""
+<div class="email-overlay" id="email-overlay">
+  <div style="background:#fff;border:1px solid var(--border);border-radius:20px;padding:0;max-width:420px;width:92vw;position:relative;box-shadow:0 24px 64px rgba(0,0,0,.18);overflow:hidden">
+    <button onclick="closeEmailPopup()" style="position:absolute;top:14px;right:14px;border:none;background:var(--bg3);border-radius:50%;width:28px;height:28px;font-size:15px;cursor:pointer;color:var(--text2);z-index:2">×</button>
+    <div style="background:linear-gradient(135deg,#fff7f4 0%,#fff 100%);padding:28px 28px 20px;border-bottom:1px solid var(--border)">
+      <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:10px">Early access</div>
+      <div style="font-family:var(--fs);font-size:26px;font-weight:400;letter-spacing:-.5px;color:var(--text);line-height:1.15;margin-bottom:8px">New AI tracks drop<br/>every month.</div>
+      <div style="font-size:13px;color:var(--text2);line-height:1.75">Sales, Design, Finance, HR — new 7-day sprints coming. Be first to know + get early access pricing.</div>
+    </div>
+    <div style="padding:20px 28px">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="landing-email" type="email" placeholder="your@email.com" style="flex:1;border:1.5px solid var(--border2);border-radius:10px;padding:11px 13px;font-size:14px;font-family:var(--fb);outline:none;transition:.2s;background:#fff"/>
+        <button onclick="submitLandingEmail()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:11px 18px;font-size:14px;font-weight:600;cursor:pointer;font-family:var(--fb);white-space:nowrap">Notify me</button>
+      </div>
+      <div id="landing-email-msg" style="font-size:12px;color:var(--text3);min-height:16px"></div>
+      <div style="font-size:11px;color:var(--text4);margin-top:8px">No spam. Unsubscribe anytime. Built in India 🇮🇳</div>
+    </div>
+  </div>
+</div>
 
-    content = content.replace(
-        '      <div class="sb-icon" id="nav-upgrade" onclick="navTo(\'sc-upgrade\')">',
-        feedback_sb_icon + '\n      <div class="sb-icon" id="nav-upgrade" onclick="navTo(\'sc-upgrade\')">'
-    )
+<!-- ════════ LANDING ════════ -->
+<div id="land">
+<nav id="nav">
+  <div class="nav-i">
+   <a href="#" class="nav-logo"><img src="./logo-mark.svg" alt="Zubhai logo" style="width:30px;height:30px;border-radius:10px;vertical-align:-5px;margin-right:10px"/>Zubh<em>Ai</em></a>
+    <div class="nav-r" style="gap:12px">
+      <a href="#how-it-works" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">How it works</a>
+      <a href="#about" style="font-size:13px;color:var(--text2);text-decoration:none;padding:7px 4px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text2)'">About</a>
+      <button class="btn-ghost" onclick="openApp('login')">Login</button>
+      <button class="btn-pri" onclick="openApp('signup')">Start Free →</button>
+    </div>
+  </div>
+</nav>
+<section class="hero z2" style="background:linear-gradient(135deg,#fffcf9 0%,#fff7f2 100%);min-height:100vh;display:flex;align-items:center;padding-top:70px">
+  <div class="wrap" style="text-align:center">
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 3. REPLACE auth screen HTML with OTP flow
-    # ═══════════════════════════════════════════════════════════════════
-    old_auth_screen = '''      <!-- AUTH -->
+    <div class="kicker reveal" style="margin:0 auto 22px">
+      7-day free trial · No credit card · Starts in 60 seconds
+    </div>
+
+    <h1 class="reveal d1" style="font-family:var(--fs);font-size:clamp(42px,6vw,76px);font-weight:400;line-height:1.02;letter-spacing:-1.5px;margin-bottom:18px;max-width:800px;margin-left:auto;margin-right:auto">
+      You watch AI tutorials.<br/>
+      Nothing <em style="color:var(--accent);font-style:italic">actually changes.</em>
+    </h1>
+
+    <p class="reveal d2" style="font-size:17px;color:var(--text2);line-height:1.9;max-width:560px;margin:0 auto 32px">
+      Zubhai gives you <strong style="color:var(--text)">one real task per day</strong>, built for your exact job — student, developer, marketer, or sales pro. You do it. An AI coach grades it. On Day 7, you publish something you can actually show people.
+    </p>
+
+    <div class="reveal d2" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px">
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">
+        Start Day 1 — Free →
+      </button>
+      <button class="btn-lg g" onclick="document.getElementById('how-it-works').scrollIntoView({behavior:'smooth'})" style="font-size:15px;padding:14px 28px">
+        See exactly how it works ↓
+      </button>
+    </div>
+
+    <div class="reveal d3" style="font-size:12px;color:var(--text3);margin-bottom:44px">
+      Free for 7 days · 5 sessions/day · No card needed · Quit anytime
+    </div>
+
+    <!-- MINI TRUST STRIP -->
+    <div class="reveal d3" style="display:flex;gap:32px;justify-content:center;flex-wrap:wrap;padding-top:28px;border-top:1px solid var(--border);max-width:560px;margin:0 auto">
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">7</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Real tasks</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">4</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Job tracks</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">₹0</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">To start</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">1</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Published proof</div>
+      </div>
+      <div>
+        <div style="font-family:var(--fs);font-size:30px;color:var(--text);letter-spacing:-1px;line-height:1">15</div>
+        <div style="font-size:12px;color:var(--text3);margin-top:3px">Min/day</div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<div class="stats-bar z2">
+  <div class="wrap">
+    <div class="stats-grid">
+      <div class="stat reveal"><div class="stat-n">7</div><div class="stat-l">Days to real AI skills</div></div>
+      <div class="stat reveal d1"><div class="stat-n">₹0</div><div class="stat-l">Free trial — no card</div></div>
+      <div class="stat reveal d2"><div class="stat-n">4</div><div class="stat-l">Professions supported</div></div>
+      <div class="stat reveal d3"><div class="stat-n">5</div><div class="stat-l">Sessions per day (free)</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ HOW IT WORKS ═══ -->
+<section id="how-it-works" class="pad z2" style="background:#fff;padding-top:80px;padding-bottom:80px">
+  <div class="wrap">
+    <span class="stag reveal">How It Works</span>
+    <h2 class="stitle reveal">Here's exactly what happens<br/>after you sign up.</h2>
+    <p class="ssub reveal" style="margin-bottom:52px">No surprises. Every step, spelled out.</p>
+
+    <!-- STEPS + CHAT MOCKUP SIDE BY SIDE -->
+    <div class="reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start">
+
+      <!-- LEFT: STEPS -->
+      <div style="display:flex;flex-direction:column;gap:0">
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">1</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--accent);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Right after signup</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Arjun introduces himself in a chat.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">He asks 7 short questions — your name, role, goal, tools, time available, budget. Conversational, not a form. Takes under 3 minutes.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--text);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">2</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Your profile is built</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">Arjun builds your personalised 7-day plan.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">A developer gets different tasks than a marketer. A beginner gets different tasks than someone with 2 years of AI experience. The same conversation, different plan every time.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0;border-bottom:1px solid var(--border)">
+          <div style="width:40px;height:40px;background:var(--blue);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">3</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--blue);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Day 1 begins</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">You get your task. Exact tool. Exact prompt.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">Arjun tells you what to open, what to type, and what good output looks like. You do it. You paste back what you built. He grades it honestly — 1–10 with specific feedback.</div>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:44px 1fr;gap:20px;padding:24px 0">
+          <div style="width:40px;height:40px;background:var(--green);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0;margin-top:2px">7</div>
+          <div>
+            <div style="font-family:var(--fm);font-size:10px;color:var(--green);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:5px">Day 7 milestone</div>
+            <div style="font-size:16px;font-weight:600;color:var(--text);margin-bottom:6px">You publish something real. LinkedIn. GitHub. Medium.</div>
+            <div style="font-size:13px;color:var(--text2);line-height:1.8">Your Day 7 output goes on your Proof Wall — a shareable link with your published AI work. This is your portfolio, not a certificate.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: ARJUN CHAT MOCKUP -->
+      <div style="background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08)">
+        <!-- chat header -->
+        <div style="background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px;display:flex;align-items:center;gap:10px">
+          <div style="width:32px;height:32px;background:linear-gradient(135deg,var(--accent),#f97316);border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0">A</div>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--text)">Arjun · Your AI Coach</div>
+            <div style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span style="width:6px;height:6px;background:var(--green);border-radius:50%;display:inline-block"></span>Online — Setup Chat</div>
+          </div>
+        </div>
+        <!-- chat messages -->
+        <div style="padding:14px;background:#f8f7f4;display:flex;flex-direction:column;gap:10px;min-height:280px">
+          <!-- Arjun msg -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Hey! Arjun here ⚡ I'm your Zubhai coach. Quick 7 questions and I'll have your Day 1 task ready. First — what should I call you?
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:01 AM</div>
+          </div>
+          <!-- User reply -->
+          <div style="max-width:75%;align-self:flex-end">
+            <div style="background:var(--accent);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6">
+              Vaibhav
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm);text-align:right">9:01 AM</div>
+          </div>
+          <!-- Arjun ack + next q -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Nice to meet you Vaibhav 👋 What do you do for work or study right now? Role + company/college if you can.
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:01 AM</div>
+          </div>
+          <!-- User reply -->
+          <div style="max-width:75%;align-self:flex-end">
+            <div style="background:var(--accent);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6">
+              Backend dev at a startup. 2 yrs exp, mostly Python + FastAPI
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm);text-align:right">9:02 AM</div>
+          </div>
+          <!-- Arjun funny ack -->
+          <div style="max-width:85%;align-self:flex-start">
+            <div style="background:#fff;border:1px solid var(--border);border-radius:10px 10px 10px 2px;padding:10px 13px;font-size:13px;color:var(--text);line-height:1.6;box-shadow:0 1px 3px rgba(0,0,0,.06)">
+              Developer bhai! 💻 I once had a bug so mysterious I started questioning reality. Got it — what do you want to achieve in 7 days?
+            </div>
+            <div style="font-size:10px;color:var(--text3);margin-top:3px;font-family:var(--fm)">9:02 AM</div>
+          </div>
+          <!-- typing indicator -->
+          <div style="max-width:85%;align-self:flex-end">
+            <div style="background:rgba(232,96,44,.08);border:1px solid rgba(232,96,44,.2);border-radius:10px 10px 2px 10px;padding:10px 13px;font-size:12px;color:var(--text2);font-style:italic">
+              Vaibhav is typing...
+            </div>
+          </div>
+        </div>
+        <!-- chat footer label -->
+        <div style="background:#fff;border-top:1px solid var(--border);padding:10px 14px;font-size:11px;color:var(--text3);text-align:center">
+          3 questions left · Your Day 1 task builds as you answer
+        </div>
+      </div>
+
+    </div>
+
+    <div class="reveal" style="text-align:center;margin-top:56px;padding-top:40px;border-top:1px solid var(--border)">
+      <div style="font-size:15px;color:var(--text2);margin-bottom:20px">15–30 minutes a day. Day 1 takes about 20 minutes.</div>
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Day 1 — It's Free →</button>
+      <div style="font-size:12px;color:var(--text3);margin-top:10px">Questions? Email hello@zubhai.com — Shubh replies personally.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TRACK EXPLAINER — Pick your profession ═══ -->
+<section class="pad z2" style="background:#f4f1ec;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">Pick Your Track</span>
+    <h2 class="stitle reveal">Which one are you?</h2>
+    <p class="ssub reveal" style="margin-bottom:44px">Each track has a completely different 7-day program. Same platform — different coaching, tasks, and tools.</p>
+    <div class="threat-grid">
+      <div class="threat-card reveal" style="cursor:pointer" onclick="openApp('signup')"><div style="font-size:24px;margin-bottom:8px">🎓</div><div class="threat-field">Student</div><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Make your work look 5 years ahead of your batch.</div><div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:10px">Research faster, write better, prep for placements, build your LinkedIn presence — using AI the way working professionals actually use it.</div><div class="threat-stat">Day 1: AI Research Partner → Day 7: Published industry article on LinkedIn</div></div>
+      <div class="threat-card reveal d1" style="cursor:pointer" onclick="openApp('signup')"><div style="font-size:24px;margin-bottom:8px">💻</div><div class="threat-field">Developer</div><div style="font-size:15px;font-weight:600;color:var(--text);margin-bottom:8px">Read codebases instantly. Debug in seconds. Ship an AI feature.</div><div style="font-size:13px;color:var(--text2);line-height:1.75;margin-bottom:10px">Go from junior-who-uses-autocomplete to developer-who-orchestrates-AI. The difference is already showing in compensation data.</div><div class="threat-stat">Day 1: Read any codebase in 10 min → Day 7: GitHub showcase + LinkedIn post</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="pad z2" style="background:#fff" id="features">
+  <div class="wrap">
+    <span class="stag reveal">Every Feature Explained</span>
+    <h2 class="stitle reveal">Why each part exists.</h2>
+    <p class="ssub reveal">Nothing is random. Every feature was built to solve a specific problem.</p>
+  </div>
+</section>
+
+<section class="pad z2" style="background:#f4f1ec;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">FAQ</span>
+    <h2 class="stitle reveal">Questions people actually have.</h2>
+
+    <div style="max-width:820px;margin-top:44px">
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">What exactly is a "session"? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px;padding-left:0">One message you send + one reply from Arjun = 1 session. Free trial gives you 5/day. A typical task: Arjun gives task (1), you clarify (2), paste output (3), get graded (4), make one fix (5). That's your full day. Resets midnight IST.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">Do I need to pay for ChatGPT, Claude, or Perplexity? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">No. Free tiers are enough for all Day 1–Day 7 tasks. If you already have paid plans, great — but they are optional, not required.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">What if I miss a day during the 7-day trial? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Your account and progress stay safe. You can continue where you left off, but the free trial is calendar-based from signup date.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">How is ZubhAi different from just chatting with AI directly? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">ZubhAi gives you structure: a role-specific plan, a daily task, grading, and a final publishable proof. It is coaching + accountability, not random prompting.</div>
+      </details>
+
+      <details class="reveal" style="border-bottom:1px solid var(--border);padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">Can I use ZubhAi on mobile? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Yes. The coaching chat and daily tasks work on mobile and desktop. For best speed while creating outputs, desktop is recommended.</div>
+      </details>
+
+      <details class="reveal" style="padding:20px 0">
+        <summary style="font-size:15px;font-weight:500;color:var(--text);cursor:pointer;display:flex;justify-content:space-between;align-items:center;list-style:none">What happens after Day 7? <span style="font-size:20px;color:var(--text3);margin-left:16px;flex-shrink:0;font-weight:300">+</span></summary>
+        <div style="font-size:14px;color:var(--text2);line-height:1.85;margin-top:12px">Your Proof Wall item stays. Upgrade to Pro/Max to continue with unlimited sessions, deeper tracks, and ongoing coaching.</div>
+      </details>
+    </div>
+
+    <div class="reveal" style="margin-top:44px">
+      <button class="btn-lg p" onclick="openApp('signup')" style="font-size:15px;padding:14px 32px">Start Your 7 Days →</button>
+    </div>
+  </div>
+</section>
+
+
+<section class="pad z2" id="reviews" style="background:#fff7f2;padding-top:72px;padding-bottom:72px">
+  <div class="wrap">
+    <span class="stag reveal">Learner Reviews</span>
+    <h2 class="stitle reveal">People don’t need more videos.<br/>They need a push.</h2>
+    <p class="ssub reveal" style="margin-bottom:34px">Short, practical feedback from early Zubhai learners using the daily challenge format.</p>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px">
+      <div class="reveal" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">Day 1 forced me to actually publish research instead of saving another tutorial. The feedback was direct, but useful.</p><strong style="font-size:13px;color:var(--text)">Vaibhav · Developer</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Built a GitHub proof piece</div></div>
+      <div class="reveal d1" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">The marketing tasks felt like a senior teammate reviewing my copy. It asked for real audience, real offer, real metric.</p><strong style="font-size:13px;color:var(--text)">Ananya · Marketer</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Created 30 content ideas</div></div>
+      <div class="reveal d2" style="background:#fff;border:1px solid var(--border);border-radius:16px;padding:20px;box-shadow:0 4px 18px rgba(0,0,0,.05)"><div style="font-size:18px;margin-bottom:10px">“</div><p style="font-size:14px;color:var(--text2);line-height:1.8;margin-bottom:14px">It didn’t let me hide behind vague goals. Arjun kept asking what I wanted, what tools I had, and how much time I could spend.</p><strong style="font-size:13px;color:var(--text)">Rohit · Student</strong><div style="font-size:11px;color:var(--text3);margin-top:3px">Made a public LinkedIn post</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="pad z2" style="background:#f9f9f9">
+  <div class="wrap">
+    <span class="stag reveal" style="color:#888">Pricing</span>
+    <h2 class="stitle reveal" style="color:#000">Start free. No excuses.</h2>
+    <div style="display:flex;gap:24px;margin:24px 0 32px;flex-wrap:wrap">
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">No credit card required</span></div>
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">Cancel anytime</span></div>
+  <div style="display:flex;align-items:center;gap:8px"><span style="color:#16a34a;font-size:18px">✓</span><span style="font-size:14px;color:#444">Results in 7 days or it's free</span></div>
+</div>
+<div class="plans-grid">
+      <div class="plan-card reveal">
+        <div class="plan-name">Free Trial</div>
+        <div class="plan-price">₹0</div>
+        <div class="plan-period">7 days, then locked</div>
+        <div class="plan-desc">Everything you need to feel the difference AI makes. No credit card.</div>
+        <div class="plan-feature">5 coaching sessions per day</div>
+        <div class="plan-feature">All 4 profession tracks</div>
+        <div class="plan-feature">Day 7 Proof Wall</div>
+        <div class="plan-feature">Daily reset at midnight IST</div>
+        <button class="plan-btn primary" onclick="openApp('signup')">Start Free Trial →</button>
+      </div>
+      <div class="plan-card featured reveal d1">
+        <div class="plan-name">Pro</div>
+        <div class="plan-price">₹499</div>
+        <div class="plan-period">per month</div>
+        <div class="plan-desc">Unlimited sessions. Continue past 7 days. Full access to all tracks.</div>
+        <div class="plan-feature">Unlimited daily sessions</div>
+        <div class="plan-feature">All 4 tracks + new tracks monthly</div>
+        <div class="plan-feature">Public Proof Wall with shareable link</div>
+        <div class="plan-feature">LinkedIn AI badge</div>
+        <div class="plan-feature">Priority support</div>
+        <button class="plan-btn primary" onclick="openApp('signup')">Start with Pro →</button>
+      </div>
+      <div class="plan-card reveal d2">
+        <div class="plan-name">Max</div>
+        <div class="plan-price">₹999</div>
+        <div class="plan-period">per month</div>
+        <div class="plan-desc">Everything in Pro plus a weekly 15-min live review call with Shubh.</div>
+        <div class="plan-feature">Everything in Pro</div>
+        <div class="plan-feature">Weekly 15-min 1-on-1 with Shubh</div>
+        <div class="plan-feature">Custom AI workflow for your job</div>
+        <div class="plan-feature">WhatsApp direct access</div>
+        <div class="plan-feature">Capped at 20 users</div>
+        <button class="plan-btn" onclick="openApp('signup')">Join Max →</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<section class="pad z2" id="about" style="background:#f4f1ec">
+  <div class="wrap">
+    <span class="stag reveal">About</span>
+    <h2 class="stitle reveal">Why Zubhai exists.</h2>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:40px">
+      <div class="reveal">
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          I spent 6 months watching AI tutorials. I understood transformers, RAG, prompt engineering, agents. I could explain everything.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Then I sat down to actually use AI for my work — and had no idea what to do.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95;margin-bottom:16px">
+          Nobody teaches you <em style="color:var(--text);font-style:italic">how to start</em>. They teach you what AI can do. Not how to do it with AI, for your specific job, today.
+        </p>
+        <p style="font-size:15px;color:var(--text2);line-height:1.95">
+          Zubhai is the platform I wish existed when I started. You don't watch lectures. You do the actual work, with the actual tools, for your actual job. Day 1, you build something real.
+        </p>
+      </div>
+      <div class="reveal d1">
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r16);padding:28px">
+          <div style="width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e8602c22,#4a9eff22);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--fs);font-size:18px;color:var(--text);margin-bottom:14px">S</div>
+          <div style="font-size:16px;font-weight:500;color:var(--text);margin-bottom:3px">Shubh Agrawal</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:14px">Founder · Zubhai · Maharashtra, India</div>
+          <div style="font-size:13px;color:var(--text2);line-height:1.8;margin-bottom:16px">AI automation developer. Built Zubhai because I kept seeing smart people fail to use AI — not from lack of knowledge, but lack of practice.</div>
+          <div style="display:flex;gap:8px">
+            <a href="https://linkedin.com/in/shubhagrawal429" target="_blank" style="font-size:11px;color:var(--text3);text-decoration:none;border:1px solid var(--border2);border-radius:var(--r6);padding:5px 12px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text3)'">LinkedIn →</a>
+            <a href="mailto:hello@zubhai.com" style="font-size:11px;color:var(--text3);text-decoration:none;border:1px solid var(--border2);border-radius:var(--r6);padding:5px 12px;transition:.2s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--text3)'">Email →</a>
+            <a href="https://zubhai.com" style="font-size:11px;color:var(--accent);text-decoration:none;border:1px solid rgba(232,96,44,.3);border-radius:var(--r6);padding:5px 12px">zubhai.com</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="z2">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div><span class="foot-logo">Zubh<em>Ai</em></span><p class="foot-desc">7-day AI coaching for students, developers, marketers, and sales pros. Real tasks. Real output. Real proof.</p></div>
+      <div class="foot-col"><h4>Product</h4><ul><li><a href="#">How it works</a></li><li><a href="#" onclick="openApp('signup')">Start Free Trial</a></li><li><a href="#" onclick="openApp('login')">Login</a></li></ul></div>
+      <div class="foot-col"><h4>Connect</h4><ul><li><a href="https://linkedin.com/in/shubhagrawal429" target="_blank">LinkedIn</a></li><li><a href="mailto:hello@zubhai.com">Email</a></li></ul></div>
+    </div>
+    <div class="foot-bottom"><p>© 2026 Zubhai · Built in India 🇮🇳</p><p>by Shubh Agrawal</p></div>
+  </div>
+</footer>
+</div>
+
+<!-- ════════ APP ════════ -->
+<div id="app">
+  <div class="sb" id="sb">
+    <div class="sb-top">
+      <div class="sb-logo">⚡</div>
+      <div class="sb-icon on" id="nav-home" onclick="navTo('sc-lobby')">
+        <svg viewBox="0 0 24 24"><path d="M3 9L12 3l9 6v12a1 1 0 01-1 1H4a1 1 0 01-1-1V9z"/></svg>
+        <div class="sb-tip">Home</div>
+      </div>
+      <div class="sb-icon" id="nav-chat" onclick="navTo('sc-chat')">
+        <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div class="sb-tip">Today's Session</div>
+      </div>
+      <div class="sb-icon" id="nav-proof" onclick="navTo('sc-proof');loadProofWall()">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
+        <div class="sb-tip">Proof Wall</div>
+      </div>
+      <div class="sb-icon" id="nav-lb" onclick="navTo('sc-lb');loadLb()">
+        <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
+        <div class="sb-tip">Leaderboard</div>
+      </div>
+      <div class="sb-divider"></div>
+      <div class="sb-icon" id="nav-upgrade" onclick="navTo('sc-upgrade')">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+        <div class="sb-tip">Upgrade Plan</div>
+      </div>
+    </div>
+    <div class="sb-bottom-area">
+      <div class="sb-usage">
+        <div class="sb-usage-bar-bg"><div class="sb-usage-bar-fill" id="sb-usage-fill" style="width:0%"></div></div>
+        <div class="sb-usage-label" id="sb-usage-label">— / 5 sessions</div>
+      </div>
+      <div class="sb-avatar" id="sb-avatar" onclick="toggleUserMenu()">?</div>
+    </div>
+  </div>
+
+  <!-- USER MENU -->
+  <div class="user-menu" id="user-menu">
+    <div class="um-head">
+      <div class="um-email" id="um-email">—</div>
+      <div class="um-name" id="um-name">—</div>
+      <span class="um-plan-pill" id="um-plan">free trial</span>
+    </div>
+    <div class="um-sec">
+      <div class="um-item" onclick="closeMenu();navTo('sc-upgrade')">
+        <svg viewBox="0 0 24 24"><polyline points="17 11 12 6 7 11"/><line x1="12" y1="6" x2="12" y2="18"/></svg>
+        Upgrade plan
+      </div>
+      <div class="um-item" onclick="closeMenu();showThreat()">
+        <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        AI Threat Report
+      </div>
+      <div class="um-item" onclick="closeMenu();showToast('Settings coming soon')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M2 12h3M19 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg>
+        Settings
+        <span class="um-hint">⌘,</span>
+      </div>
+    </div>
+    <div class="um-sep"></div>
+    <div class="um-sec">
+      <div class="um-item" onclick="closeMenu();showToast('Apps coming soon')">
+        <svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Get apps
+      </div>
+      <div class="um-item" onclick="closeMenu();window.open('https://linkedin.com/in/shubhagrawal429','_blank')">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Help & feedback
+      </div>
+    </div>
+    <div class="um-sep"></div>
+    <div class="um-sec">
+      <div class="um-item danger" onclick="logout()">
+        <svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Log out
+      </div>
+    </div>
+  </div>
+
+  <div class="app-main">
+    <!-- plan badge top center -->
+    <div class="app-top" id="app-top">
+      <div class="app-top-title" id="top-title">ZubhAi</div>
+      <div class="plan-top-badge" id="plan-top-badge">
+        <span id="plan-top-label">Free Trial</span>
+        <button onclick="navTo('sc-upgrade')">Upgrade</button>
+      </div>
+      <div class="top-badges">
+        <div class="tbadge tb-streak">🔥 <span id="tb-streak">0</span></div>
+        <div class="tbadge tb-pts"><span id="tb-pts">0</span>pts</div>
+        <div class="tbadge tb-day">Day <span id="tb-day">1</span>/7</div>
+        <div class="tbadge tb-sessions" id="tb-sessions"><span id="tb-sess-left">5</span> left</div>
+      </div>
+    </div>
+
+    <div class="app-body">
+
+      <!-- AUTH -->
       <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
         <div class="auth-wrap">
                     <div class="auth-logo" style="text-align:center;margin-bottom:14px;">Zubh<em>Ai</em></div>
@@ -137,419 +1030,992 @@ def patch(content: str) -> str:
           <div class="auth-err" id="auth-err"></div>
           <div class="auth-sw"><span id="auth-sw-txt">Already have an account?</span> <span class="lnk" onclick="toggleMode()" id="auth-sw-act">Login instead</span></div>
         </div>
-      </div>'''
+      </div>
 
-    new_auth_screen = '''      <!-- AUTH -->
-      <div class="screen on" id="sc-auth" style="align-items:center;justify-content:center">
-        <div class="auth-wrap">
-          <div class="auth-logo" style="text-align:center;margin-bottom:6px;">Zubh<em>Ai</em></div>
-          <div class="auth-tagline" style="text-align:center;margin-bottom:20px">7 days to transform how you work with AI.</div>
+      <!-- ONBOARD — handled via Arjun chat conversation, not forms -->
+      <div class="screen" id="sc-onboard" style="display:none!important"></div>
 
-          <!-- Google -->
-          <button class="auth-google" onclick="signInGoogle()">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-            Continue with Google
-          </button>
-          <div class="auth-divider"><span>or email</span></div>
-
-          <!-- STEP 1: enter email -->
-          <div class="otp-step show" id="otp-step-email">
-            <input class="inp" type="email" id="a-email" placeholder="Your email address" autocomplete="email"/>
-            <button class="auth-btn" id="otp-send-btn" onclick="sendOTP()">Send OTP →</button>
-            <div class="auth-err" id="auth-err"></div>
-            <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">We'll email you a 6-digit code. No password needed.</div>
-          </div>
-
-          <!-- STEP 2: enter OTP -->
-          <div class="otp-step" id="otp-step-verify">
-            <div class="otp-email-display">Code sent to <strong id="otp-sent-to"></strong></div>
-            <div class="otp-digits">
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od4" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od5" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)"/>
+      <!-- LOBBY / HOME -->
+      <div class="screen" id="sc-lobby">
+        <div id="dispatch-bar" class="dispatch-banner" style="display:none">
+          <span class="dispatch-tag">Today</span>
+          <span class="dispatch-text" id="dispatch-text"></span>
+          <button class="dispatch-close" onclick="document.getElementById('dispatch-bar').style.display='none'">×</button>
+        </div>
+        <div class="lobby-center">
+          <div class="lobby-tagline" id="lobby-tagline">Good morning,<br/><em>what will you learn today?</em></div>
+          <div class="lobby-input-box">
+            <textarea class="lobby-textarea" id="lobby-input" placeholder="Start today's session, or ask anything..." rows="2" onkeydown="lobbyKey(event)"></textarea>
+            <div class="lobby-input-foot">
+              <span class="lobby-input-meta">Zubhai · Day <span id="lb-day">1</span>/7</span>
+              <button class="lobby-send-btn" onclick="lobbyGo()">
+                <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
+              </button>
             </div>
-            <button class="auth-btn" id="otp-verify-btn" onclick="verifyOTP()" style="margin-top:4px">Verify & Start →</button>
-            <div class="auth-err" id="otp-err"></div>
-            <div class="otp-resend" id="otp-resend-link" onclick="resendOTP()">Resend code</div>
-            <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:6px;cursor:pointer" onclick="backToEmail()">← Use a different email</div>
+          </div>
+          <div class="lobby-suggestions">
+            <button class="lobby-chip" onclick="navTo('sc-chat')">
+              <svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+              Today's Session
+            </button>
+            <button class="lobby-chip" onclick="navTo('sc-proof');loadProofWall()">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 9h6M9 13h4"/></svg>
+              My Proof Wall
+            </button>
+            <button class="lobby-chip" onclick="navTo('sc-lb');loadLb()">
+              <svg viewBox="0 0 24 24"><polyline points="18 20 18 10"/><polyline points="12 20 12 4"/><polyline points="6 20 6 14"/></svg>
+              Leaderboard
+            </button>
+            <button class="lobby-chip" onclick="showThreat()">
+              <svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
+              AI Threat Report
+            </button>
+          </div>
+          <div id="profile-nudge-card" style="display:none;margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:12px;max-width:720px;width:100%">
+            <div style="font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">Personalization boost</div>
+            <div id="profile-nudge-q" style="font-size:14px;color:var(--text);margin:6px 0 8px"></div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <input id="profile-nudge-input" style="flex:1;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:13px" placeholder="Type answer..."/>
+              <button onclick="submitProfileNudge()" style="border:none;background:var(--accent);color:#fff;padding:8px 12px;border-radius:8px;cursor:pointer">Save</button>
+            </div>
           </div>
         </div>
-      </div>'''
+      </div>
 
-    if old_auth_screen in content:
-        content = content.replace(old_auth_screen, new_auth_screen)
-    else:
-        print("WARNING: auth screen not found exactly")
+      <!-- LIMIT OVERLAY (Claude-style popup) -->
+      <div class="limit-overlay" id="limit-overlay">
+        <div class="limit-modal">
+          <span class="limit-modal-icon">⏱</span>
+          <h3 id="lm-title">You've reached your daily limit</h3>
+          <p id="lm-desc">Free trial includes 5 messages per day. Upgrade to Pro for 50/day.</p>
+          <div class="limit-timer-big" id="lm-timer">--:--:--</div>
+          <div class="limit-timer-label">Resets at midnight IST</div>
+          <div class="limit-progress"><div class="limit-progress-fill" id="lm-progress" style="width:100%;background:#ef4444"></div></div>
+          <button class="limit-modal-upgrade" onclick="closeLimitOverlay();navTo('sc-upgrade')">Upgrade to Pro — ₹499/mo →</button>
+          <button class="limit-modal-later" onclick="closeLimitOverlay()">Continue tomorrow →</button>
+        </div>
+      </div>
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 4. INJECT JavaScript — all new functions before closing </script>
-    # ═══════════════════════════════════════════════════════════════════
-    new_js = """
-/* ═══════════════════════════════════════════════════════
-   OTP AUTH
-   ═══════════════════════════════════════════════════════ */
-let otpEmail = '';
-let otpResendTimer = null;
+      <!-- CHAT -->
+      <div class="screen" id="sc-chat">
+        <div class="chat-screen">
+          <div class="chat-header">
+            <div class="chat-day-info">
+              <span class="chat-day-pill" id="chat-day-pill">Day 1</span>
+              <span class="chat-day-title" id="chat-day-title">Loading...</span>
+            </div>
+            <span class="chat-tool-badge" id="chat-tool-badge">ChatGPT</span>
+          </div>
+          <div class="chat-messages" id="chat-messages">
+            <div class="spin-wrap"><div class="spinner"></div><p>Starting your session...</p></div>
+          </div>
+          <div class="chat-input-area" id="chat-input-area">
+            <!-- image upload hidden input -->
+            <input type="file" id="img-upload" accept="image/*" style="display:none" onchange="handleImageUpload(this)"/>
+            <div class="chat-input-wrap">
+              <button class="chat-attach-btn" onclick="document.getElementById('img-upload').click()" title="Upload screenshot">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              </button>
+              <textarea class="chat-input" id="chat-input" placeholder="Reply, paste code, or share a link..." rows="1" onkeydown="chatKey(event)" oninput="autoResize(this)"></textarea>
+              <button class="chat-send" id="chat-send-btn" onclick="sendMessage()">
+                <svg viewBox="0 0 16 16"><path d="M14.5 8L1.5 1.5l3.5 6.5-3.5 6.5z"/></svg>
+              </button>
+            </div>
+            <div id="img-preview-bar" style="display:none;padding:6px 0 0;font-size:11px;color:var(--text3);align-items:center;gap:6px">
+              <span id="img-preview-name"></span>
+              <span style="cursor:pointer;color:var(--accent)" onclick="clearImageUpload()">✕ remove</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-async function sendOTP() {
-  const email = (document.getElementById('a-email')?.value || '').trim();
-  const err   = document.getElementById('auth-err');
-  const btn   = document.getElementById('otp-send-btn');
-  err.textContent = '';
-  if (!email || !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(email)) {
-    err.textContent = 'Enter a valid email.'; return;
-  }
-  btn.disabled = true; btn.textContent = 'Sending...';
-  try {
-    const d = await post('/auth/send-otp', { email });
-    if (d.status === 'success') {
-      otpEmail = email;
-      document.getElementById('otp-sent-to').textContent = email;
-      document.getElementById('otp-step-email').classList.remove('show');
-      document.getElementById('otp-step-verify').classList.add('show');
-      document.getElementById('od0').focus();
-      startResendTimer();
-    } else {
-      err.textContent = d.message || 'Could not send OTP.';
+      <!-- SCORE -->
+      <div class="screen" id="sc-score">
+        <div class="score-center">
+          <div class="score-card">
+            <div class="score-ring"><div class="score-n" id="sc-n">0</div><div class="score-d">/10</div></div>
+            <div class="score-fb" id="sc-fb"></div>
+            <div class="score-good" id="sc-good" style="display:none"></div>
+            <div class="score-improve" id="sc-improve" style="display:none"></div>
+            <div class="proof-wall-note" id="sc-proof-note" style="display:none">🏆 Added to your Proof Wall! Share this with your network.</div>
+            <div class="score-pts" id="sc-pts"></div>
+            <div class="score-mot" id="sc-mot"></div>
+            <button class="score-next" onclick="afterScore()">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PROOF WALL -->
+      <div class="screen" id="sc-proof">
+        <div class="proof-wrap">
+          <div class="proof-pg-title">Your Proof Wall</div>
+          <div class="proof-pg-sub" id="proof-sub">Things you've actually built with AI.</div>
+          <div id="proof-list"></div>
+        </div>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div class="screen" id="sc-lb">
+        <div class="lb-wrap">
+          <div style="font-family:var(--fs);font-size:22px;margin-bottom:4px;padding-top:8px">Leaderboard</div>
+          <div style="font-size:12px;color:var(--text3);margin-bottom:16px">Top learners on Zubhai</div>
+          <div id="lb-list"></div>
+        </div>
+      </div>
+
+      <!-- UPGRADE -->
+      <div class="screen" id="sc-upgrade">
+        <div class="upgrade-center">
+          <div class="upgrade-wrap">
+            <div class="stag">Pricing</div>
+            <div class="stitle">Upgrade your plan</div>
+            <div class="ssub" style="margin-bottom:0;color:#555">Start free — no credit card, no catch. If 7 days doesn't change how you work, you've lost nothing. If it does, ₹499/month is nothing compared to what AI skills are worth.</div>
+            <div class="in-app-plans">
+              <div class="in-app-plan featured">
+                <div class="in-app-plan-name">Pro</div>
+                <div class="in-app-plan-price">₹499</div>
+                <div class="in-app-plan-period">per month</div>
+                <div class="in-app-plan-features">✓ Unlimited daily sessions<br/>✓ All 4 profession tracks<br/>✓ Public Proof Wall link<br/>✓ LinkedIn AI badge<br/>✓ Priority support</div>
+                <button class="in-app-plan-btn primary" onclick="upgradeIntent('pro')">Upgrade to Pro →</button>
+              </div>
+              <div class="in-app-plan">
+                <div class="in-app-plan-name">Max</div>
+                <div class="in-app-plan-price">₹999</div>
+                <div class="in-app-plan-period">per month · capped at 20 users</div>
+                <div class="in-app-plan-features">✓ Everything in Pro<br/>✓ Weekly 15-min call with Shubh<br/>✓ Custom AI workflow for your role<br/>✓ WhatsApp direct access</div>
+                <button class="in-app-plan-btn" onclick="upgradeIntent('max')">Join Max →</button>
+              </div>
+            </div>
+            <div style="margin-top:16px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r12);padding:16px;font-size:12px;color:var(--text3);line-height:1.75">
+              <strong style="color:var(--text2)">How payment works:</strong> Click Upgrade — Shubh will WhatsApp/email you a payment link within 24 hours. UPI, card, or net banking accepted. Access activated same day.
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const API = "https://zubhai-zubhai-backened.hf.space";
+const SUPABASE_URL = "https://ceikerijcbyxtltpkqcu.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNlaWtlcmlqY2J5eHRsdHBrcWN1Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcwMjg5ODAsImV4cCI6MjA5MjYwNDk4MH0.Is8yU6eWe0xjv7jFCIavW61pWwYqoFS8SRXt68C2uLI"; // Set your Supabase anon key here
+const sb = window.supabase?.createClient ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+
+let userId = null, userProfile = null, authMode = "signup";
+let chatHistory = [], streamingMessage = null;
+let usageData = null;
+let currentDay = 1;
+let timerInterval = null;
+let onboardingMode=false, onboardingStep=0, onboardingAnswers=[];
+
+const PROGRAMS = {
+  student:[
+    {day:1,title:"Your AI Research Assistant",tool:"Perplexity"},
+    {day:2,title:"Write Anything 10x Better",tool:"Claude"},
+    {day:3,title:"Learn Anything in 20 Minutes",tool:"ChatGPT"},
+    {day:4,title:"Build a LinkedIn Presence",tool:"Claude"},
+    {day:5,title:"Automate Your Study Schedule",tool:"ChatGPT"},
+    {day:6,title:"Mock Interview with AI",tool:"Claude"},
+    {day:7,title:"Your AI Portfolio Project",tool:"Perplexity + Claude"},
+  ],
+  developer:[
+    {day:1,title:"Ship Code 3x Faster",tool:"Claude"},
+    {day:2,title:"Debug Anything in Minutes",tool:"Claude"},
+    {day:3,title:"Generate Tests Automatically",tool:"ChatGPT"},
+    {day:4,title:"Write Docs Nobody Hates",tool:"Claude"},
+    {day:5,title:"AI-Powered Code Review",tool:"Claude"},
+    {day:6,title:"Build an AI Feature",tool:"Claude"},
+    {day:7,title:"Your AI Dev Showcase",tool:"Claude + GitHub"},
+  ],
+  marketing:[
+    {day:1,title:"Write a Month of Content Today",tool:"Claude"},
+    {day:2,title:"Ad Copy That Actually Converts",tool:"Claude"},
+    {day:3,title:"Competitor Research in 30 Minutes",tool:"Perplexity"},
+    {day:4,title:"Email Sequence That Sells",tool:"Claude"},
+    {day:5,title:"Data into Strategy",tool:"ChatGPT"},
+    {day:6,title:"Build a Campaign in One Hour",tool:"Claude + Canva AI"},
+    {day:7,title:"Your Marketing Portfolio Piece",tool:"Claude + Perplexity"},
+  ],
+  sales:[
+    {day:1,title:"Find 50 Qualified Leads in One Hour",tool:"Perplexity"},
+    {day:2,title:"Cold Outreach That Gets Replies",tool:"Claude"},
+    {day:3,title:"Research Any Prospect in 5 Minutes",tool:"Perplexity"},
+    {day:4,title:"Build Your Sales Battle Card",tool:"Claude"},
+    {day:5,title:"Write Follow-Ups That Close",tool:"Claude"},
+    {day:6,title:"Prep for Any Sales Call in 10 Minutes",tool:"Perplexity + Claude"},
+    {day:7,title:"Your Sales Playbook",tool:"Claude"},
+  ],
+};
+
+const OBQ = [
+  {key:"field",q:"What do you do?",hint:"We build your 7-day program around your exact role",chips:["Student","Developer","Marketing","Sales"],other:false},
+  {key:"level",q:"How much have you used AI?",hint:"Be honest — this sets where we start",chips:["Never tried it","Played around a bit","Use it sometimes","Use it daily"],other:false},
+  {key:"language",q:"Which language do you think best in?",hint:"Your coaching responds in this language",chips:["English","Hindi","Hinglish","Marathi","Tamil","Bengali"],other:true,op:"Type your language..."},
+];
+let obStep=0, obAns={};
+
+/* Three.js background loaded via ES module — see <script type="module"> below */
+
+const ro=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting)x.target.classList.add('on');}),{threshold:.1});
+document.querySelectorAll('.reveal').forEach(el=>ro.observe(el));
+window.addEventListener('scroll',()=>document.getElementById('nav').classList.toggle('solid',scrollY>50));
+
+/* ── UTILS ── */
+function showToast(msg,dur=2800){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},dur);
+}
+function showEmailPopup(){
+  if(localStorage.getItem('zubhai_email_popup_seen'))return;
+  document.getElementById('email-overlay')?.classList.add('show');
+}
+function closeEmailPopup(){
+  document.getElementById('email-overlay')?.classList.remove('show');
+  localStorage.setItem('zubhai_email_popup_seen','1');
+}
+async function submitLandingEmail(){
+  const email=(document.getElementById('landing-email')?.value||'').trim();
+  const msg=document.getElementById('landing-email-msg');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){if(msg)msg.textContent='Enter a valid email.';return;}
+  const d=await post('/waitlist',{email,name:''});
+  if(msg)msg.textContent=d.status==='success'?'Saved. You are on the update list ⚡':'Could not save. Try again.';
+  if(d.status==='success')setTimeout(closeEmailPopup,700);
+}
+window.addEventListener('load',()=>setTimeout(showEmailPopup,1800));
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+async function post(path,body){
+  const r=await fetch(API+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+  return r.json();
+}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function fmtTime(secs){const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60);return h>0?`${h}h ${m}m`:`${m}m`;}
+
+/* ── THREAT POPUP ── */
+async function showThreat(){
+  const field=(userProfile?.field||'student').toLowerCase();
+  try{
+    const d=await fetch(API+'/threat-score/'+field).then(r=>r.json());
+    if(d.status==='success'){
+      const td=d.data;
+      document.getElementById('tp-field').textContent=field.toUpperCase()+' · AI IMPACT REPORT 2025';
+      document.getElementById('tp-risk').textContent=td.risk+'%';
+      document.getElementById('tp-headline').textContent=td.headline;
+      document.getElementById('tp-body').textContent=td.fear;
+      document.getElementById('tp-stat').textContent=td.stat;
     }
-  } catch(e) {
-    err.textContent = 'Network error. Try again.';
-  }
-  btn.disabled = false; btn.textContent = 'Send OTP →';
+  }catch(e){}
+  document.getElementById('threat-overlay').classList.add('show');
+}
+function closeThreat(){document.getElementById('threat-overlay').classList.remove('show');}
+function showPromoPopup(){document.getElementById('promo-overlay')?.classList.add('show');}
+function closePromoPopup(){
+  document.getElementById('promo-overlay')?.classList.remove('show');
+  localStorage.setItem('zubhai_promo_seen_on', new Date().toISOString().slice(0,10));
 }
 
-function startResendTimer() {
-  const el = document.getElementById('otp-resend-link');
-  el.classList.add('disabled');
-  let secs = 30;
-  el.textContent = `Resend in ${secs}s`;
-  if (otpResendTimer) clearInterval(otpResendTimer);
-  otpResendTimer = setInterval(() => {
-    secs--;
-    if (secs <= 0) {
-      clearInterval(otpResendTimer);
-      el.classList.remove('disabled');
-      el.textContent = 'Resend code';
-    } else {
-      el.textContent = `Resend in ${secs}s`;
-    }
-  }, 1000);
+/* ── NAV ── */
+function showScreen(id){
+  document.querySelectorAll('#app .screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById(id)?.classList.add('on');
+  const titles={
+    'sc-auth':'Zubhai','sc-onboard':'Setup','sc-lobby':'Home',
+    'sc-chat':"Today's Session",'sc-score':'Results',
+    'sc-proof':'Proof Wall','sc-lb':'Leaderboard','sc-upgrade':'Upgrade'
+  };
+  document.getElementById('top-title').textContent=titles[id]||'Zubhai';
+  const isAuth=(id==='sc-auth')&&!userId;
+  document.getElementById('app').classList.toggle('auth-mode',isAuth);
+}
+function navTo(id){
+  showScreen(id);closeMenu();
+  ['nav-home','nav-chat','nav-proof','nav-lb','nav-upgrade'].forEach(n=>document.getElementById(n)?.classList.remove('on'));
+  const map={'sc-lobby':'nav-home','sc-chat':'nav-chat','sc-proof':'nav-proof','sc-lb':'nav-lb','sc-upgrade':'nav-upgrade'};
+  if(map[id])document.getElementById(map[id])?.classList.add('on');
 }
 
-async function resendOTP() {
-  const btn = document.getElementById('otp-send-btn');
-  document.getElementById('otp-err').textContent = '';
-  const d = await post('/auth/send-otp', { email: otpEmail });
-  if (d.status === 'success') { startResendTimer(); showToast('New code sent!'); }
-  else { document.getElementById('otp-err').textContent = d.message; }
-}
-
-function backToEmail() {
-  document.getElementById('otp-step-verify').classList.remove('show');
-  document.getElementById('otp-step-email').classList.add('show');
-  for (let i=0;i<6;i++) { const d=document.getElementById('od'+i); if(d) d.value=''; }
-}
-
-function otpInput(el, idx) {
-  // Only allow digits
-  el.value = el.value.replace(/[^0-9]/g, '');
-  if (el.value && idx < 5) document.getElementById('od'+(idx+1))?.focus();
-  // Auto-verify when all 6 filled
-  const code = Array.from({length:6}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
-  if (code.length === 6) verifyOTP();
-}
-
-function otpKey(e, idx) {
-  if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-    document.getElementById('od'+(idx-1))?.focus();
-  }
-  if (e.key === 'Enter') verifyOTP();
-  // Handle paste
-  if (e.key.length === 1 && /[0-9]/.test(e.key) && e.target.value) {
-    e.preventDefault();
-    e.target.value = e.key;
-    if (idx < 5) document.getElementById('od'+(idx+1))?.focus();
-  }
-}
-
-async function verifyOTP() {
-  const code = Array.from({length:6}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
-  const err  = document.getElementById('otp-err');
-  const btn  = document.getElementById('otp-verify-btn');
-  err.textContent = '';
-  if (code.length < 6) { err.textContent = 'Enter the full 6-digit code.'; return; }
-  btn.disabled = true; btn.textContent = 'Verifying...';
-  try {
-    const d = await post('/auth/verify-otp', { email: otpEmail, token: code });
-    if (d.status === 'success') {
-      userId = d.user_id; userProfile = d.user;
-      localStorage.setItem('zubhai_uid', userId);
-      afterLogin();
-    } else {
-      err.textContent = d.message || 'Wrong code.';
-      // Clear digits on wrong code
-      for (let i=0;i<6;i++) { const dd=document.getElementById('od'+i); if(dd) dd.value=''; }
-      document.getElementById('od0')?.focus();
-    }
-  } catch(e) {
-    err.textContent = 'Network error. Try again.';
-  }
-  btn.disabled = false; btn.textContent = 'Verify & Start →';
-}
-
-// Handle OTP paste
-document.addEventListener('paste', function(e) {
-  const target = e.target;
-  if (!target.classList.contains('otp-digit')) return;
-  e.preventDefault();
-  const text = (e.clipboardData || window.clipboardData).getData('text');
-  const digits = text.replace(/[^0-9]/g,'').slice(0,6).split('');
-  digits.forEach((d, i) => {
-    const el = document.getElementById('od'+i);
-    if (el) el.value = d;
-  });
-  if (digits.length === 6) verifyOTP();
-  else if (digits.length > 0) document.getElementById('od'+digits.length)?.focus();
+/* ── USER MENU ── */
+function closeMenu(){document.getElementById('user-menu')?.classList.remove('show');}
+function toggleUserMenu(){document.getElementById('user-menu')?.classList.toggle('show');}
+document.addEventListener('click',e=>{
+  const m=document.getElementById('user-menu');
+  const btn=document.getElementById('sb-avatar');
+  if(m?.classList.contains('show')&&!m.contains(e.target)&&!btn?.contains(e.target))closeMenu();
 });
 
-/* ═══════════════════════════════════════════════════════
-   MILESTONE CELEBRATION
-   ═══════════════════════════════════════════════════════ */
-let milestoneShownFor = new Set();
-
-function showMilestone(data) {
-  if (!data || !data.id) return;
-  // Don't show same milestone twice in session
-  if (milestoneShownFor.has(data.id)) return;
-  milestoneShownFor.add(data.id);
-
-  const modal = document.getElementById('milestone-modal');
-  document.getElementById('milestone-emoji').textContent = data.emoji || '🎉';
-  document.getElementById('milestone-title').textContent = data.title || 'Milestone!';
-  document.getElementById('milestone-sub').textContent   = data.subtitle || '';
-  document.getElementById('milestone-body').textContent  = data.msg || '';
-  document.getElementById('milestone-cta').textContent   = data.cta || '';
-  modal.style.setProperty('--milestone-color', data.color || 'var(--accent)');
-
-  document.getElementById('milestone-overlay').classList.add('show');
-  spawnConfetti(data.color || '#e8602c');
-
-  // Also update day badge
-  const d = parseInt(data.id.replace('day',''));
-  if (!isNaN(d)) document.getElementById('tb-day').textContent = d;
-}
-
-function closeMilestone() {
-  document.getElementById('milestone-overlay').classList.remove('show');
-}
-
-function spawnConfetti(color) {
-  const overlay = document.getElementById('milestone-overlay');
-  const colors = [color, '#f97316', '#16a34a', '#3b82f6', '#d97706', '#ec4899'];
-  for (let i = 0; i < 40; i++) {
-    const p = document.createElement('div');
-    p.className = 'confetti-piece';
-    p.style.cssText = `
-      left:${Math.random()*100}%;
-      top:${Math.random()*30}%;
-      background:${colors[Math.floor(Math.random()*colors.length)]};
-      animation-duration:${2+Math.random()*2}s;
-      animation-delay:${Math.random()*.8}s;
-      transform:rotate(${Math.random()*360}deg);
-    `;
-    overlay.appendChild(p);
-    setTimeout(() => p.remove(), 4000);
+/* ── OPEN / CLOSE APP ── */
+function openApp(mode){
+  authMode=mode;updateAuthUI();
+  document.getElementById('land').style.display='none';
+  document.getElementById('app').classList.add('open');
+  document.getElementById('sb').style.display='none';
+  showScreen('sc-auth');
+  // Auto-login check
+  const uid=localStorage.getItem('zubhai_uid');
+  if(uid&&!userId){
+    userId=uid;
+    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
+      if(d.status==='success'){userProfile=d.user;afterLogin();}
+      else{userId=null;localStorage.removeItem('zubhai_uid');}
+    }).catch(()=>{userId=null;});
   }
 }
+function closeApp(){
+  document.getElementById('app').classList.remove('open','auth-mode');
+  document.getElementById('land').style.display='block';
+  document.getElementById('sb').style.display='none';
+}
+function logout(){
+  closeMenu();userId=null;userProfile=null;chatHistory=[];
+  localStorage.removeItem('zubhai_uid');
+  closeApp();showToast('Logged out. See you tomorrow!');
+}
 
-/* ═══════════════════════════════════════════════════════
-   COPY PROMPT BUTTON — parse [COPY_PROMPT_START]...[COPY_PROMPT_END]
-   ═══════════════════════════════════════════════════════ */
-function renderMessageWithCopyPrompts(text) {
-  const COPY_RE = /\\[COPY_PROMPT_START\\]([\\s\\S]*?)\\[COPY_PROMPT_END\\]/g;
-  let result = '', lastIndex = 0, match;
+/* ── AUTH UI ── */
+function updateAuthUI(){
+  const l=authMode==='login';
+  document.getElementById('auth-lbl').textContent=l?'Login →':'Sign Up Free →';
+  document.getElementById('auth-sw-txt').textContent=l?'New to Zubhai?':'Already have an account?';
+  document.getElementById('auth-sw-act').textContent=l?'Sign up free':'Login instead';
+  document.getElementById('auth-tagline').textContent=l?'Welcome back.':'7 days to transform how you work with AI.';
+}
+function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
 
-  while ((match = COPY_RE.exec(text)) !== null) {
-    // text before the prompt block
-    const before = text.slice(lastIndex, match.index);
-    if (before) {
-      result += esc(before).replace(/\\n/g,'<br/>').replace(/```([\\s\\S]*?)```/g,
-        '<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+/* ── GOOGLE AUTH ── */
+async function signInGoogle(){
+  if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
+  try{
+    const {data,error}=await sb.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.origin}
+    });
+    if(error)throw error;
+  }catch(e){showToast('Google auth error: '+e.message);}
+}
+
+// Handle Google OAuth redirect
+(async()=>{
+  if(!sb)return;
+  try{
+    const {data:{session}}=await sb.auth.getSession();
+    if(session?.access_token&&!userId){
+      const d=await post('/auth/google',{
+        access_token:session.access_token,
+        refresh_token:session.refresh_token
+      });
+      if(d.status==='success'){
+        userId=d.user_id;userProfile=d.user;
+        localStorage.setItem('zubhai_uid',userId);
+        document.getElementById('land').style.display='none';
+        document.getElementById('app').classList.add('open');
+        afterLogin();
+      }
     }
-    // the prompt block itself
-    const promptText = match[1].trim();
-    const promptId   = 'pp' + Math.random().toString(36).slice(2,8);
-    result += `<div class="prompt-block">
-      <span class="prompt-block-label">Copy this into the AI tool ↓</span>
-      <div class="prompt-block-text" id="${promptId}">${esc(promptText)}</div>
-      <button class="prompt-copy-btn" onclick="copyPrompt('${promptId}',this)">
-        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
-        Copy
-      </button>
-    </div>`;
-    lastIndex = match.index + match[0].length;
-  }
+  }catch(e){console.log('OAuth check:',e);}
+})();
 
-  // remaining text after last prompt block
-  const remaining = text.slice(lastIndex);
-  if (remaining) {
-    result += esc(remaining).replace(/\\n/g,'<br/>').replace(/```([\\s\\S]*?)```/g,
-      '<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
-  }
-  return result;
+/* ── EMAIL AUTH ── */
+async function handleAuth(){
+  const email=document.getElementById('a-email').value.trim();
+  const pass=document.getElementById('a-pass').value.trim();
+  const err=document.getElementById('auth-err');
+  const btn=document.getElementById('auth-btn');
+  err.textContent='';
+  if(!email||!pass){err.textContent='Please fill both fields.';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
+  btn.disabled=true;document.getElementById('auth-lbl').textContent='Please wait...';
+  try{
+    const path=authMode==='login'?'/auth/login':'/auth/signup';
+    const d=await post(path,{email,password:pass});
+    if(d.status==='success'){
+      userId=d.user_id;userProfile=d.user||{id:d.user_id,email};
+      localStorage.setItem('zubhai_uid',userId);
+      afterLogin();
+    } else{err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();}
+  }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();}
 }
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
 
-function copyPrompt(id, btn) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  navigator.clipboard.writeText(el.textContent || '').then(() => {
-    btn.classList.add('copied');
-    btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="20 6 9 17 4 12"/></svg> Copied!`;
-    setTimeout(() => {
-      btn.classList.remove('copied');
-      btn.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg> Copy`;
-    }, 2200);
-  }).catch(() => showToast('Copy failed — try manually'));
-}
-
-/* ═══════════════════════════════════════════════════════
-   FEEDBACK MODAL
-   ═══════════════════════════════════════════════════════ */
-let feedbackType = 'bug';
-
-function openFeedback() {
-  closeMenu();
-  document.getElementById('feedback-text').value = '';
-  document.getElementById('feedback-overlay').classList.add('show');
-}
-function closeFeedback() {
-  document.getElementById('feedback-overlay').classList.remove('show');
-}
-function pickFeedbackType(type, btn) {
-  feedbackType = type;
-  document.querySelectorAll('.feedback-type-btn').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
-}
-async function submitFeedback() {
-  const text = (document.getElementById('feedback-text')?.value || '').trim();
-  if (!text) { showToast('Write something first'); return; }
-  const btn = document.querySelector('.feedback-send-btn');
-  btn.disabled = true; btn.textContent = 'Sending...';
-  try {
-    const name  = userProfile?.name || userProfile?.email || 'Anonymous';
-    const field = userProfile?.field || '';
-    await post('/submit-feedback', { name, field, message: `[${feedbackType.toUpperCase()}] ${text}` });
-    closeFeedback();
-    showToast('Sent to Shubh. He reads everything.', 3200);
-  } catch(e) {
-    showToast('Error. Email hello@zubhai.com directly.');
-  }
-  btn.disabled = false; btn.textContent = 'Send to Shubh →';
-}
-
-/* ═══════════════════════════════════════════════════════
-   PATCHED: afterLogin — Google users go to dashboard if already onboarded
-   ═══════════════════════════════════════════════════════ */
-"""
-
-    # Inject the new JS right before the closing </script> of the main script block
-    # Find the last </script> that doesn't have type="module"
-    marker = '\n/* Three.js background loaded via ES module'
-    if marker in content:
-        content = content.replace(marker, new_js + marker)
-    else:
-        print("WARNING: Three.js marker not found, appending before last </script>")
-        content = content.replace('</script>\n\n<script type="module">', new_js + '</script>\n\n<script type="module">')
-
-    # ═══════════════════════════════════════════════════════════════════
-    # 5. PATCH afterLogin to go to dashboard for already-onboarded users
-    # ═══════════════════════════════════════════════════════════════════
-    old_after = """function afterLogin(){
+/* ── AFTER LOGIN ── */
+function afterLogin(){
   document.getElementById('auth-btn').disabled=false;updateAuthUI();
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
   if(!userProfile?.onboarding_done||!userProfile?.field)startOnboarding();
   else{goHome();}
-}"""
+}
 
-    new_after = """function afterLogin(){
-  // Reset OTP UI state
-  try {
-    document.getElementById('otp-step-email').classList.add('show');
-    document.getElementById('otp-step-verify').classList.remove('show');
-    if(document.getElementById('auth-btn')) { document.getElementById('auth-btn').disabled=false; }
-    updateAuthUI();
-  } catch(e){}
-  document.getElementById('sb').style.display='flex';
-  document.getElementById('app').classList.remove('auth-mode');
-  refreshSidebar();
-  // If onboarded → go directly to dashboard (not launchpad)
-  if(!userProfile?.onboarding_done||!userProfile?.field){
-    startOnboarding();
-  } else {
-    goHome();
+function refreshSidebar(){
+  if(!userProfile)return;
+  const email=userProfile.email||'';
+  const name=userProfile.name||(email.includes('shubzz429')?'Shubh Agrawal':email.split('@')[0]);
+  const initials=name.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase()||'?';
+  document.getElementById('sb-avatar').textContent=initials;
+  document.getElementById('um-email').textContent=email;
+  document.getElementById('um-name').textContent=name;
+  document.getElementById('um-plan').textContent=(userProfile.plan||'free_trial').replace('_',' ');
+  document.getElementById('tb-streak').textContent=userProfile.streak||0;
+  document.getElementById('tb-pts').textContent=userProfile.points||0;
+  document.getElementById('tb-day').textContent=userProfile.day_in_program||1;
+  document.getElementById('lb-day').textContent=userProfile.day_in_program||1;
+  currentDay=userProfile.day_in_program||1;
+  loadUsage();
+  loadDispatch();
+}
+
+async function loadUsage(){
+  if(!userId)return;
+  try{
+    const d=await fetch(API+'/usage/'+userId).then(r=>r.json());
+    usageData=d;
+    const left=d.sessions_left||0,limit=d.sessions_limit||5;
+    const pct=Math.round((1-(left/limit))*100);
+    document.getElementById('sb-usage-fill').style.width=pct+'%';
+    document.getElementById('sb-usage-label').textContent=`${limit-left}/${limit} sessions`;
+    const sessEl=document.getElementById('tb-sessions');
+    const sessLeft=document.getElementById('tb-sess-left');
+    sessLeft.textContent=left;
+    sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
+    if(d.trial_expired){
+      document.getElementById('plan-top-label').textContent='Trial Ended';
+    } else {
+      document.getElementById('plan-top-label').textContent=(d.plan||'free trial').replace('_',' ');
+    }
+    // Start reset timer if at limit
+    if(left===0&&d.reset_seconds)startResetTimer(d.reset_seconds);
+  }catch(e){console.log('Usage error:',e);}
+}
+
+function startResetTimer(secs){
+  if(timerInterval)clearInterval(timerInterval);
+  let remaining=secs;
+  const el=document.getElementById('limit-timer');
+  const update=()=>{if(el)el.textContent='Resets in '+fmtTime(Math.max(0,remaining));remaining--;if(remaining<0){clearInterval(timerInterval);}};
+  update();timerInterval=setInterval(update,1000);
+}
+
+async function loadDispatch(){
+  if(!userProfile?.field)return;
+  try{
+    const d=await fetch(API+'/daily-dispatch/'+userProfile.field.toLowerCase()).then(r=>r.json());
+    if(d.dispatch){
+      document.getElementById('dispatch-text').textContent=d.dispatch;
+      document.getElementById('dispatch-bar').style.display='flex';
+    }
+  }catch(e){}
+}
+
+let activeProfileNudge=null;
+async function loadProfileNudge(){
+  if(!userId)return;
+  try{
+    const d=await fetch(API+'/profile/nudge/'+userId).then(r=>r.json());
+    const card=document.getElementById('profile-nudge-card');
+    if(d.status==='success' && !d.completed && d.nudge){
+      activeProfileNudge=d.nudge;
+      document.getElementById('profile-nudge-q').textContent=d.nudge.question;
+      document.getElementById('profile-nudge-input').placeholder=d.nudge.placeholder||'Type answer...';
+      card.style.display='block';
+    }else{
+      activeProfileNudge=null;
+      card.style.display='none';
+    }
+  }catch(e){}
+}
+
+async function submitProfileNudge(){
+  if(!activeProfileNudge||!userId)return;
+  const el=document.getElementById('profile-nudge-input');
+  const v=(el.value||'').trim();
+  if(!v)return;
+  const body={user_id:userId,updates:{}};
+  body.updates[activeProfileNudge.key]=v;
+  try{
+    const d=await post('/profile/update',body);
+    if(d.status==='success'){
+      if(!userProfile)userProfile={};
+      userProfile.profile=d.profile;
+      el.value='';
+      await loadProfileNudge();
+      showToast('Saved. Next question loaded.');
+    }
+  }catch(e){}
+}
+
+/* ── CHAT ONBOARDING ── */
+const ONBOARDING_CHAT_STEPS=[
+  {key:'name',q:'First, what should I call you? 🙂',ack:a=>`Nice, ${a.split(' ')[0]} — strong main-character entry.`},
+  {key:'work',q:'What do you do for earning or studying right now? Company/college + role if you can.',ack:a=>`Oh ya, I know this lane. ${a.toLowerCase().includes('marketing')?'Marketing people are basically black belts in making chaos look like strategy 🥋':'This gives me the map.'}`},
+  {key:'hobby',q:'What is one hobby or weird interest outside work? I use this to make examples less boring.',ack:a=>`Good. I can already make your tasks less like a government PDF and more like you.`},
+  {key:'goal',q:'What do you want Zubhai to help you achieve in the next 7 days? Be selfish.',ack:a=>`Clear. We are optimizing for outcome, not vibes.`},
+  {key:'resources',q:'What resources do you already have — laptop/phone, time per day, budget, team, audience, current project?',ack:a=>`Perfect. Constraints are where real plans are born.`},
+  {key:'tools',q:'Which tools do you already use or want to learn? ChatGPT, Claude, Perplexity, Canva, GitHub, CRM, ads tools — anything.',ack:a=>`Got it. I will not give you random tool soup.`},
+  {key:'challenge_spend',q:'Last one: how much time and money can you realistically spend on each daily challenge?',ack:a=>`Done. I have enough signal to build your 7-day sprint now ⚡`}
+];
+let pickedField='',pickedLang='English';
+function startOnboarding(){
+  onboardingMode=true;onboardingStep=0;onboardingAnswers=[];chatHistory=[];
+  navTo('sc-chat');
+  document.getElementById('chat-day-pill').textContent='Setup';
+  document.getElementById('chat-day-title').textContent='Arjun is learning your context';
+  document.getElementById('chat-tool-badge').textContent='WhatsApp-style';
+  document.getElementById('chat-messages').innerHTML='';
+  document.getElementById('chat-input-area').style.display='block';
+  document.getElementById('chat-input').placeholder='Reply like WhatsApp...';
+  addMessage('ai','Arjun here ⚡ I’m your Zubhai coach — slightly annoying, very useful. I’ll ask a few quick questions, roast vague answers gently, then build your Day 1 challenge.');
+  setTimeout(()=>addMessage('ai',ONBOARDING_CHAT_STEPS[0].q),450);
+}
+function pickProfession(el,field){pickedField=field;}
+function pickLang(el,lang){pickedLang=lang;}
+async function handleOnboardingReply(msg){
+  const step=ONBOARDING_CHAT_STEPS[onboardingStep];
+  onboardingAnswers.push({key:step.key,question:step.q,answer:msg});
+  addMessage('ai',step.ack(msg));
+  onboardingStep++;
+  if(onboardingStep<ONBOARDING_CHAT_STEPS.length){
+    setTimeout(()=>addMessage('ai',ONBOARDING_CHAT_STEPS[onboardingStep].q),500);
+    return;
   }
-}"""
+  addTypingIndicator();
+  const answer=onboardingAnswers.map(x=>`${x.question}\n${x.answer}`).join('\n\n');
+  // Infer field from answers if not explicitly set
+  const inferredField = pickedField || 
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('develop')||x.answer.toLowerCase().includes('code')||x.answer.toLowerCase().includes('engineer'))&&'developer') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('market')||x.answer.toLowerCase().includes('content')||x.answer.toLowerCase().includes('ads'))&&'marketing') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('sales')||x.answer.toLowerCase().includes('sell')||x.answer.toLowerCase().includes('leads'))&&'sales') ||
+    (onboardingAnswers.find(x=>x.answer.toLowerCase().includes('student')||x.answer.toLowerCase().includes('college')||x.answer.toLowerCase().includes('university'))&&'student') ||
+    'student';
+  const d=await post('/onboard/parse',{user_id:userId,field:inferredField,language:pickedLang,time_per_day:15,answer});
+  removeTypingIndicator();
+  if(d.status!=='success'){
+    addMessage('ai',d.message||'Could not save your setup. Paste your details once more?');
+    onboardingStep=Math.max(0,onboardingStep-1);
+    return;
+  }
+  if(!userProfile)userProfile={};
+  userProfile.field=d.field||'student';userProfile.language=d.profile?.language||pickedLang;userProfile.profile=d.profile;
+  onboardingMode=false;
+  addMessage('ai',`Locked in. I’ve got your role, resources, tools, budget/time, and target outcome. Building Day 1 now — no generic YouTube-course energy.`);
+  setTimeout(()=>goTodaySession(),1000);
+}
 
-    if old_after in content:
-        content = content.replace(old_after, new_after)
-    else:
-        print("WARNING: afterLogin not found exactly")
+/* ── HOME ── */
+function goHome(){
+  navTo('sc-lobby');refreshSidebar();
+  const h=new Date().getHours();
+  const g=h<12?'Good morning':h<17?'Good afternoon':'Good evening';
+  document.getElementById('lobby-tagline').innerHTML=`${g},<br/><em>what will you learn today?</em>`;
+  loadProfileNudge();
+  // Promo shown only intentionally, not on every home visit
+}
+function goTodaySession(){
+  chatHistory=[];navTo('sc-chat');initChat();
+}
+function lobbyKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lobbyGo();}}
+function lobbyGo(){
+  const v=(document.getElementById('lobby-input')?.value||'').trim();
+  document.getElementById('lobby-input').value='';
+  chatHistory=[];navTo('sc-chat');initChat(v);
+}
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 6. PATCH streamChatResponse to show milestone popup and use copy renderer
-    # ═══════════════════════════════════════════════════════════════════
+/* ── CHAT ENGINE ── */
+function initChat(initialMsg){
+  const field=(userProfile?.field||'student').toLowerCase();
+  const prog=PROGRAMS[field]||PROGRAMS.student;
+  const dayIdx=Math.min(Math.max((currentDay||1)-1,0),prog.length-1);
+  const dayInfo=prog[dayIdx];
+  document.getElementById('chat-day-pill').textContent='Day '+(dayIdx+1)+'/7';
+  document.getElementById('chat-day-title').textContent=dayInfo.title;
+  document.getElementById('chat-tool-badge').textContent=dayInfo.tool;
+  document.getElementById('chat-messages').innerHTML='';
+  document.getElementById('chat-input-area').style.display='block';
+  closeLimitOverlay();
+  // First message = give task immediately, no warmup
+  const startMsg = initialMsg
+    ? `Context from user: "${initialMsg}". Now start Day ${dayIdx+1}.`
+    : `start`;
+  streamChatResponse(startMsg, true);
+}
 
-    # Patch: show milestone in stream done handler
-    old_milestone_check = """            if(p.grade){
-              setTimeout(lockChatAfterGrade,900);
+function addMessage(role,content,isHtml){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='chat-msg '+role;
+  const time=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+  const inner=isHtml?content:esc(content).replace(/\n/g,'<br/>').replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+  div.innerHTML=`<div class="chat-msg-inner">${inner}</div><div class="chat-msg-time">${time}</div>`;
+  msgs.appendChild(div);
+  msgs.scrollTop=msgs.scrollHeight;
+  return div;
+}
+
+function addTypingIndicator(){
+  const msgs=document.getElementById('chat-messages');
+  const div=document.createElement('div');
+  div.className='chat-msg ai';div.id='typing-indicator';
+  div.innerHTML=`<div class="chat-msg-inner"><span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span></div>`;
+  msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function removeTypingIndicator(){document.getElementById('typing-indicator')?.remove();}
+
+function renderShareCard(post, score, day){
+  const li=encodeURIComponent(post);
+  const tw=encodeURIComponent(post);
+  const card=document.createElement('div');
+  card.className='share-card';
+  card.innerHTML=`
+    <div class="share-card-header">
+      <span class="share-card-score">Score ${score}/10</span>
+      <span class="share-card-title">Day ${day} complete — share your win</span>
+    </div>
+    <div class="share-card-post" id="share-post-text">${esc(post)}</div>
+    <div class="share-card-btns">
+      <button class="share-btn linkedin" onclick="window.open('https://www.linkedin.com/shareArticle?mini=true&text=${li}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6zM2 9h4v12H2z"/><circle cx="4" cy="4" r="2"/></svg>
+        LinkedIn
+      </button>
+      <button class="share-btn twitter" onclick="window.open('https://twitter.com/intent/tweet?text=${tw}','_blank')">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+        Twitter/X
+      </button>
+      <button class="share-btn copy" onclick="navigator.clipboard.writeText(document.getElementById('share-post-text').textContent);this.textContent='✓ Copied'">
+        Copy
+      </button>
+    </div>`;
+  const msgs=document.getElementById('chat-messages');
+  msgs.appendChild(card);
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+async function streamChatResponse(userMsg, isInit, imagePayload=null){
+  const sendBtn=document.getElementById('chat-send-btn');
+  if(sendBtn)sendBtn.disabled=true;
+
+  if(userMsg && !isInit) chatHistory.push({role:'user',content:userMsg});
+
+  addTypingIndicator();
+  const msgs=document.getElementById('chat-messages');
+
+  // client-side limit check
+  if(usageData && usageData.msgs_left===0){
+    removeTypingIndicator();
+    showLimitOverlay(usageData.reset_seconds||0);
+    if(sendBtn)sendBtn.disabled=false;
+    return;
+  }
+
+  const field=(userProfile?.field||'student').toLowerCase();
+
+  try{
+    const body={
+      user_id:userId,
+      message:isInit?('START_SESSION_DAY_'+(currentDay||1)+(userMsg&&userMsg!=='start'?'_CONTEXT:'+userMsg:'')):userMsg,
+      day:currentDay||1,
+      field:field,
+      language:userProfile?.language||'English',
+      history:isInit?[]:chatHistory.slice(-16)
+    };
+
+    const endpoint=imagePayload?'/chat/image':'/chat';
+    if(imagePayload){body.image_base64=imagePayload.base64;body.image_type=imagePayload.type;}
+
+    const resp=await fetch(API+endpoint,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(body)
+    });
+
+    if(!resp.ok){
+      let err={};try{err=await resp.json();}catch(e){}
+      removeTypingIndicator();
+      if(err.status==='limit_reached'){showLimitOverlay(err.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(err.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai','Error loading response. Try again.');
+      if(sendBtn)sendBtn.disabled=false;
+      return;
+    }
+
+    const ct=resp.headers.get('content-type')||'';
+    if(ct.includes('application/json')){
+      const data=await resp.json();
+      removeTypingIndicator();
+      if(data.status==='limit_reached'){showLimitOverlay(data.reset_seconds||0);if(sendBtn)sendBtn.disabled=false;return;}
+      if(data.status==='trial_expired'){showTrialExpiredOverlay();if(sendBtn)sendBtn.disabled=false;return;}
+      addMessage('ai',data.message||'Error.');
+      if(sendBtn)sendBtn.disabled=false;
+      return;
+    }
+
+    removeTypingIndicator();
+    const aiDiv=document.createElement('div');aiDiv.className='chat-msg ai';
+    const innerDiv=document.createElement('div');innerDiv.className='chat-msg-inner';
+    const timeDiv=document.createElement('div');timeDiv.className='chat-msg-time';
+    timeDiv.textContent=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    aiDiv.appendChild(innerDiv);aiDiv.appendChild(timeDiv);
+    msgs.appendChild(aiDiv);
+
+    const reader=resp.body.getReader();
+    const decoder=new TextDecoder();
+    let fullText='',buffer='';
+
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      buffer+=decoder.decode(value,{stream:true});
+      const lines=buffer.split('\n');
+      buffer=lines.pop();
+      for(const line of lines){
+        if(!line.startsWith('data:'))continue;
+        const raw=line.slice(5).trim();
+        if(!raw)continue;
+        try{
+          const p=JSON.parse(raw);
+          if(p.error){innerDiv.innerHTML='Error: '+esc(p.error);break;}
+          if(p.text){
+            fullText+=p.text;
+            // strip ZUBHAI_GRADE marker from display
+            const display=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+            innerDiv.innerHTML=esc(display)
+              .replace(/\n/g,'<br/>')
+              .replace(/```([\s\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
+            msgs.scrollTop=msgs.scrollHeight;
+          }
+          if(p.done){
+            // update usage meter
+            if(p.msgs_left!==undefined){
+              updateUsageMeter(p.msgs_left);
             }
-            if(p.share_post&&p.grade){"""
-
-    new_milestone_check = """            if(p.milestone){
-              setTimeout(()=>showMilestone(p.milestone),500);
+            // show grade bubble if score
+            if(p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              const good=typeof sc==='object'?sc.good:'';
+              const badge=document.createElement('div');
+              badge.className=n>=7?'grade-bubble':'grade-bubble low';
+              badge.innerHTML='Score '+n+'/10'+(good?' · '+esc(good):'');
+              aiDiv.appendChild(badge);
+              if(p.points_earned){
+                const cur=parseInt(document.getElementById('tb-pts').textContent)||0;
+                document.getElementById('tb-pts').textContent=cur+p.points_earned;
+              }
             }
             if(p.grade){
               setTimeout(lockChatAfterGrade,900);
             }
-            if(p.share_post&&p.grade){"""
+            if(p.share_post&&p.grade){
+              const sc=p.grade.score||p.grade;
+              const n=typeof sc==='object'?sc.n:sc;
+              setTimeout(()=>renderShareCard(p.share_post,n,currentDay||1),400);
+            }
+            if(p.msgs_left===0){
+              setTimeout(()=>{showLimitOverlay(usageData?.reset_seconds||0);},600);
+            }
+          }
+        }catch(e){}
+      }
+    }
+    if(fullText){
+      const clean=fullText.replace(/ZUBHAI_GRADE:[\s\S]*$/,'').trim();
+      chatHistory.push({role:'assistant',content:clean});
+    }
+  }catch(e){
+    removeTypingIndicator();
+    addMessage('ai','Connection error. Check internet and try again.');
+    console.error('Stream error:',e);
+  }
+  if(sendBtn)sendBtn.disabled=false;
+}
 
-    if old_milestone_check in content:
-        content = content.replace(old_milestone_check, new_milestone_check)
-    else:
-        print("WARNING: milestone check patch point not found")
+function lockChatAfterGrade(){
+  const area=document.getElementById('chat-input-area');
+  if(area)area.style.display='none';
+  const next=new Date();next.setDate(next.getDate()+1);next.setHours(9,0,0,0);
+  addMessage('ai',`Challenge complete. Chat is locked for this task now — next challenge unlocks tomorrow at ${next.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'})}. Go use what you built today.`);
+}
 
-    # Patch: use renderMessageWithCopyPrompts in stream renderer
-    old_stream_render = """                if(p.text){
-                    fullText+=p.text;
-                    // strip ZUBHAI_GRADE marker from display
-                    const display=fullText.replace(/ZUBHAI_GRADE:[\\s\\S]*$/,'').trim();
-                    innerDiv.innerHTML=esc(display)
-                      .replace(/\\n/g,'<br/>')
-                      .replace(/```([\\s\\S]*?)```/g,'<pre style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px;font-size:11px;overflow-x:auto;margin-top:6px;font-family:var(--fm)">$1</pre>');
-                    msgs.scrollTop=msgs.scrollHeight;
-                  }"""
+function updateUsageMeter(left){
+  const limit=usageData?.msgs_limit||5;
+  if(usageData)usageData.msgs_left=left;
+  document.getElementById('tb-sess-left').textContent=left;
+  const pct=Math.round((1-(left/limit))*100);
+  document.getElementById('sb-usage-fill').style.width=pct+'%';
+  document.getElementById('sb-usage-label').textContent=`${limit-left}/${limit} msgs`;
+  const sessEl=document.getElementById('tb-sessions');
+  sessEl.className='tbadge tb-sessions'+(left<=1?' danger':left<=2?' warn':'');
+}
 
-    new_stream_render = """                if(p.text){
-                    fullText+=p.text;
-                    const display=fullText.replace(/ZUBHAI_GRADE:[\\s\\S]*$/,'').trim();
-                    innerDiv.innerHTML=renderMessageWithCopyPrompts(display);
-                    msgs.scrollTop=msgs.scrollHeight;
-                  }"""
+/* ── LIMIT OVERLAY ── */
+let limitTimerInterval=null;
+function showLimitOverlay(resetSecs){
+  document.getElementById('limit-overlay').classList.add('show');
+  document.getElementById('chat-input-area').style.display='none';
+  if(limitTimerInterval)clearInterval(limitTimerInterval);
+  let secs=resetSecs||0;
+  const plan=usageData?.plan||'free_trial';
+  const limit=plan==='free_trial'?5:plan==='pro'?50:999;
+  document.getElementById('lm-desc').textContent=`${plan==='free_trial'?'Free trial':'Pro'} includes ${limit} messages per day. Resets at midnight IST.`;
+  const tick=()=>{
+    if(secs<=0){clearInterval(limitTimerInterval);document.getElementById('lm-timer').textContent='Resetting...';return;}
+    const h=Math.floor(secs/3600),m=Math.floor((secs%3600)/60),s=secs%60;
+    document.getElementById('lm-timer').textContent=
+      String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    const totalDay=86400;
+    const pct=Math.round((secs/totalDay)*100);
+    document.getElementById('lm-progress').style.width=pct+'%';
+    document.getElementById('lm-progress').style.background=secs>3600?'#ef4444':'#f97316';
+    secs--;
+  };
+  tick();
+  limitTimerInterval=setInterval(tick,1000);
+}
+function showTrialExpiredOverlay(){
+  document.getElementById('lm-title').textContent='Your 7-day trial has ended';
+  document.getElementById('lm-desc').textContent='Upgrade to Pro for 50 messages/day and unlimited coaching.';
+  document.getElementById('limit-overlay').classList.add('show');
+  document.getElementById('chat-input-area').style.display='none';
+}
+function closeLimitOverlay(){
+  document.getElementById('limit-overlay').classList.remove('show');
+  document.getElementById('chat-input-area').style.display='block';
+}
 
-    if old_stream_render in content:
-        content = content.replace(old_stream_render, new_stream_render)
-    else:
-        print("WARNING: stream renderer patch not found")
+/* ── IMAGE UPLOAD ── */
+let pendingImage=null;
+function handleImageUpload(input){
+  const file=input.files[0];
+  if(!file)return;
+  pendingImage=file;
+  const bar=document.getElementById('img-preview-bar');
+  const nm=document.getElementById('img-preview-name');
+  if(bar&&nm){bar.style.display='flex';nm.textContent=file.name;}
+}
+function clearImageUpload(){
+  pendingImage=null;
+  document.getElementById('img-upload').value='';
+  const bar=document.getElementById('img-preview-bar');
+  if(bar)bar.style.display='none';
+}
 
-    # ═══════════════════════════════════════════════════════════════════
-    # 7. PATCH leaderboard display to show field badges properly
-    # ═══════════════════════════════════════════════════════════════════
-    old_lb = """      document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{
+      const res=String(reader.result||'');
+      resolve(res.includes(',')?res.split(',')[1]:res);
+    };
+    reader.onerror=()=>reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+}
+
+function loadImageFromFile(file){
+  return new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve(img);};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('Failed to load image'));};
+    img.src=url;
+  });
+}
+
+async function imageFileToUploadPayload(file){
+  const maxBytes=4.5*1024*1024;
+  if(file.size<=maxBytes){
+    return {base64:await fileToBase64(file),type:file.type||'image/png'};
+  }
+  const img=await loadImageFromFile(file);
+  const canvas=document.createElement('canvas');
+  let scale=Math.min(1,1600/Math.max(img.width,img.height));
+  let quality=.82;
+  for(let i=0;i<6;i++){
+    canvas.width=Math.max(1,Math.round(img.width*scale));
+    canvas.height=Math.max(1,Math.round(img.height*scale));
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.drawImage(img,0,0,canvas.width,canvas.height);
+    const dataUrl=canvas.toDataURL('image/jpeg',quality);
+    const base64=dataUrl.split(',')[1];
+    const approxBytes=Math.ceil(base64.length*3/4);
+    if(approxBytes<=maxBytes)return {base64,type:'image/jpeg'};
+    scale*=.78;quality=Math.max(.55,quality-.08);
+  }
+  return {base64:canvas.toDataURL('image/jpeg',.5).split(',')[1],type:'image/jpeg'};
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('chat-input');
+  let msg=(inp?.value||'').trim();
+  if(!msg&&!pendingImage)return;
+  if(onboardingMode){
+    inp.value='';inp.style.height='auto';
+    addMessage('user',msg);
+    await handleOnboardingReply(msg);
+    return;
+  }
+
+  let imagePayload=null;
+  if(pendingImage&&!msg){
+    msg='[Screenshot uploaded: '+pendingImage.name+'] — please review this and give me feedback';
+  } else if(pendingImage){
+    msg=`[Screenshot: ${pendingImage.name}] ${msg}`;
+  }
+
+  if(pendingImage){
+    try{
+      imagePayload=await imageFileToUploadPayload(pendingImage);
+    }catch(e){
+      addMessage('ai','Could not read screenshot. Try uploading again.');
+      return;
+    }
+  }
+
+  clearImageUpload();
+  inp.value='';inp.style.height='auto';
+  addMessage('user',msg);
+  await streamChatResponse(msg,false,imagePayload);
+}
+function chatKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
+
+function afterScore(){
+  if(currentDay>7){navTo('sc-proof');loadProofWall();}
+  else{goHome();}
+}
+
+/* ── PROOF WALL ── */
+async function loadProofWall(){
+  if(!userId)return;
+  document.getElementById('proof-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div><p>Loading...</p></div>';
+  try{
+    const d=await fetch(API+'/proof-wall/'+userId).then(r=>r.json());
+    document.getElementById('proof-sub').textContent=`${d.tasks_completed||0} tasks completed · ${d.points||0} points earned`;
+    const pw=d.proof_wall||[];
+    if(!pw.length){
+      document.getElementById('proof-list').innerHTML='<div class="proof-empty"><div style="font-size:32px;opacity:.4">🏆</div><p>Complete Day 7 to publish your first Proof Wall entry. It becomes your shareable AI portfolio.</p></div>';
+    } else {
+      document.getElementById('proof-list').innerHTML=pw.map(p=>`
+        <div class="proof-item">
+          <div style="flex:1">
+            <div class="proof-item-day">Day ${p.day} · ${(p.field||'').toUpperCase()}</div>
+            <div class="proof-item-title">${esc(p.title||'Project')}</div>
+            <div class="proof-item-score">Score: ${p.score}/10</div>
+            ${p.url?`<a class="proof-item-link" href="${esc(p.url)}" target="_blank">${esc(p.url)}</a>`:''}
+            <div style="font-size:10px;color:var(--text3);margin-top:4px;font-family:var(--fm)">${p.date||''}</div>
+          </div>
+        </div>`).join('');
+    }
+  }catch(e){document.getElementById('proof-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading proof wall.</p>';}
+}
+
+/* ── LEADERBOARD ── */
+async function loadLb(){
+  document.getElementById('lb-list').innerHTML='<div class="spin-wrap"><div class="spinner"></div></div>';
+  try{
+    const d=await fetch(API+'/leaderboard').then(r=>r.json());
+    const medals=['🥇','🥈','🥉'];
+    document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
       <div class="lb-row">
         <div class="lb-rank ${i<3?'top':''}">${medals[i]||i+1}</div>
         <div class="lb-info">
@@ -557,37 +2023,79 @@ async function submitFeedback() {
           <div class="lb-sub">${esc(u.field||'—')} · Day ${u.day_in_program||1}/7 · <span class="um-plan-pill" style="font-size:8px">${(u.plan||'trial').replace('_',' ')}</span></div>
         </div>
         <div class="lb-pts">${u.points||0} pts</div>
-      </div>`).join('');"""
+      </div>`).join('');
+  }catch(e){document.getElementById('lb-list').innerHTML='<p style="color:var(--text3);font-size:12px;padding:16px">Error loading leaderboard.</p>';}
+}
 
-    new_lb = """      const FIELD_EMOJI={'student':'🎓','developer':'💻','marketing':'📣','sales':'🤝'};
-      document.getElementById('lb-list').innerHTML=d.leaderboard.map((u,i)=>`
-      <div class="lb-row">
-        <div class="lb-rank ${i<3?'top':''}">${medals[i]||'#'+(i+1)}</div>
-        <div class="lb-info">
-          <div class="lb-name">${esc(u.name||'Anonymous')}</div>
-          <div class="lb-sub">${FIELD_EMOJI[u.field]||''} ${esc(u.field||'—')} · Day ${u.day_in_program||1}/7 · 🔥${u.streak||0}</div>
-        </div>
-        <div class="lb-pts" style="text-align:right">
-          <div style="font-family:var(--fm);font-size:14px;color:var(--accent)">${(u.points||0).toLocaleString()}</div>
-          <div style="font-size:10px;color:var(--text3);font-family:var(--fm)">${(u.plan||'trial').replace('_',' ')}</div>
-        </div>
-      </div>`).join('')
-      + (d.total>20?`<div style="text-align:center;font-size:11px;color:var(--text3);padding:12px">Showing ${d.leaderboard.length} learners</div>`:'');"""
+/* ── UPGRADE ── */
+async function upgradeIntent(plan){
+  if(!userId){showToast('Please login first');return;}
+  const btn=event.target;btn.disabled=true;btn.textContent='Sending request...';
+  try{
+    const d=await post('/upgrade',{user_id:userId,plan});
+    showToast(d.message||'Request sent! Shubh will contact you within 24hrs',4000);
+  }catch(e){showToast('Error. Email hello@zubhai.com directly.');}
+  btn.disabled=false;btn.textContent=plan==='pro'?'Upgrade to Pro →':'Join Max →';
+}
 
-    if old_lb in content:
-        content = content.replace(old_lb, new_lb)
-    else:
-        print("WARNING: leaderboard display patch not found")
+/* ── AUTO LOGIN ── */
+(()=>{
+  const uid=localStorage.getItem('zubhai_uid');
+  if(uid){
+    userId=uid;
+    fetch(API+'/auth/user/'+uid).then(r=>r.json()).then(d=>{
+      if(d.status==='success'){
+        userProfile=d.user;currentDay=d.user.day_in_program||1;
+        document.getElementById('land').style.display='none';
+        document.getElementById('app').classList.add('open');
+        document.getElementById('sb').style.display='flex';
+        afterLogin();
+      }else{userId=null;localStorage.removeItem('zubhai_uid');}
+    }).catch(()=>{userId=null;});
+  }
+})();
+</script>
 
-    return content
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.165.0/build/three.module.js';
+const c=document.getElementById('bg');
+if(!c)throw new Error('no canvas');
+const r=new THREE.WebGLRenderer({canvas:c,antialias:true,alpha:true});
+r.setSize(innerWidth,innerHeight);r.setPixelRatio(Math.min(devicePixelRatio,2));
+const sc=new THREE.Scene(),cam=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
+cam.position.z=30;
+const N=40,pts=[],pa=new Float32Array(N*3);
+for(let i=0;i<N;i++){
+  const p={x:(Math.random()-.5)*80,y:(Math.random()-.5)*60,z:(Math.random()-.5)*40,
+           vx:(Math.random()-.5)*.009,vy:(Math.random()-.5)*.009,vz:(Math.random()-.5)*.004};
+  pts.push(p);pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;
+}
+const g=new THREE.BufferGeometry();
+g.setAttribute('position',new THREE.BufferAttribute(pa,3));
+sc.add(new THREE.Points(g,new THREE.PointsMaterial({color:0xffffff,size:.1,transparent:true,opacity:.4})));
+const la=new Float32Array(N*N*6),lg=new THREE.BufferGeometry();
+sc.add(new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.02})));
+addEventListener('resize',()=>{r.setSize(innerWidth,innerHeight);cam.aspect=innerWidth/innerHeight;cam.updateProjectionMatrix();});
+(function an(){
+  requestAnimationFrame(an);
+  pts.forEach((p,i)=>{
+    p.x+=p.vx;p.y+=p.vy;p.z+=p.vz;
+    if(Math.abs(p.x)>40)p.vx*=-1;if(Math.abs(p.y)>30)p.vy*=-1;if(Math.abs(p.z)>20)p.vz*=-1;
+    pa[i*3]=p.x;pa[i*3+1]=p.y;pa[i*3+2]=p.z;
+  });
+  g.attributes.position.needsUpdate=true;
+  let li=0;
+  for(let i=0;i<N;i++)for(let j=i+1;j<N;j++){
+    const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y,dz=pts[i].z-pts[j].z;
+    if(Math.sqrt(dx*dx+dy*dy+dz*dz)<16){
+      la[li++]=pts[i].x;la[li++]=pts[i].y;la[li++]=pts[i].z;
+      la[li++]=pts[j].x;la[li++]=pts[j].y;la[li++]=pts[j].z;
+    }
+  }
+  lg.setAttribute('position',new THREE.BufferAttribute(la.slice(0,li),3));
+  r.render(sc,cam);
+})();
+</script>
 
-
-if __name__ == '__main__':
-    path = sys.argv[1] if len(sys.argv) > 1 else 'index.html'
-    with open(path, 'r', encoding='utf-8') as f:
-        html = f.read()
-    patched = patch(html)
-    out = path.replace('.html', '_patched.html')
-    with open(out, 'w', encoding='utf-8') as f:
-        f.write(patched)
-    print(f"Written: {out} ({len(patched):,} chars)")
+</body>
+</html>
