@@ -30,6 +30,67 @@ PLAN_LIMITS = {
     "max":        {"days": 999, "price": 999},
 }
 
+# ── MILESTONES ─────────────────────────────────────────────────────────────────
+MILESTONES = {
+    3: {
+        "id": "day3",
+        "title": "Halfway Hustler 🔥",
+        "subtitle": "3 days done. Most people quit at Day 1.",
+        "emoji": "🔥",
+        "color": "#f97316",
+        "msg": "You've completed 3 days of AI challenges. You're already ahead of 90% of people who signed up this week.",
+        "cta": "Keep the streak going. Day 4 is waiting."
+    },
+    5: {
+        "id": "day5",
+        "title": "AI Power User ⚡",
+        "subtitle": "5 days in. Top 10% of all Zubhai learners.",
+        "emoji": "⚡",
+        "color": "#e8602c",
+        "msg": "5 real AI tasks completed. You've built more this week than most people do in a year of watching tutorials.",
+        "cta": "2 more days. Day 7 is your portfolio piece."
+    },
+    7: {
+        "id": "day7",
+        "title": "AI Sprint Champion 🏆",
+        "subtitle": "All 7 days. That's rare.",
+        "emoji": "🏆",
+        "color": "#16a34a",
+        "msg": "You finished the full 7-day sprint. You have real, published proof of AI skills. That's what separates you now.",
+        "cta": "Your Proof Wall is live. Share it on LinkedIn."
+    },
+}
+
+def has_completed_day(u: dict, day: int) -> bool:
+    """Check if user has already completed this specific day."""
+    try:
+        tc = u.get("tasks_completed", "[]")
+        completed = json.loads(tc) if isinstance(tc, str) else (tc or [])
+        return any(t.get("day") == day for t in completed)
+    except:
+        return False
+
+def send_milestone_email(email: str, name: str, milestone: dict):
+    """Send a milestone celebration email."""
+    try:
+        send_email(
+            email,
+            f"{milestone['emoji']} {milestone['title']} — Zubhai",
+            email_wrap(
+                f'<div class="tag">Milestone Unlocked</div>'
+                f'<h1>{milestone["title"]}</h1>'
+                f'<p style="font-size:16px;color:#f0f0f0">{milestone["subtitle"]}</p>'
+                f'<div class="card"><p style="margin:0;font-size:14px;color:#aaa;line-height:1.8">'
+                f'{milestone["msg"]}</p></div>'
+                f'<p style="color:#e8602c;font-size:14px">{milestone["cta"]}</p>'
+                f'<a href="{SITE_URL}" class="btn">Continue on Zubhai →</a>'
+            )
+        )
+        return True
+    except Exception as e:
+        print(f"Milestone email error: {e}")
+        return False
+
 def pick_model(field: str, day: int, msg_type: str = "chat"):
     f = field.lower()
     if msg_type in ("post", "grade", "profile_parse"):
@@ -121,15 +182,220 @@ DEFAULT_PROFILE = {
     "language": "English", "raw_answer": "",
 }
 
-PROFILE_NUDGES = [
-    {"key": "company", "question": "Which company/org are you currently at?", "placeholder": "e.g., Infosys / Self-employed / College"},
-    {"key": "desired_role", "question": "What role are you targeting in next 6-12 months?", "placeholder": "e.g., Backend Engineer II"},
-    {"key": "experience_years", "question": "How many years of experience do you have?", "placeholder": "e.g., 2"},
-    {"key": "main_kpi", "question": "What is one KPI you want to improve with AI?", "placeholder": "e.g., Ship PRs faster / Improve CTR"},
-    {"key": "biggest_blocker", "question": "What is your biggest blocker right now?", "placeholder": "e.g., unclear architecture / no content ideas"},
-    {"key": "weekly_time_commitment", "question": "How many hours/week can you commit?", "placeholder": "e.g., 5"},
-    {"key": "learning_style", "question": "Preferred learning style?", "placeholder": "e.g., hands-on projects"},
-]
+
+# ── JOURNEY HELPERS ────────────────────────────────────────────────────────────
+
+def get_journey_history(user_id: str, limit: int = 10) -> list:
+    """Full history of what user built, where they struggled, scores."""
+    try:
+        r = supabase.table("user_journey").select("*") \
+            .eq("user_id", user_id) \
+            .order("created_at", desc=True) \
+            .limit(limit) \
+            .execute()
+        return r.data or []
+    except Exception as e:
+        print(f"Journey fetch error: {e}")
+        return []
+
+
+def store_journey(user_id: str, day: int, field: str, task_title: str,
+                  prompt_generated: str, user_output: str, score: int,
+                  where_stuck: str = "", breakthrough: str = "",
+                  time_spent: int = 0, iterations: int = 1):
+    try:
+        insight = extract_session_insight(user_output, score, field, day)
+        supabase.table("user_journey").insert({
+            "user_id": user_id,
+            "day": day,
+            "field": field,
+            "task_title": task_title,
+            "prompt_generated": prompt_generated,
+            "user_output": user_output[:5000],
+            "score": score,
+            "time_spent_minutes": time_spent,
+            "iterations": iterations,
+            "where_stuck": where_stuck,
+            "breakthrough": breakthrough,
+            "ai_insight": insight,
+            "created_at": datetime.utcnow().isoformat()
+        }).execute()
+
+        # update collective patterns
+        update_collective_patterns(field, day, where_stuck, score)
+    except Exception as e:
+        print(f"Journey store error: {e}")
+
+
+def extract_session_insight(output: str, score: int, field: str, day: int) -> str:
+    """What did we learn about this person from their submission?"""
+    if not output or len(output) < 50:
+        return ""
+    try:
+        r = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[{"role": "user", "content": f"""
+Analyze this Day {day} {field} submission (score {score}/10).
+In 2 sentences only:
+- What is this person strong at?
+- What specific thing do they avoid or struggle with?
+
+Submission: {output[:1000]}
+
+Return ONLY 2 sentences. No headers, no preamble."""}],
+            max_tokens=100, temperature=0.2
+        )
+        return r.choices[0].message.content.strip()
+    except:
+        return ""
+
+
+def update_collective_patterns(field: str, day: int, where_stuck: str, score: int):
+    """Aggregates struggle patterns across all users."""
+    if not where_stuck:
+        return
+    try:
+        existing = supabase.table("collective_patterns").select("*") \
+            .eq("field", field).eq("day", day) \
+            .eq("pattern_type", "struggle").execute()
+
+        if existing.data:
+            row = existing.data[0]
+            new_text = row["pattern_text"] + " | " + where_stuck
+            supabase.table("collective_patterns").update({
+                "pattern_text": new_text[:2000],
+                "sample_size": row["sample_size"] + 1,
+                "updated_at": datetime.utcnow().isoformat()
+            }).eq("id", row["id"]).execute()
+        else:
+            supabase.table("collective_patterns").insert({
+                "field": field, "day": day,
+                "pattern_type": "struggle",
+                "pattern_text": where_stuck,
+                "sample_size": 1
+            }).execute()
+    except Exception as e:
+        print(f"Pattern update error: {e}")
+
+
+def get_collective_patterns(field: str, day: int) -> str:
+    """What do similar users struggle with on this day?"""
+    try:
+        r = supabase.table("collective_patterns").select("*") \
+            .eq("field", field).eq("day", day).execute()
+        if not r.data:
+            return ""
+        patterns = [row["pattern_text"] for row in r.data if row.get("sample_size", 0) >= 3]
+        return "; ".join(patterns[:2]) if patterns else ""
+    except:
+        return ""
+
+
+# ── AGENT BRAIN — DYNAMIC PROMPT GENERATOR ───────────────────────────────────
+
+def generate_task_prompt(profile: dict, day_info: dict, field: str,
+                          day: int, journey_history: list) -> str:
+    """
+    Generates a personalized, interactive prompt for the user to copy
+    into their external AI tool. NOT pre-written — built fresh from their data.
+    """
+    name        = profile.get("name", "")
+    company     = profile.get("company", "")
+    role        = profile.get("current_role", field + " professional")
+    goal        = profile.get("goal", "")
+    product     = profile.get("product_name", "")
+    audience    = profile.get("target_audience", "")
+    industry    = profile.get("industry", field)
+    level       = profile.get("skill_level", "beginner")
+    time_budget = profile.get("daily_time_budget", "20 minutes")
+    language    = profile.get("language", "English")
+    tool        = day_info.get("tool", "Claude")
+
+    # Build what we know about their journey
+    journey_ctx = ""
+    if journey_history:
+        recent = journey_history[:3]
+        lines = []
+        for j in recent:
+            stuck = j.get("where_stuck", "")
+            insight = j.get("ai_insight", "")
+            lines.append(
+                f"Day {j['day']}: scored {j.get('score', 0)}/10"
+                + (f", struggled with: {stuck}" if stuck else "")
+                + (f", insight: {insight}" if insight else "")
+            )
+        journey_ctx = "\n".join(lines)
+
+    # What similar users struggled with
+    collective = get_collective_patterns(field, day)
+
+    generation_prompt = f"""You are building a personalized AI task prompt for one specific person.
+
+PERSON:
+Name: {name or 'not provided'}
+Role: {role}
+Company / Product: {company or product or 'their work'}
+Industry: {industry}
+Goal: {goal or f'get better at {field} using AI tools'}
+Target Audience: {audience or 'their customers'}
+Skill Level: {level}
+Time today: {time_budget}
+Language preference: {language}
+
+THEIR JOURNEY SO FAR:
+{journey_ctx if journey_ctx else "First session — no history yet."}
+
+COMMON STRUGGLES (from similar users at this day):
+{collective if collective else "None recorded yet."}
+
+TODAY'S TASK:
+Day {day} of their 7-day intro sprint — {day_info['title']}
+Why it matters: {day_info['why']}
+What they need to do: {day_info['task']}
+Tool: {tool}
+
+WRITE A PROMPT they will copy-paste into {tool}.
+
+RULES FOR THE PROMPT YOU WRITE:
+1. Open with exactly who they are — use their REAL name, company, product.
+   No placeholders. No [your product here]. Use the actual values above.
+
+2. Tell {tool} to search the web FIRST for 2026 data relevant to their
+   specific industry and goal. Name what to look for.
+
+3. Have {tool} ask them 2-3 questions ONE AT A TIME.
+   - Do not ask things we already know (we know their product, role, goal).
+   - Ask only what's missing for THIS specific task.
+   - Each question: "Wait for my answer before continuing."
+
+4. After all answers, produce something REAL:
+   - Their actual deliverable (their email sequence, their ad copy, their code)
+   - Using their real product name and real audience throughout
+   - Not a generic example — this should only work for them
+
+5. End with a shareable artifact (LinkedIn post, shareable doc, template
+   they can actually use tomorrow in their real work)
+
+6. Tone: senior professional giving a real task. Zero fluff.
+   Do not say "master this in 7 days" — this is a sprint intro, not mastery.
+
+7. If language preference is not English, end the prompt with:
+   "Respond entirely in {language}."
+
+Output ONLY the prompt text. Nothing else. No explanation."""
+
+    try:
+        r = claude_client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=900,
+            messages=[{"role": "user", "content": generation_prompt}]
+        )
+        return r.content[0].text.strip()
+    except Exception as e:
+        print(f"Prompt generation error: {e}")
+        # Fallback — basic starter from PROGRAM
+        return day_info.get("starter", "Complete today's task and paste your result here.")
+
 
 def extract_json(text):
     if not text:
@@ -150,53 +416,6 @@ def extract_json(text):
 def today_str():
     return date.today().isoformat()
 
-
-def fetch_daily_news(field: str, profile: dict | None = None) -> dict:
-    profile = profile or {}
-    role = profile.get("current_role", "").strip()
-    industry = profile.get("industry", "").strip()
-    focus = role or industry or field
-
-    queries = [
-        f"{focus} AI layoffs India latest",
-        f"{focus} AI productivity benchmark India latest",
-        f"{focus} AI tools adoption enterprise latest",
-    ]
-    bullets = []
-
-    for qtxt in queries:
-        try:
-            q = requests.utils.quote(qtxt)
-            res = requests.get(f"https://r.jina.ai/http://news.google.com/search?q={q}&hl=en-IN&gl=IN&ceid=IN:en", timeout=10)
-            if res.status_code != 200 or len(res.text) < 120:
-                continue
-            lines = [ln.strip(" -•	") for ln in res.text.splitlines() if ln.strip()]
-            useful = [ln for ln in lines if len(ln) > 40 and ("http" in ln or "ago" in ln.lower())]
-            if useful:
-                bullets.append(useful[0][:220])
-        except Exception:
-            continue
-
-    if bullets:
-        return {
-            "query": focus,
-            "headline": bullets[0],
-            "highlights": bullets[:3],
-            "date": date.today().isoformat(),
-            "source": "Google News (live)",
-            "is_live": True,
-        }
-
-    fallback = THREAT_DATA.get(field.lower(), THREAT_DATA["student"]).get("dispatch", "AI is reshaping your profession quickly.")
-    return {
-        "query": focus,
-        "headline": fallback,
-        "highlights": [fallback],
-        "date": date.today().isoformat(),
-        "source": "fallback",
-        "is_live": False,
-    }
-
 def get_user(user_id: str):
     r = supabase.table("users").select("*").eq("id", user_id).execute()
     return r.data[0] if r.data else None
@@ -211,19 +430,11 @@ def get_profile(u: dict) -> dict:
     except:
         return dict(DEFAULT_PROFILE)
 
-def merge_profile(user_id: str, updates: dict):
-    u = get_user(user_id)
-    if not u:
-        return None
-    profile = get_profile(u)
-    profile.update({k: v for k, v in updates.items() if v not in (None, "")})
-    supabase.table("users").update({"profile": json.dumps(profile)}).eq("id", user_id).execute()
-    return profile
-
 def send_email(to: str, subject: str, html: str):
     try:
         resend.Emails.send({"from": f"{SENDER_NAME} <{SENDER_EMAIL}>", "to": [to], "subject": subject, "html": html})
         return True
+        
     except Exception as e:
         print(f"Email error: {e}")
         return False
@@ -256,21 +467,9 @@ p{{color:#888;font-size:14px;line-height:1.8;margin:0 0 12px}}
 
 def build_personalization_context(profile: dict, day_info: dict, field: str, day: int) -> str:
     parts = []
-    name = profile.get("name", "")
-    if name:
-        parts.append(f"Name: {name}")
-    company = profile.get("company", "")
-    if company:
-        parts.append(f"Company/org: {company}")
     role = profile.get("current_role", "")
     if role:
         parts.append(f"Their role: {role}")
-    desired = profile.get("desired_role", "")
-    if desired:
-        parts.append(f"Desired role: {desired}")
-    exp = profile.get("experience_years", "")
-    if exp:
-        parts.append(f"Experience: {exp}")
     level = profile.get("skill_level", "beginner")
     parts.append(f"Skill level: {level}")
     goal = profile.get("goal", "")
@@ -291,21 +490,6 @@ def build_personalization_context(profile: dict, day_info: dict, field: str, day
     industry = profile.get("industry", "")
     if industry:
         parts.append(f"Industry: {industry}")
-    hobby = profile.get("hobby", "")
-    if hobby:
-        parts.append(f"Hobby/context hook: {hobby}")
-    resources = profile.get("resources", "")
-    if resources:
-        parts.append(f"Resources available: {resources}")
-    daily_time = profile.get("daily_time_budget", "")
-    if daily_time:
-        parts.append(f"Daily time budget: {daily_time}")
-    spend = profile.get("spend_budget", "")
-    if spend:
-        parts.append(f"Money/tool budget: {spend}")
-    kpi = profile.get("main_kpi", "")
-    if kpi:
-        parts.append(f"Outcome KPI: {kpi}")
     if level == "beginner":
         parts.append("→ Give step-by-step. Don't assume they know tools. When giving starter, be explicit about WHERE to go and WHAT to type.")
     elif level == "intermediate":
@@ -318,6 +502,30 @@ def build_personalization_context(profile: dict, day_info: dict, field: str, day
         if "current_project" in personalize_by:
             parts.append(f"→ IMPORTANT: Use their project '{proj}' as the example for today's task. Don't give them a hypothetical — use their real work.")
     return "\n".join(parts)
+
+
+def fetch_daily_news(field: str, profile: dict) -> dict:
+    """
+    Return daily news context for a user's field.
+    Currently uses static THREAT_DATA; can be extended to pull from an external API.
+    """
+    f = field.lower()
+    threat = THREAT_DATA.get(f, THREAT_DATA["student"])
+    
+    # Build a highlights list from relevant threat data
+    highlights = [
+        threat.get("what_ai_does", ""),
+        threat.get("stat", ""),
+        threat.get("dispatch", "")
+    ]
+    highlights = [h for h in highlights if h]  # remove empty strings
+    
+    return {
+        "headline": threat.get("headline", "AI is reshaping your industry"),
+        "highlights": highlights,
+        "risk": threat.get("risk", 0),
+        "fear": threat.get("fear", ""),
+    }
 
 # ── STATIC ─────────────────────────────────────────────────────────────────────
 @app.get("/")
@@ -338,10 +546,6 @@ async def chat_image(data: dict):
 
     if not user_id or not image_b64:
         return JSONResponse({"status": "error", "message": "Missing image or user_id"})
-    if "," in image_b64 and image_b64.strip().startswith("data:"):
-        image_b64 = image_b64.split(",", 1)[1]
-    image_bytes_est = int(len(image_b64) * 0.75)
-    use_openai_vision = image_bytes_est > 4_900_000
 
     u = get_user(user_id)
     if not u:
@@ -387,40 +591,21 @@ Language: {u.get('language', language)}"""
 
     async def generate():
         try:
-            if use_openai_vision:
-                stream = openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[
-                        {"role": "system", "content": system},
-                        {"role": "user", "content": [
-                            {"type": "text", "text": message},
-                            {"type": "image_url", "image_url": {"url": f"data:{image_type};base64,{image_b64}"}},
-                        ]},
-                    ],
-                    max_tokens=600,
-                    temperature=0.5,
-                    stream=True,
-                )
-                for chunk in stream:
-                    text = chunk.choices[0].delta.content or ""
-                    if text:
-                        yield f"data: {json.dumps({'text': text})}\n\n"
-            else:
-                with claude_client.messages.stream(
-                    model="claude-sonnet-4-20250514",
-                    max_tokens=600,
-                    system=system,
-                    messages=messages
-                ) as stream:
-                    for text in stream.text_stream:
-                        yield f"data: {json.dumps({'text': text})}\n\n"
+            with claude_client.messages.stream(
+                model="claude-sonnet-4-20250514",
+                max_tokens=600,
+                system=system,
+                messages=messages
+            ) as stream:
+                for text in stream.text_stream:
+                    yield f"data: {json.dumps({'text': text})}\n\n"
 
             supabase.table("users").update({"last_active": today_str()}).eq("id", user_id).execute()
             yield f"data: {json.dumps({'done': True})}\n\n"
 
         except Exception as e:
             print(f"Image chat error: {e}")
-            yield f"data: {json.dumps({'error': 'Could not process image. Try again. If it is a large screenshot, crop it or upload again after compression.'})}\n\n"
+            yield f"data: {json.dumps({'error': 'Could not process image. Try again.'})}\n\n"
 
     return StreamingResponse(
         generate(),
@@ -430,26 +615,6 @@ Language: {u.get('language', language)}"""
             "X-Accel-Buffering": "no", "Access-Control-Allow-Origin": "*",
         }
     )
-
-@app.post("/newsletter")
-def newsletter(data: dict):
-    email = data.get("email", "").strip().lower()
-    source = data.get("source", "landing")
-    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
-        return {"status": "error", "message": "Invalid email"}
-    try:
-        supabase.table("newsletter_leads").insert({
-            "email": email,
-            "source": source,
-            "created_at": datetime.utcnow().isoformat(),
-        }).execute()
-    except Exception as e:
-        print(f"Newsletter store warning: {e}")
-    try:
-        send_email(SENDER_EMAIL, "New Zubhai update lead", email_wrap(f"<p>Email: <strong>{email}</strong></p><p>Source: {source}</p>"))
-    except Exception as e:
-        print(f"Newsletter email warning: {e}")
-    return {"status": "success"}
 
 # ── GOOGLE AUTH ────────────────────────────────────────────────────────────────
 @app.post("/auth/google")
@@ -522,8 +687,8 @@ def signup(data: dict):
             }).execute()
         except Exception as e:
             print(f"Insert warning: {e}")
-        send_email(email, "Welcome to Zubhai — Arjun will set up your 7-day sprint",
-            email_wrap(f'<div class="tag">Welcome</div><h1>Hey {name}! Arjun will ask a few quick chat questions, then Day 1 starts.</h1>'
+        send_email(email, "Welcome to Zubhai — answer one question to begin",
+            email_wrap(f'<div class="tag">Welcome</div><h1>Hey {name}! One question, then Day 1.</h1>'
                 f"<p>No lengthy forms. Just tell us where you are and where you want to go. 2 sentences.</p>"
                 f'<a href="{SITE_URL}" class="btn">Start Now →</a>'
                 f'<p style="font-size:12px;color:#444;margin-top:14px">— Shubh, founder of Zubhai</p>'))
@@ -575,44 +740,87 @@ def get_user_route(user_id: str):
         return {"status": "error", "message": "User not found"}
     return {"status": "success", "user": row.data[0]}
 
+
+# ── OTP AUTH ───────────────────────────────────────────────────────────────────
+@app.post("/auth/send-otp")
+def send_otp(data: dict):
+    email = data.get("email", "").strip().lower()
+    if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
+        return {"status": "error", "message": "Enter a valid email"}
+    try:
+        supabase.auth.sign_in_with_otp({"email": email, "options": {"should_create_user": True}})
+        return {"status": "success", "message": "OTP sent to " + email}
+    except Exception as e:
+        print(f"Send OTP error: {e}")
+        return {"status": "error", "message": "Could not send OTP. Try again."}
+
+@app.post("/auth/verify-otp")
+def verify_otp(data: dict):
+    email = data.get("email", "").strip().lower()
+    token = data.get("token", "").strip()
+    if not email or not token:
+        return {"status": "error", "message": "Email and OTP required"}
+    try:
+        result = supabase.auth.verify_otp({"email": email, "token": token, "type": "email"})
+        if not result.user:
+            return {"status": "error", "message": "Invalid or expired OTP"}
+        user_id  = result.user.id
+        today    = today_str()
+        name     = email.split("@")[0]
+        existing = supabase.table("users").select("*").eq("id", user_id).execute()
+        is_new   = not existing.data
+        if is_new:
+            try:
+                supabase.table("users").insert({
+                    "id": user_id, "email": email, "name": name,
+                    "plan": "free_trial", "trial_start": today,
+                    "day_in_program": 1, "streak": 0, "points": 0,
+                    "tasks_completed": "[]", "proof_wall": "[]",
+                    "onboarding_done": False, "profile": "{}"
+                }).execute()
+            except Exception as ins_err:
+                print(f"OTP insert warning: {ins_err}")
+            send_email(email, "Welcome to Zubhai — your 7-day AI sprint starts now",
+                email_wrap(f'<div class="tag">Welcome</div><h1>Hey {name}! One question, then Day 1.</h1>'
+                    f"<p>Tell us your goal in 2 sentences. Arjun builds your 7-day sprint around it.</p>"
+                    f'<a href="{SITE_URL}" class="btn">Start Now →</a>'
+                    f'<p style="font-size:12px;color:#444;margin-top:14px">— Shubh, founder of Zubhai</p>'))
+            user_data = {"id": user_id, "email": email, "name": name,
+                         "plan": "free_trial", "day_in_program": 1, "onboarding_done": False}
+        else:
+            user_data = existing.data[0]
+        return {"status": "success", "user_id": user_id, "user": user_data, "is_new": is_new}
+    except Exception as e:
+        err = str(e)
+        print(f"Verify OTP error: {err}")
+        if "invalid" in err.lower() or "expired" in err.lower():
+            return {"status": "error", "message": "Wrong or expired OTP. Check your inbox."}
+        return {"status": "error", "message": "Verification failed. Try again."}
+
 # ── SMART ONBOARDING ───────────────────────────────────────────────────────────
 @app.post("/onboard/parse")
 def parse_onboarding(data: dict):
-    user_id       = data.get("user_id")
-    answer        = data.get("answer", "").strip()
-    selected_track = data.get("field", "").strip().lower()
-    selected_lang  = data.get("language", "English")
-    time_per_day   = data.get("time_per_day", 15)
+    user_id = data.get("user_id")
+    answer  = data.get("answer", "").strip()
     if not user_id or not answer:
         return {"status": "error", "message": "Missing data"}
 
-    parse_prompt = f"""A user signed up for a 7-day AI skills program.
-Selected track: "{selected_track or 'not selected'}"
-Selected language: "{selected_lang}"
-They wrote detailed onboarding context about who they are, where they work/study, and what they want to achieve:
-"{answer}"
-Extract a structured profile for personalization and future task difficulty. Return ONLY valid JSON, nothing else:
+    parse_prompt = f"""A user signed up for a 7-day AI skills program. They answered this onboarding question:
+"In 2-3 sentences — what's your current situation and what do you want to achieve with AI in the next 7 days?"
+Their answer: "{answer}"
+Extract a structured profile. Return ONLY valid JSON, nothing else:
 {{
-  "track": "<student|developer|marketing|sales — prefer selected track if it fits>",
+  "track": "<student|developer|marketing|sales — pick the best fit>",
   "skill_level": "<beginner|intermediate|advanced>",
-  "name": "<their name if mentioned, else empty string>",
-  "company": "<company/college/org if mentioned, else empty string>",
-  "current_role": "<their role/position in 3-7 words>",
-  "desired_role": "<role they want next, else empty string>",
+  "current_role": "<their role in 3-5 words>",
   "goal": "<their main goal in 1 sentence>",
-  "experience_years": "<years/months of experience if mentioned, else empty string>",
-  "hobby": "<hobby/weird interest if mentioned, else empty string>",
-  "resources": "<devices/team/audience/project/resources they have>",
-  "daily_time_budget": "<time they can spend per daily challenge>",
-  "spend_budget": "<money they can spend on tools/tasks if mentioned>",
   "tools_known": ["<tools they already use>"],
   "tools_to_learn": ["<tools they explicitly want to learn>"],
   "current_project": "<any project they mentioned, or empty string>",
   "pain_point": "<their #1 frustration, inferred if not explicit>",
-  "main_kpi": "<metric/outcome they want to improve, else empty string>",
   "industry": "<their industry>",
   "timeline": "<urgent|flexible|exploring>",
-  "language": "<use selected language unless their writing clearly indicates another>"
+  "language": "<English|Hindi|Marathi — infer from answer style, default English>"
 }}"""
 
     try:
@@ -629,18 +837,13 @@ Extract a structured profile for personalization and future task difficulty. Ret
         profile = {**DEFAULT_PROFILE, "raw_answer": answer}
 
     profile["raw_answer"] = answer
-    if selected_track in ("student", "developer", "marketing", "sales"):
-        profile["track"] = selected_track
-    if selected_lang:
-        profile["language"] = selected_lang
     track = profile.get("track", "student")
     field_map = {"student": "student", "developer": "developer", "marketing": "marketing", "sales": "sales"}
     field = field_map.get(track, "student")
 
     supabase.table("users").update({
         "field": field, "level": profile.get("skill_level", "beginner"),
-        "language": profile.get("language", selected_lang or "English"),
-        "time_per_day": time_per_day,
+        "language": profile.get("language", "English"),
         "profile": json.dumps(profile), "onboarding_done": True, "day_in_program": 1,
     }).eq("id", user_id).execute()
 
@@ -677,41 +880,13 @@ def onboard(data: dict):
     time_per_day = data.get("time_per_day", 15)
     if not user_id or not field:
         return {"status": "error", "message": "Missing data"}
-    existing = get_user(user_id)
-    profile = get_profile(existing) if existing else dict(DEFAULT_PROFILE)
-    profile.update({"track": field, "skill_level": level, "language": language})
-    if data.get("answer"):
-        profile["raw_answer"] = data.get("answer", "").strip()
     supabase.table("users").update({
         "field": field, "level": level, "language": language,
-        "time_per_day": time_per_day, "onboarding_done": True,
-        "profile": json.dumps(profile)
+        "time_per_day": time_per_day, "onboarding_done": True
     }).eq("id", user_id).execute()
-    return {"status": "success", "profile": profile}
+    return {"status": "success"}
 
 # ── THREAT SCORE ───────────────────────────────────────────────────────────────
-@app.get("/profile/nudge/{user_id}")
-def profile_nudge(user_id: str):
-    u = get_user(user_id)
-    if not u:
-        return {"status": "error", "message": "User not found"}
-    p = get_profile(u)
-    for n in PROFILE_NUDGES:
-        if not str(p.get(n["key"], "")).strip():
-            return {"status": "success", "nudge": n, "completed": False}
-    return {"status": "success", "completed": True}
-
-@app.post("/profile/update")
-def profile_update(data: dict):
-    user_id = data.get("user_id")
-    updates = data.get("updates", {})
-    if not user_id or not isinstance(updates, dict):
-        return {"status": "error", "message": "Missing data"}
-    profile = merge_profile(user_id, updates)
-    if profile is None:
-        return {"status": "error", "message": "User not found"}
-    return {"status": "success", "profile": profile}
-
 @app.get("/threat-score/{field}")
 def threat_score(field: str):
     f    = field.lower()
@@ -719,14 +894,10 @@ def threat_score(field: str):
     return {"status": "success", "data": data}
 
 @app.get("/daily-dispatch/{field}")
-def daily_dispatch(field: str, user_id: str = ""):
-    f = field.lower()
-    profile = {}
-    if user_id:
-        u = get_user(user_id)
-        profile = get_profile(u) if u else {}
-    news = fetch_daily_news(f, profile)
-    return {"status": "success", "dispatch": news["headline"], "news": news, "popup": {"title": f"Live AI Signal for {f.title()}", "highlights": news.get("highlights", []), "source": news.get("source"), "date": news.get("date"), "is_live": news.get("is_live", False)}}
+def daily_dispatch(field: str):
+    f  = field.lower()
+    td = THREAT_DATA.get(f, THREAT_DATA.get("student"))
+    return {"status": "success", "dispatch": td.get("dispatch", "AI is reshaping every profession.")}
 
 # ── MAIN CHAT ENGINE ───────────────────────────────────────────────────────────
 @app.post("/chat")
@@ -745,23 +916,14 @@ async def chat(data: dict):
     if not u:
         return JSONResponse({"status": "error", "message": "User not found"})
 
-    today = today_str()
-    plan  = u.get("plan", "free_trial")
-
-    if plan == "free_trial":
-        try:
-            start = date.fromisoformat(u.get("trial_start", today))
-            if (date.today() - start).days >= 7:
-                return JSONResponse({"status": "trial_expired", "message": "Your 7-day free trial has ended."})
-        except:
-            pass
-
-    profile  = get_profile(u)
-    f        = field.lower()
-    program  = PROGRAM.get(f, PROGRAM["student"])
-    day_idx  = min(max(day - 1, 0), len(program) - 1)
+    today   = today_str()
+    plan    = u.get("plan", "free_trial")
+    profile = get_profile(u)
+    f       = field.lower()
+    program = PROGRAM.get(f, PROGRAM["student"])
+    day_idx = min(max(day - 1, 0), len(program) - 1)
     day_info = program[day_idx]
-    threat   = THREAT_DATA.get(f, THREAT_DATA["student"])
+    threat  = THREAT_DATA.get(f, THREAT_DATA["student"])
     daily_news = fetch_daily_news(f, profile)
 
     is_start      = message.startswith("START_SESSION_DAY_")
@@ -787,109 +949,133 @@ async def chat(data: dict):
 
     pers = build_personalization_context(profile, day_info, f, day)
 
-    if day <= 2:
-        grade_calibration = f"""GRADING Day {day} (EARLY):
-Score: give 7-9/10 for any genuine attempt. Don't penalize for being basic — it's Day {day}.
-Feedback: exactly 1 sentence on what was good. 1 sentence on ONE specific thing to improve.
-Energy: encouraging, like a mentor who's seen this before and knows they'll get it."""
-    elif day <= 4:
-        grade_calibration = f"""GRADING Day {day} (BUILDING):
-Score: 6-8/10 range. Push for specificity.
-Feedback: 2 sentences — what worked, what would make it 9/10.
-Energy: honest, constructive, still warm."""
-    else:
-        grade_calibration = f"""GRADING Day {day} (ADVANCED):
-Score: full range 4-10. Real standards now. Generic = low score.
-Feedback: 3 sentences — what's strong, what's missing, one specific action to improve.
-Energy: like a senior colleague. Honest, not harsh."""
+    # ── GET JOURNEY HISTORY + GENERATE PROMPT ON SESSION START ────────────────
+    journey_history = get_journey_history(user_id, limit=10)
+    collective_ctx  = get_collective_patterns(f, day)
 
-    system = f"""You are Arjun — mentor at Zubhai (zubhai.com). Logo: ⚡ Zubhai.
-Never say you're an AI. Never mention ChatGPT or Claude by those names to the user.
-You've been where this {field} is. Blunt, specific, zero corporate BS.
+    generated_prompt = ""
+    if is_start:
+        generated_prompt = generate_task_prompt(
+            profile, day_info, f, day, journey_history
+        )
+
+    # Build journey context for system prompt
+    journey_summary = ""
+    if journey_history:
+        recent = journey_history[:3]
+        lines = []
+        for j in recent:
+            lines.append(
+                f"Day {j['day']} ({j.get('task_title','')}) — "
+                f"score {j.get('score',0)}/10"
+                + (f" — struggled: {j.get('where_stuck','')}" if j.get('where_stuck') else "")
+                + (f" — insight: {j.get('ai_insight','')}" if j.get('ai_insight') else "")
+            )
+        journey_summary = "\n".join(lines)
+
+    # Grade calibration (same as before)
+    if day <= 2:
+        grade_calibration = f"""GRADING Day {day} (EARLY): Score 7-9/10 for genuine attempt. 1 sentence good, 1 sentence improve. Encouraging."""
+    elif day <= 4:
+        grade_calibration = f"""GRADING Day {day} (BUILDING): Score 6-8/10. Push for specificity. 2 sentences feedback."""
+    else:
+        grade_calibration = f"""GRADING Day {day} (ADVANCED): Full range 4-10. Real standards. 3 sentences. Honest."""
+
+    system = f"""You are Arjun — mentor at Zubhai (zubhai.com). ⚡
+Never say you're an AI. Blunt, specific, zero corporate BS.
 TODAY — Day {day}/7: {day_info['title']}
-Why this matters: {day_info['why']}
-Task: {day_info['task']}
-Starter: {day_info['starter'].replace('[your field]', profile.get('current_role', field)).replace('[field]', field).replace('[role]', profile.get('current_role', field))}
 {prev_days_context}
 {next_day_preview}
 Language: {u.get('language', language)}
+
 USER PROFILE:
 {pers}
-CHARACTER:
-- Older cousin who works in AI and actually gives a damn
-- Real India examples (₹ not $, Indian companies, Indian market 2026)
-- Mild personality: "yaar", "bhai", "seriously though" — if language is Hindi/Marathi, mix it in
-- Short. Punch. Never start with "Great!" or "Sure!" or "Of course!"
-SESSION START (message contains START_SESSION):
-→ No hello. Jump straight in.
-→ 1 punchy line on why THIS specific skill matters for someone like them (use their profile)
-→ Personalized task: if they have a current project → use it. if they have known tools → reference them.
-→ Give the exact starter they need to copy-paste and go
-→ End: "do it, paste result here." — nothing else
-QUESTIONS FROM USER:
-→ 2 sentences max. Real 2026 examples.
-→ "now back to it" + 1 line to re-anchor them to the task
-SUBMISSION (user pastes output/link/code):
-{grade_calibration}
-→ ALWAYS end with:
-ZUBHAI_GRADE:{{"score":{{"n":SCORE,"good":"specific praise","improve":"specific fix","day":{day},"field":"{f}"}}}}
-{f"DEVELOPER extra: if beginner level → give a 10-15 line starter code scaffold they complete. if intermediate+ → give the challenge directly without scaffold." if f == "developer" else ""}
-{f"MARKETING extra: grade on specificity — generic copy = 4/10 max. Real brand, real audience, real hook = higher." if f == "marketing" else ""}
-{f"STUDENT extra: connect task to their actual course/career goal from profile." if f == "student" else ""}
-LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights", [daily_news["headline"]])}\nIf live context exists, cite concrete numbers/trends from it and tailor to user role.\nIf user asks for latest/current/today, do internet-backed guidance only; do not rely on stale/internal memory.\nFor submissions, if they share a URL or screenshot, acknowledge both and extract one measurable outcome.\nREALITY CHECK (use only when live context missing):\n{threat['fear']} {threat['stat']}\nTone: think like a Fortune-500 backend principal engineer mentor: precise, outcome-driven, no fluff.\nNEVER repeat yourself. SHORT replies always except for starter code or detailed feedback."""
 
-    # ── URL FETCHING ──────────────────────────────────────────────────────────
+USER'S FULL JOURNEY (use this — don't repeat what they've already done):
+{journey_summary if journey_summary else "First session."}
+
+COLLECTIVE INSIGHT (what similar users struggled with here):
+{collective_ctx if collective_ctx else "Not enough data yet."}
+
+CHARACTER: Older cousin in AI. Real India examples. Short. Punchy.
+Never "Great!" or "Sure!" or "Of course!"
+7 days = intro sprint. Never say "master this in 7 days."
+
+══════════════════════════════════════
+SESSION START:
+══════════════════════════════════════
+{"GENERATED PROMPT FOR THIS USER:" + chr(10) + generated_prompt if is_start and generated_prompt else ""}
+
+When is_start:
+→ 1 punchy line: why today matters FOR THEM specifically (use their journey)
+→ Show the generated prompt in this EXACT format:
+
+---
+**Your task today:** [2 lines max]
+
+**Copy this into {day_info.get('tool','Claude')}:**
+[COPY_PROMPT_START]
+{generated_prompt if generated_prompt else "[prompt will appear here]"}
+[COPY_PROMPT_END]
+
+**Steps:**
+1. Go to [tool URL]
+2. Paste the prompt — it will ask you questions
+3. Answer them honestly
+4. Paste the final output back here
+
+When done → paste your output here and I grade it.
+---
+
+══════════════════════════════════════
+SUBMISSION:
+══════════════════════════════════════
+{grade_calibration}
+→ Extract WHERE they got stuck (for memory storage)
+→ Note any breakthrough moment
+→ End with:
+ZUBHAI_GRADE:{{"score":{{"n":SCORE,"good":"specific praise","improve":"specific fix","day":{day},"field":"{f}","where_stuck":"[what confused them]","breakthrough":"[moment they got it if any]"}}}}
+
+QUESTIONS: 2 sentences max. "now back to it."
+LIVE NEWS: {daily_news.get('highlights', [daily_news['headline']])}
+NEVER repeat yourself. SHORT always except starter or feedback."""
+
+    # URL fetching (same as before)
     fetched_url_content = ""
     url_match = re.search(r'https?://\S+', message)
     if url_match and not is_start:
         url = url_match.group(0)
-        try:
-            res = requests.get(f"https://r.jina.ai/{url}", timeout=10)
-            if res.status_code == 200 and len(res.text) > 80:
-                fetched_url_content = res.text[:3000]
-        except:
-            pass
-        if not fetched_url_content and "github.com" in url:
+        # Detect AI share links — can't be fetched
+        ai_share_patterns = ["chatgpt.com/s/", "claude.ai/share/", "chat.openai.com/share/"]
+        is_ai_share = any(p in url for p in ai_share_patterns)
+        if is_ai_share:
+            fetched_url_content = f"[AI SHARE LINK DETECTED: {url}] — Cannot read this link directly. User shared their AI conversation as proof."
+        else:
             try:
-                raw_url = url.replace("github.com", "raw.githubusercontent.com").replace("/blob/", "/")
-                res = requests.get(raw_url, timeout=8)
-                if res.status_code == 200:
+                res = requests.get(f"https://r.jina.ai/{url}", timeout=10)
+                if res.status_code == 200 and len(res.text) > 80:
                     fetched_url_content = res.text[:3000]
             except:
                 pass
 
     messages = [{"role": m["role"], "content": m["content"]} for m in history[-16:]]
+
     if is_start:
         actual_msg = "Give me today's task now."
     elif fetched_url_content:
         actual_msg = f"{message}\n\n[URL CONTENT]:\n{fetched_url_content}"
     else:
         actual_msg = message
+
     messages.append({"role": "user", "content": actual_msg})
-
-    # ── WEB CONTEXT ───────────────────────────────────────────────────────────
-    web_ctx = ""
-    try:
-        yr = date.today().year
-        q  = requests.utils.quote(f"{profile.get('current_role', f)} AI layoffs productivity benchmarks India {yr} latest")
-        r  = requests.get(f"https://r.jina.ai/https://www.google.com/search?q={q}", timeout=5)
-        if r.status_code == 200 and len(r.text) > 100:
-            web_ctx = r.text[:1000]
-    except:
-        pass
-
-    if web_ctx:
-        system += f"\n\nREAL CONTEXT (use naturally):\n{web_ctx}"
 
     async def generate():
         full_text = ""
         try:
             if provider == "claude":
                 with claude_client.messages.stream(
-                    model=model_name,
-                    max_tokens=500,
-                    system=system,
-                    messages=messages
+                    model=model_name, max_tokens=700,
+                    system=system, messages=messages
                 ) as stream:
                     for text in stream.text_stream:
                         full_text += text
@@ -898,9 +1084,7 @@ LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights",
                 stream = openai_client.chat.completions.create(
                     model=model_name,
                     messages=[{"role": "system", "content": system}] + messages,
-                    max_tokens=500,
-                    temperature=0.7,
-                    stream=True
+                    max_tokens=700, temperature=0.7, stream=True
                 )
                 for chunk in stream:
                     text = chunk.choices[0].delta.content or ""
@@ -910,6 +1094,7 @@ LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights",
 
             supabase.table("users").update({"last_active": today}).eq("id", user_id).execute()
 
+            # ── PARSE GRADE + STORE JOURNEY ────────────────────────────────
             grade_data  = None
             share_post  = None
             points_earn = 0
@@ -922,25 +1107,71 @@ LIVE INTERNET NEWS (must prefer this over memory): {daily_news.get("highlights",
                     grade_data = json.loads(grade_raw[start_i:end_i])
                     score_obj  = grade_data.get("score", {})
                     score      = int(score_obj.get("n", 0)) if isinstance(score_obj, dict) else int(grade_data.get("n", 0))
-                    pts        = score * 15
-                    new_pts    = (u.get("points") or 0) + pts
-                    new_day    = min((u.get("day_in_program") or 1) + 1, 8)
-                    points_earn = pts
+                    where_stuck   = score_obj.get("where_stuck", "") if isinstance(score_obj, dict) else ""
+                    breakthrough  = score_obj.get("breakthrough", "") if isinstance(score_obj, dict) else ""
+                    pts           = score * 15
+                    new_pts       = (u.get("points") or 0) + pts
+                    points_earn   = pts
+
+                    already_done = has_completed_day(u, day)
+                    new_day      = u.get("day_in_program") or 1
+                    if not already_done:
+                        new_day = min(new_day + 1, 8)
+
+                    # ── STORE IN JOURNEY TABLE ─────────────────────────────
+                    user_output_text = ""
+                    for m in reversed(history[-10:]):
+                        if m["role"] == "user" and len(m["content"]) > 80:
+                            user_output_text = m["content"]
+                            break
+
+                    store_journey(
+                        user_id     = user_id,
+                        day         = day,
+                        field       = f,
+                        task_title  = day_info["title"],
+                        prompt_generated = generated_prompt or data.get("last_generated_prompt", ""),
+                        user_output = user_output_text,
+                        score       = score,
+                        where_stuck = where_stuck,
+                        breakthrough = breakthrough,
+                        iterations  = max(1, sum(1 for m in history if m["role"] == "user"))
+                    )
+
+                    # Update users table
+                    tasks_completed = []
+                    try:
+                        tc = u.get("tasks_completed", "[]")
+                        tasks_completed = json.loads(tc) if isinstance(tc, str) else (tc or [])
+                    except:
+                        tasks_completed = []
+
+                    if not already_done:
+                        tasks_completed.append({
+                            "day": day, "title": day_info["title"],
+                            "score": score, "points": pts,
+                            "field": f, "completed_at": today_str()
+                        })
+
                     supabase.table("users").update({
-                        "points": new_pts, "day_in_program": new_day, "last_active": today,
-                        "streak": (u.get("streak") or 0) + 1
+                        "points": new_pts,
+                        "day_in_program": new_day,
+                        "last_active": today,
+                        "streak": (u.get("streak") or 0) + 1,
+                        "tasks_completed": json.dumps(tasks_completed)
                     }).eq("id", user_id).execute()
 
+                    # Share post generation (same as before)
                     if score >= 6:
-                        what_good   = score_obj.get("good", "") if isinstance(score_obj, dict) else ""
-                        post_prompt = f"""Write a LinkedIn/Twitter post. 3-4 lines. Person just finished Day {day}/7 on Zubhai.
-Field: {field}. Built: {day_info['title']}. Score: {score}/10. What they did: {what_good}
-Line 1: specific thing they built (NOT "I learned AI today")
+                        what_good = score_obj.get("good", "") if isinstance(score_obj, dict) else ""
+                        post_prompt = f"""Write a LinkedIn/Twitter post. 3-4 lines.
+Person finished Day {day}/7 intro sprint on Zubhai. Field: {field}.
+Built: {day_info['title']}. Score: {score}/10. {what_good}
+Line 1: specific thing they built
 Line 2: one real insight
 Line 3: "Day {day}/7 done ⚡ zubhai.com"
-Line 4: #LearnAI #Zubhai #{field.replace(' ','')}AI
-Sound like a real person posted this. Zero humble-brag. Zero "excited to share".
-Return ONLY post text."""
+Line 4: #LearnAI #Zubhai
+Sound human. Zero humble-brag. Return ONLY post text."""
                         try:
                             pr = openai_client.chat.completions.create(
                                 model="gpt-4o-mini",
@@ -949,9 +1180,19 @@ Return ONLY post text."""
                             )
                             share_post = pr.choices[0].message.content.strip()
                         except:
-                            share_post = f"⚡ Day {day} done on Zubhai.\n{day_info['title']} — {score}/10.\nBuilding AI skills the real way.\nzubhai.com #LearnAI #Zubhai"
+                            share_post = f"⚡ Day {day} done on Zubhai.\n{day_info['title']} — {score}/10.\nzubhai.com #LearnAI"
 
-                    yield f"data: {json.dumps({'done': True, 'grade': grade_data, 'share_post': share_post, 'points_earned': points_earn})}\n\n"
+                    # Milestone check for chat grading
+                    chat_milestone = MILESTONES.get(day)
+                    if chat_milestone and not has_completed_day(u, day):
+                        try:
+                            email_addr = u.get("email", "")
+                            uname = u.get("name", email_addr.split("@")[0])
+                            send_milestone_email(email_addr, uname, chat_milestone)
+                        except Exception as me:
+                            print(f"Chat milestone email error: {me}")
+
+                    yield f"data: {json.dumps({'done': True, 'grade': grade_data, 'share_post': share_post, 'points_earned': points_earn, 'milestone': chat_milestone})}\n\n"
                     return
                 except Exception as ge:
                     print(f"Grade parse error: {ge}")
@@ -960,26 +1201,18 @@ Return ONLY post text."""
 
         except Exception as e:
             print(f"Chat stream error: {e}")
-            try:
-                resp = openai_client.chat.completions.create(
-                    model="gpt-4o-mini",
-                    messages=[{"role": "system", "content": system}] + messages,
-                    max_tokens=400, temperature=0.7
-                )
-                text = resp.choices[0].message.content.strip()
-                yield f"data: {json.dumps({'text': text})}\n\n"
-                yield f"data: {json.dumps({'done': True})}\n\n"
-            except Exception as e2:
-                yield f"data: {json.dumps({'error': 'Service error. Try again.'})}\n\n"
+            yield f"data: {json.dumps({'error': 'Service error. Try again.'})}\n\n"
 
-    return StreamingResponse(
-        generate(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache", "Connection": "keep-alive",
-            "X-Accel-Buffering": "no", "Access-Control-Allow-Origin": "*",
-        }
-    )
+    return StreamingResponse(generate(), media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "Connection": "keep-alive",
+                 "X-Accel-Buffering": "no", "Access-Control-Allow-Origin": "*"})
+
+
+# ── JOURNEY READ ENDPOINT ──────────────────────────────────────────────────────
+@app.get("/journey/{user_id}")
+def get_user_journey(user_id: str):
+    history = get_journey_history(user_id, limit=20)
+    return {"status": "success", "journey": history}
 
 # ── TASK SUBMISSION & VERIFICATION ────────────────────────────────────────────
 @app.post("/submit-task")
@@ -989,7 +1222,6 @@ def submit_task(data: dict):
     field      = data.get("field", "student")
     proof_url  = data.get("proof_url", "").strip()
     proof_text = data.get("proof_text", "").strip()
-    screenshot_url = data.get("screenshot_url", "").strip()
 
     if not user_id:
         return {"status": "error", "message": "Missing user_id"}
@@ -1017,11 +1249,8 @@ def submit_task(data: dict):
         if not url_readable:
             submitted_content = f"URL submitted: {proof_url}. Content could not be read automatically."
 
-    if screenshot_url:
-        submitted_content = (submitted_content + f"\n\nScreenshot URL: {screenshot_url}").strip()
-
     if not submitted_content:
-        return {"status": "error", "message": "Please provide a URL, screenshot URL, or describe what you did"}
+        return {"status": "error", "message": "Please provide a URL or describe what you did"}
 
     is_day7 = (day == 7)
     level   = profile.get("skill_level", "beginner")
@@ -1081,7 +1310,7 @@ Return ONLY JSON:
 
     task_entry = {
         "day": day, "title": day_info["title"], "score": score,
-        "points": points, "proof_url": proof_url, "screenshot_url": screenshot_url, "field": field,
+        "points": points, "proof_url": proof_url, "field": field,
         "completed_at": today_str()
     }
     tasks_completed.append(task_entry)
@@ -1100,23 +1329,34 @@ Return ONLY JSON:
         "last_active": today_str()
     }).eq("id", user_id).execute()
 
+    # ── EMAILS: task complete + milestone ────────────────────────────────────
     try:
         name = u.get("name", u.get("email", "").split("@")[0])
-        send_email(u.get("email", ""), f"Day {day} done — {score}/10",
+        email_addr = u.get("email", "")
+        # Task completion email
+        send_email(email_addr, f"Day {day} done — {score}/10",
             email_wrap(f'<div class="tag">Day {day} Complete</div>'
                 f"<h1>You scored {score}/10</h1>"
                 f'<div class="card"><p style="margin:0;font-size:13px;color:#888">{result.get("feedback", "")}</p></div>'
                 f"<p style='color:#e8602c;font-size:14px;margin:0'>+{points} points</p>"
                 f'<a href="{SITE_URL}" class="btn">Continue to Day {min(day+1,7)} →</a>'))
+        # Milestone email (days 3, 5, 7)
+        milestone = MILESTONES.get(day)
+        if milestone:
+            send_milestone_email(email_addr, name, milestone)
     except Exception as e:
-        print(f"Score email error: {e}")
+        print(f"Score/milestone email error: {e}")
+
+    # Check milestone for frontend popup
+    milestone_data = MILESTONES.get(day)
 
     return {
         "status": "success", "score": score, "points": points,
         "total_points": new_points, "feedback": result.get("feedback", ""),
         "what_was_good": result.get("what_was_good", ""),
         "what_to_improve": result.get("what_to_improve", ""),
-        "next_day": new_day, "is_milestone": is_day7,
+        "next_day": new_day, "is_milestone": is_day7 or bool(milestone_data),
+        "milestone": milestone_data,
         "added_to_proof_wall": is_day7 and bool(proof_url)
     }
 
@@ -1148,8 +1388,18 @@ def proof_wall(user_id: str):
 def leaderboard():
     result = supabase.table("users").select(
         "email, name, points, field, streak, day_in_program, plan"
-    ).order("points", desc=True).limit(20).execute()
-    return {"leaderboard": result.data}
+    ).order("points", desc=True).limit(100).execute()
+    rows = []
+    for u in (result.data or []):
+        rows.append({
+            "name":           u.get("name") or (u.get("email","").split("@")[0]),
+            "points":         u.get("points") or 0,
+            "field":          u.get("field") or "—",
+            "streak":         u.get("streak") or 0,
+            "day_in_program": u.get("day_in_program") or 1,
+            "plan":           u.get("plan") or "free_trial",
+        })
+    return {"leaderboard": rows, "total": len(rows)}
 
 # ── UPGRADE INTENT ─────────────────────────────────────────────────────────────
 @app.post("/upgrade")
@@ -1206,3 +1456,306 @@ def submit_feedback(data: dict):
     except Exception as e:
         print(f"Feedback: {e}")
     return {"status": "received"}
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MISSING ENDPOINTS — added to fix 404s
+# ══════════════════════════════════════════════════════════════════════════════
+
+# ── USAGE (called by frontend loadUsage()) ─────────────────────────────────────
+@app.get("/usage/{user_id}")
+def get_usage(user_id: str):
+    """Returns session usage, plan info, and reset timer for the sidebar meter."""
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+
+    plan  = u.get("plan", "free_trial")
+    today = date.today().isoformat()
+
+    # Count messages sent today from usage_log if it exists, else fallback to 0
+    msgs_today = 0
+    try:
+        res = supabase.table("usage_log") \
+            .select("id", count="exact") \
+            .eq("user_id", user_id) \
+            .eq("date", today) \
+            .execute()
+        msgs_today = res.count or 0
+    except Exception:
+        msgs_today = 0  # table may not exist yet — safe default
+
+    # Plan limits
+    limits = {"free_trial": 5, "pro": 50, "max": 999}
+    session_limit = limits.get(plan, 5)
+    msgs_left     = max(0, session_limit - msgs_today)
+
+    # Seconds until midnight IST (UTC+5:30)
+    from datetime import timezone
+    now_utc   = datetime.now(timezone.utc)
+    ist_offset = timedelta(hours=5, minutes=30)
+    now_ist   = now_utc + ist_offset
+    midnight_ist = (now_ist + timedelta(days=1)).replace(
+        hour=0, minute=0, second=0, microsecond=0
+    )
+    reset_seconds = int((midnight_ist - now_ist).total_seconds())
+
+    # Trial expiry check
+    trial_expired = False
+    if plan == "free_trial":
+        try:
+            start = date.fromisoformat(u.get("trial_start") or today)
+            trial_expired = (date.today() - start).days >= 7
+        except Exception:
+            pass
+
+    return {
+        "status":        "success",
+        "plan":          plan,
+        "msgs_today":    msgs_today,
+        "msgs_left":     msgs_left,
+        "sessions_left": msgs_left,
+        "sessions_limit": session_limit,
+        "msgs_limit":    session_limit,
+        "reset_seconds": reset_seconds,
+        "trial_expired": trial_expired,
+    }
+
+# ── WAITLIST ───────────────────────────────────────────────────────────────────
+@app.post("/waitlist")
+def waitlist(data: dict):
+    email = data.get("email", "").strip()
+    name  = data.get("name", "").strip()
+    if not email:
+        return {"status": "error", "message": "Email required"}
+    try:
+        supabase.table("waitlist").insert({
+            "email": email, "name": name, "created_at": date.today().isoformat()
+        }).execute()
+    except Exception as e:
+        print(f"Waitlist insert: {e}")
+    try:
+        resend.Emails.send({
+            "from": f"{SENDER_NAME} <{SENDER_EMAIL}>",
+            "to":   [email],
+            "subject": "You're on the Zubhai waitlist 🔥",
+            "html": f"<p>Hey {name or 'there'}! You're on the list. Shubh will reach out when your spot opens.</p>"
+        })
+    except Exception as e:
+        print(f"Waitlist email: {e}")
+    return {"status": "success", "message": "You're on the list!"}
+
+# Newsletter alias
+@app.post("/newsletter")
+def newsletter(data: dict):
+    return waitlist(data)
+
+# ── ONBOARD SAVE TURN ──────────────────────────────────────────────────────────
+@app.post("/onboard/save-turn")
+def save_onboard_turn(data: dict):
+    """Persist each onboarding chat message so data survives page refresh."""
+    user_id = data.get("user_id")
+    role    = data.get("role")
+    content = data.get("content", "").strip()
+    if not user_id or not role or not content:
+        return {"status": "error"}
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error"}
+    try:
+        raw        = u.get("onboard_transcript") or "[]"
+        transcript = json.loads(raw) if isinstance(raw, str) else (raw or [])
+        if not isinstance(transcript, list):
+            transcript = []
+    except Exception:
+        transcript = []
+    transcript.append({
+        "role": role, "content": content,
+        "ts": datetime.now().isoformat()
+    })
+    transcript = transcript[-40:]
+    supabase.table("users").update({
+        "onboard_transcript": json.dumps(transcript)
+    }).eq("id", user_id).execute()
+    return {"status": "success", "turns": len(transcript)}
+
+# ── ONBOARD TRANSCRIPT (resume after refresh) ──────────────────────────────────
+@app.get("/onboard/transcript/{user_id}")
+def get_onboard_transcript(user_id: str):
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error"}
+    try:
+        transcript = json.loads(u.get("onboard_transcript") or "[]")
+    except Exception:
+        transcript = []
+    return {
+        "status":         "success",
+        "transcript":     transcript,
+        "onboarding_done": u.get("onboarding_done", False)
+    }
+
+# ── PROFILE NUDGE ──────────────────────────────────────────────────────────────
+PROFILE_NUDGES_LIST = [
+    {"key": "company",          "question": "Which company or college are you at?",              "placeholder": "e.g., TCS / IIT Bombay / Freelance"},
+    {"key": "desired_role",     "question": "What role are you targeting in the next 6–12 months?", "placeholder": "e.g., Senior Engineer / Product Manager"},
+    {"key": "experience_years", "question": "How many years of experience do you have?",         "placeholder": "e.g., 2 / Fresher"},
+    {"key": "main_kpi",         "question": "What's the one KPI you most want AI to improve?",  "placeholder": "e.g., Ship PRs faster / Improve CTR"},
+    {"key": "biggest_blocker",  "question": "What's your biggest blocker right now?",           "placeholder": "e.g., No time / Don't know where to start"},
+    {"key": "learning_style",   "question": "How do you learn best?",                           "placeholder": "e.g., Hands-on projects / Reading"},
+]
+
+@app.get("/profile/nudge/{user_id}")
+def profile_nudge(user_id: str):
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+    try:
+        raw     = u.get("profile") or "{}"
+        profile = json.loads(raw) if isinstance(raw, str) else (raw or {})
+    except Exception:
+        profile = {}
+    for n in PROFILE_NUDGES_LIST:
+        if not str(profile.get(n["key"], "")).strip():
+            return {"status": "success", "nudge": n, "completed": False}
+    return {"status": "success", "completed": True}
+
+@app.post("/profile/update")
+def profile_update(data: dict):
+    user_id = data.get("user_id")
+    updates = data.get("updates", {})
+    if not user_id or not isinstance(updates, dict):
+        return {"status": "error", "message": "Missing data"}
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+    try:
+        raw     = u.get("profile") or "{}"
+        profile = json.loads(raw) if isinstance(raw, str) else (raw or {})
+    except Exception:
+        profile = {}
+    profile.update({k: v for k, v in updates.items() if v not in (None, "")})
+    supabase.table("users").update({
+        "profile": json.dumps(profile)
+    }).eq("id", user_id).execute()
+    return {"status": "success", "profile": profile}
+
+
+# ── PROOF SCREENSHOT STORAGE ────────────────────────────────────────────────
+@app.post("/proof/screenshot")
+def save_proof_screenshot(data: dict):
+    """
+    Save a screenshot to the user's proof wall.
+    Stores base64 image data directly in Supabase (screenshots table).
+    Also triggers Arjun analysis if day >= 2.
+    """
+    user_id     = data.get("user_id")
+    day         = int(data.get("day", 1))
+    field       = data.get("field", "student")
+    caption     = data.get("caption", "").strip() or f"Day {day} output"
+    image_b64   = data.get("image_base64", "")
+    image_type  = data.get("image_type", "image/jpeg")
+
+    if not user_id or not image_b64:
+        return {"status": "error", "message": "Missing image or user_id"}
+
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+
+    # Build data URI for display
+    screenshot_data = f"data:{image_type};base64,{image_b64}"
+
+    entry = {
+        "user_id":         user_id,
+        "day":             day,
+        "field":           field,
+        "caption":         caption,
+        "screenshot_data": screenshot_data,
+        "date":            date.today().isoformat(),
+    }
+
+    try:
+        supabase.table("proof_screenshots").insert(entry).execute()
+    except Exception as e:
+        print(f"Screenshot insert error: {e}")
+        # Table may not exist yet — save to user profile JSON as fallback
+        try:
+            raw       = u.get("profile") or "{}"
+            profile   = json.loads(raw) if isinstance(raw, str) else (raw or {})
+            shots     = profile.get("screenshots", [])
+            shots.append({
+                "day": day, "field": field, "caption": caption,
+                "date": date.today().isoformat(),
+                # Don't store full base64 in profile JSON — too large
+                "note": "screenshot saved (table pending)"
+            })
+            profile["screenshots"] = shots[-20:]  # keep last 20
+            supabase.table("users").update({
+                "profile": json.dumps(profile)
+            }).eq("id", user_id).execute()
+        except Exception as e2:
+            print(f"Fallback screenshot save error: {e2}")
+
+    # Notify Shubh (for analysis)
+    try:
+        send_email(
+            SENDER_EMAIL,
+            f"📸 Screenshot uploaded — Day {day} · {u.get('email','')}",
+            email_wrap(
+                f"<p><strong>{u.get('name',u.get('email',''))}</strong> uploaded a Day {day} screenshot.</p>"
+                f"<p>Field: {field} · Caption: {caption}</p>"
+                f"<p>This is for your task analysis — review what they built.</p>"
+                f'<img src="{screenshot_data}" style="max-width:100%;border-radius:8px;margin-top:12px" alt="screenshot"/>'
+            )
+        )
+    except Exception as e:
+        print(f"Screenshot email error: {e}")
+
+    return {"status": "success", "message": "Screenshot saved to your Proof Wall"}
+
+
+# ── UPDATE proof-wall endpoint to include screenshots ─────────────────────
+# Override the existing proof-wall endpoint to also return screenshots
+@app.get("/proof-wall-v2/{user_id}")
+def proof_wall_v2(user_id: str):
+    u = get_user(user_id)
+    if not u:
+        return {"status": "error", "message": "User not found"}
+
+    # Proof wall entries
+    pw = []
+    try:
+        raw = u.get("proof_wall", "[]")
+        pw  = json.loads(raw) if isinstance(raw, str) else (raw or [])
+    except:
+        pw = []
+
+    # Screenshots
+    screenshots = []
+    try:
+        res = supabase.table("proof_screenshots") \
+            .select("day,field,caption,screenshot_data,date") \
+            .eq("user_id", user_id) \
+            .order("date", desc=True) \
+            .limit(30) \
+            .execute()
+        screenshots = res.data or []
+    except Exception as e:
+        print(f"Screenshots fetch error: {e}")
+
+    tasks_completed = 0
+    try:
+        tc = u.get("tasks_completed", "[]")
+        tasks_completed = len(json.loads(tc) if isinstance(tc, str) else (tc or []))
+    except:
+        pass
+
+    return {
+        "status":          "success",
+        "name":            u.get("name", u.get("email", "").split("@")[0]),
+        "field":           u.get("field", ""),
+        "points":          u.get("points", 0),
+        "proof_wall":      pw,
+        "screenshots":     screenshots,
+        "tasks_completed": tasks_completed,
+    }
