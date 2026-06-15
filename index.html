@@ -1427,12 +1427,10 @@ function backToEmail() {
 }
 
 function otpInput(el, idx) {
-  // Only allow digits
   el.value = el.value.replace(/[^0-9]/g, '');
-  if (el.value && idx < 5) document.getElementById('od'+(idx+1))?.focus();
-  // Auto-verify when all 6 filled
-  const code = Array.from({length:6}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
-  if (code.length === 6) verifyOTP();
+  if (el.value && idx < 3) document.getElementById('od'+(idx+1))?.focus();
+  const code = Array.from({length:4}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
+  if (code.length === 4) verifyOTP();
 }
 
 function otpKey(e, idx) {
@@ -1449,29 +1447,26 @@ function otpKey(e, idx) {
 }
 
 async function verifyOTP() {
-  const code = Array.from({length:6}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
+  const code = Array.from({length:4}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
   const err  = document.getElementById('otp-err');
   const btn  = document.getElementById('otp-verify-btn');
   err.textContent = '';
-  if (code.length < 6) { err.textContent = 'Enter the full 6-digit code.'; return; }
-  btn.disabled = true; btn.textContent = 'Verifying...';
-  try {
-    const d = await post('/auth/verify-otp', { email: otpEmail, token: code });
-    if (d.status === 'success') {
-      userId = d.user_id; userProfile = d.user;
-      localStorage.setItem('zubhai_uid', userId);
-      afterLogin();
-    } else {
-      err.textContent = d.message || 'Wrong code.';
-      // Clear digits on wrong code
-      for (let i=0;i<6;i++) { const dd=document.getElementById('od'+i); if(dd) dd.value=''; }
-      document.getElementById('od0')?.focus();
-    }
-  } catch(e) {
-    err.textContent = 'Network error. Try again.';
-  }
-  btn.disabled = false; btn.textContent = 'Verify & Start →';
-}
+  if (code.length < 4) { err.textContent = 'Enter the full 4-digit code.'; return; }
+  // ... rest stays the same
+
+// 3. In backToEmail() — change 6 to 4:
+  for (let i=0;i<4;i++) { const d=document.getElementById('od'+i); if(d) d.value=''; }
+
+// 4. In afterLogin() — change 6 to 4:
+  for(let i=0;i<4;i++){const d=document.getElementById('od'+i);if(d)d.value='';}
+
+// 5. In the paste handler — change both 6s to 4:
+  const digits = text.replace(/[^0-9]/g,'').slice(0,4).split('');
+  digits.forEach((d, i) => { const el = document.getElementById('od'+i); if (el) el.value = d; });
+  if (digits.length === 4) verifyOTP();
+  else if (digits.length > 0) document.getElementById('od'+digits.length)?.focus();
+
+You can also delete the old Supabase "Magic link or OTP" email template — it's no longer used.You are out of free messages until 5:20 PMUpgrade
 
 // Handle OTP paste
 document.addEventListener('paste', function(e) {
