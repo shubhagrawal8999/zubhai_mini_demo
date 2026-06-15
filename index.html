@@ -1747,6 +1747,7 @@ function logout(){
 }
 
 /* ── AUTH UI ── */
+// DELETE THIS:
 function updateAuthUI(){
   const l=authMode==='login';
   document.getElementById('auth-lbl').textContent=l?'Login →':'Sign Up Free →';
@@ -1756,6 +1757,11 @@ function updateAuthUI(){
 }
 function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
 
+// REPLACE WITH:
+function updateAuthUI(){
+  const t=document.getElementById('auth-tagline');
+  if(t)t.textContent=authMode==='login'?'Welcome back.':'7 days to transform how you work with AI.';
+}
 /* ── GOOGLE AUTH ── */
 async function signInGoogle(){
   if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
@@ -1788,47 +1794,25 @@ async function signInGoogle(){
     }
   }catch(e){console.log('OAuth check:',e);}
 })();
-
-/* ── EMAIL AUTH ── */
-async function handleAuth(){
-  const email=document.getElementById('a-email').value.trim();
-  const pass=document.getElementById('a-pass').value.trim();
-  const err=document.getElementById('auth-err');
-  const btn=document.getElementById('auth-btn');
-  err.textContent='';
-  if(!email||!pass){err.textContent='Please fill both fields.';return;}
-  if(pass.length<6){err.textContent='Password must be at least 6 characters.';return;}
-  btn.disabled=true;document.getElementById('auth-lbl').textContent='Please wait...';
-  try{
-    const path=authMode==='login'?'/auth/login':'/auth/signup';
-    const d=await post(path,{email,password:pass});
-    if(d.status==='success'){
-      userId=d.user_id;userProfile=d.user||{id:d.user_id,email};
-      localStorage.setItem('zubhai_uid',userId);
-      afterLogin();
-    } else{err.textContent=d.message||'Auth failed.';btn.disabled=false;updateAuthUI();}
-  }catch(e){err.textContent='Network error. Try again.';btn.disabled=false;updateAuthUI();}
-}
-document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
+('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
 
 /* ── AFTER LOGIN ── */
+// REPLACE WITH:
 function afterLogin(){
-  // Reset OTP UI state
-  try {
-    document.getElementById('otp-step-email').classList.add('show');
-    document.getElementById('otp-step-verify').classList.remove('show');
-    if(document.getElementById('auth-btn')) { document.getElementById('auth-btn').disabled=false; }
-    updateAuthUI();
-  } catch(e){}
+  try{
+    document.getElementById('otp-step-email')?.classList.add('show');
+    document.getElementById('otp-step-verify')?.classList.remove('show');
+    const sb=document.getElementById('otp-send-btn');
+    if(sb){sb.disabled=false;sb.textContent='Send OTP →';}
+    const ae=document.getElementById('auth-err');if(ae)ae.textContent='';
+    const oe=document.getElementById('otp-err');if(oe)oe.textContent='';
+    for(let i=0;i<6;i++){const d=document.getElementById('od'+i);if(d)d.value='';}
+  }catch(e){}
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
-  // If onboarded → go directly to dashboard (not launchpad)
-  if(!userProfile?.onboarding_done||!userProfile?.field){
-    startOnboarding();
-  } else {
-    goHome();
-  }
+  if(!userProfile?.onboarding_done||!userProfile?.field){startOnboarding();}
+  else{goHome();}
 }
 
 function refreshSidebar(){
