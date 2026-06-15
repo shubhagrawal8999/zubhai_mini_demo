@@ -749,7 +749,7 @@ def send_otp(data: dict):
         return {"status": "error", "message": "Enter a valid email"}
     try:
         supabase.auth.sign_in_with_otp({"email": email, "options": {"should_create_user": True}})
-        return {"status": "success", "message": "OTP sent to " + email}
+        return {"status": "success", "message": "4-digit OTP sent to " + email}
     except Exception as e:
         print(f"Send OTP error: {e}")
         return {"status": "error", "message": "Could not send OTP. Try again."}
@@ -757,9 +757,11 @@ def send_otp(data: dict):
 @app.post("/auth/verify-otp")
 def verify_otp(data: dict):
     email = data.get("email", "").strip().lower()
-    token = data.get("token", "").strip()
+    token = re.sub(r"\D", "", data.get("token", ""))
     if not email or not token:
         return {"status": "error", "message": "Email and OTP required"}
+    if len(token) != 4:
+        return {"status": "error", "message": "Enter the 4-digit OTP"}
     try:
         result = supabase.auth.verify_otp({"email": email, "token": token, "type": "email"})
         if not result.user:
