@@ -764,23 +764,11 @@ def send_otp(data: dict):
     email = data.get("email", "").strip().lower()
     if not re.match(r"^[^@\s]+@[^@\s]+\.[^@\s]+$", email):
         return {"status": "error", "message": "Enter a valid email"}
-
-    _cleanup_otps()
-    existing = OTP_CODES.get(email)
-    now = datetime.utcnow()
-    if existing and existing.get("last_sent_at") and (now - existing["last_sent_at"]).total_seconds() < 30:
-        return {"status": "error", "message": "Please wait 30 seconds before requesting another code."}
-
-    code = f"{secrets.randbelow(10000):04d}"
-    OTP_CODES[email] = {
-        "code": code,
-        "expires_at": now + timedelta(minutes=OTP_TTL_MINUTES),
-        "last_sent_at": now,
-        "attempts": 0,
-    }
-
-    if not send_email(email, f"{code} is your Zubhai login code", _otp_email_html(code)):
-        OTP_CODES.pop(email, None)
+    try:
+        supabase.auth.sign_in_with_otp({"email": email, "options": {"should_create_user": True}})
+        return {"status": "success", "message": "4-digit OTP sent to " + email}
+    except Exception as e:
+        print(f"Send OTP error: {e}")
         return {"status": "error", "message": "Could not send OTP. Try again."}
     return {"status": "success", "message": f"4-digit OTP sent to {email}"}
 
@@ -792,43 +780,42 @@ def verify_otp(data: dict):
         return {"status": "error", "message": "Email and OTP required"}
     if len(token) != 4:
         return {"status": "error", "message": "Enter the 4-digit OTP"}
-
-    _cleanup_otps()
-    record = OTP_CODES.get(email)
-    if not record:
-        return {"status": "error", "message": "Wrong or expired OTP. Request a new code."}
-
-    record["attempts"] = record.get("attempts", 0) + 1
-    if record["attempts"] > 5:
-        OTP_CODES.pop(email, None)
-        return {"status": "error", "message": "Too many attempts. Request a new code."}
-    if not secrets.compare_digest(record["code"], token):
-        return {"status": "error", "message": "Wrong OTP. Check the 4 digits and try again."}
-
-    OTP_CODES.pop(email, None)
-    today = today_str()
-    name = email.split("@")[0]
-    existing = supabase.table("users").select("*").eq("email", email).execute()
-    is_new = not existing.data
-    if is_new:
-        user_id = str(uuid.uuid4())
-        user_data = {
-            "id": user_id, "email": email, "name": name,
-            "plan": "free_trial", "trial_start": today,
-            "day_in_program": 1, "streak": 0, "points": 0,
-            "tasks_completed": "[]", "proof_wall": "[]",
-            "onboarding_done": False, "profile": "{}"
-        }
-        supabase.table("users").insert(user_data).execute()
-        send_email(email, "Welcome to Zubhai — your 7-day AI sprint starts now",
-            email_wrap(f'<div class="tag">Welcome</div><h1>Hey {name}! One question, then Day 1.</h1>'
-                f"<p>Tell us your goal in 2 sentences. Arjun builds your 7-day sprint around it.</p>"
-                f'<a href="{SITE_URL}" class="btn">Start Now →</a>'
-                f'<p style="font-size:12px;color:#444;margin-top:14px">— Shubh, founder of Zubhai</p>'))
-    else:
-        user_data = existing.data[0]
-        user_id = user_data["id"]
-    return {"status": "success", "user_id": user_id, "user": user_data, "is_new": is_new}
+    try:
+        result = supabase.auth.verify_otp({"email": email, "token": token, "type": "email"})
+        if not result.user:
+            return {"status": "error", "message": "Invalid or expired OTP"}
+        user_id  = result.user.id
+        today    = today_str()
+        name     = email.split("@")[0]
+        existing = supabase.table("users").select("*").eq("id", user_id).execute()
+        is_new   = not existing.data
+        if is_new:
+            try:
+                supabase.table("users").insert({
+                    "id": user_id, "email": email, "name": name,
+                    "plan": "free_trial", "trial_start": today,
+                    "day_in_program": 1, "streak": 0, "points": 0,
+                    "tasks_completed": "[]", "proof_wall": "[]",
+                    "onboarding_done": False, "profile": "{}"
+                }).execute()
+            except Exception as ins_err:
+                print(f"OTP insert warning: {ins_err}")
+            send_email(email, "Welcome to Zubhai — your 7-day AI sprint starts now",
+                email_wrap(f'<div class="tag">Welcome</div><h1>Hey {name}! One question, then Day 1.</h1>'
+                    f"<p>Tell us your goal in 2 sentences. Arjun builds your 7-day sprint around it.</p>"
+                    f'<a href="{SITE_URL}" class="btn">Start Now →</a>'
+                    f'<p style="font-size:12px;color:#444;margin-top:14px">— Shubh, founder of Zubhai</p>'))
+            user_data = {"id": user_id, "email": email, "name": name,
+                         "plan": "free_trial", "day_in_program": 1, "onboarding_done": False}
+        else:
+            user_data = existing.data[0]
+        return {"status": "success", "user_id": user_id, "user": user_data, "is_new": is_new}
+    except Exception as e:
+        err = str(e)
+        print(f"Verify OTP error: {err}")
+        if "invalid" in err.lower() or "expired" in err.lower():
+            return {"status": "error", "message": "Wrong or expired OTP. Check your inbox."}
+        return {"status": "error", "message": "Verification failed. Try again."}
 
 # ── SMART ONBOARDING ───────────────────────────────────────────────────────────
 @app.post("/onboard/parse")
