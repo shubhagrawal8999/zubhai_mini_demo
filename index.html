@@ -1121,15 +1121,13 @@ details summary>span{display:inline-block;transition:transform .2s}
           </div>
 
           <!-- STEP 2: enter OTP -->
-          <div class="otp-step" id="otp-step-verify">
-            <div class="otp-email-display">Code sent to <strong id="otp-sent-to"></strong></div>
-            <div class="otp-digits">
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od4" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)"/>
-              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od5" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)"/>
+          <!-- REPLACE the otp-digits div with this (4 inputs, not 6): -->
+           <!-- REPLACE the otp-digits div with this (4 inputs, not 6): -->
+          <div class="otp-digits">
+           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)"/>
+           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)"/>
+           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)"/>
+           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
             </div>
             <button class="auth-btn" id="otp-verify-btn" onclick="verifyOTP()" style="margin-top:4px">Verify & Start →</button>
             <div class="auth-err" id="otp-err"></div>
