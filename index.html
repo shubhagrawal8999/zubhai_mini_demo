@@ -1120,14 +1120,16 @@ details summary>span{display:inline-block;transition:transform .2s}
             <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">We'll email you a 6-digit code. No password needed.</div>
           </div>
 
-          <!-- STEP 2: enter OTP -->
-          <!-- REPLACE the otp-digits div with this (4 inputs, not 6): -->
-           <!-- REPLACE the otp-digits div with this (4 inputs, not 6): -->
-          <div class="otp-digits">
-           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)"/>
-           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)"/>
-           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)"/>
-           <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
+          <!-- STEP 2: enter 6-digit OTP -->
+          <div class="otp-step" id="otp-step-verify">
+            <div class="otp-email-display">Code sent to <strong id="otp-sent-to"></strong></div>
+            <div class="otp-digits">
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" autocomplete="one-time-code" id="od0" oninput="otpInput(this,0)" onkeydown="otpKey(event,0)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od1" oninput="otpInput(this,1)" onkeydown="otpKey(event,1)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od2" oninput="otpInput(this,2)" onkeydown="otpKey(event,2)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od4" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od5" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)"/>
             </div>
             <button class="auth-btn" id="otp-verify-btn" onclick="verifyOTP()" style="margin-top:4px">Verify & Start →</button>
             <div class="auth-err" id="otp-err"></div>
@@ -1366,32 +1368,45 @@ let obStep=0, obAns={};
    ═══════════════════════════════════════════════════════ */
 let otpEmail = '';
 let otpResendTimer = null;
+const OTP_LENGTH = 6;
+
+function clearOtpDigits() {
+  for (let i = 0; i < OTP_LENGTH; i++) {
+    const d = document.getElementById('od' + i);
+    if (d) d.value = '';
+  }
+}
 
 async function sendOTP() {
-  const email = (document.getElementById('a-email')?.value || '').trim();
-  const err   = document.getElementById('auth-err');
-  const btn   = document.getElementById('otp-send-btn');
+  const email = (document.getElementById('a-email')?.value || '').trim().toLowerCase();
+  const err = document.getElementById('auth-err');
+  const btn = document.getElementById('otp-send-btn');
   err.textContent = '';
   if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-    err.textContent = 'Enter a valid email.'; return;
+    err.textContent = 'Enter a valid email.';
+    return;
   }
-  btn.disabled = true; btn.textContent = 'Sending...';
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
   try {
     const d = await post('/auth/send-otp', { email });
     if (d.status === 'success') {
       otpEmail = email;
+      clearOtpDigits();
       document.getElementById('otp-sent-to').textContent = email;
       document.getElementById('otp-step-email').classList.remove('show');
       document.getElementById('otp-step-verify').classList.add('show');
-      document.getElementById('od0').focus();
+      document.getElementById('od0')?.focus();
       startResendTimer();
     } else {
       err.textContent = d.message || 'Could not send OTP.';
     }
-  } catch(e) {
+  } catch (e) {
     err.textContent = 'Network error. Try again.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send OTP →';
   }
-  btn.disabled = false; btn.textContent = 'Send OTP →';
 }
 
 function startResendTimer() {
@@ -1413,74 +1428,83 @@ function startResendTimer() {
 }
 
 async function resendOTP() {
-  const btn = document.getElementById('otp-send-btn');
+  if (!otpEmail) return backToEmail();
   document.getElementById('otp-err').textContent = '';
   const d = await post('/auth/send-otp', { email: otpEmail });
-  if (d.status === 'success') { startResendTimer(); showToast('New code sent!'); }
-  else { document.getElementById('otp-err').textContent = d.message; }
+  if (d.status === 'success') {
+    clearOtpDigits();
+    startResendTimer();
+    showToast('New 6-digit code sent!');
+    document.getElementById('od0')?.focus();
+  } else {
+    document.getElementById('otp-err').textContent = d.message || 'Could not resend code.';
+  }
 }
 
 function backToEmail() {
   document.getElementById('otp-step-verify').classList.remove('show');
   document.getElementById('otp-step-email').classList.add('show');
-  for (let i=0;i<6;i++) { const d=document.getElementById('od'+i); if(d) d.value=''; }
+  clearOtpDigits();
 }
 
 function otpInput(el, idx) {
-  el.value = el.value.replace(/[^0-9]/g, '');
-  if (el.value && idx < 3) document.getElementById('od'+(idx+1))?.focus();
-  const code = Array.from({length:4}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
-  if (code.length === 4) verifyOTP();
+  el.value = el.value.replace(/\D/g, '').slice(-1);
+  if (el.value && idx < OTP_LENGTH - 1) document.getElementById('od' + (idx + 1))?.focus();
+  const code = readOtpCode();
+  if (code.length === OTP_LENGTH) verifyOTP();
 }
 
 function otpKey(e, idx) {
-  if (e.key === 'Backspace' && !e.target.value && idx > 0) {
-    document.getElementById('od'+(idx-1))?.focus();
-  }
+  if (e.key === 'Backspace' && !e.target.value && idx > 0) document.getElementById('od' + (idx - 1))?.focus();
   if (e.key === 'Enter') verifyOTP();
-  // Handle paste
-  if (e.key.length === 1 && /[0-9]/.test(e.key) && e.target.value) {
-    e.preventDefault();
-    e.target.value = e.key;
-    if (idx < 5) document.getElementById('od'+(idx+1))?.focus();
-  }
+  if (e.key.length === 1 && !/[0-9]/.test(e.key)) e.preventDefault();
+}
+
+function readOtpCode() {
+  return Array.from({ length: OTP_LENGTH }, (_, i) => document.getElementById('od' + i)?.value || '').join('');
 }
 
 async function verifyOTP() {
-  const code = Array.from({length:4}, (_,i)=>document.getElementById('od'+i)?.value||'').join('');
-  const err  = document.getElementById('otp-err');
-  const btn  = document.getElementById('otp-verify-btn');
+  const code = readOtpCode();
+  const err = document.getElementById('otp-err');
+  const btn = document.getElementById('otp-verify-btn');
   err.textContent = '';
-  if (code.length < 4) { err.textContent = 'Enter the full 4-digit code.'; return; }
-  // ... rest stays the same
+  if (code.length < OTP_LENGTH) {
+    err.textContent = 'Enter the full 6-digit code.';
+    return;
+  }
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  try {
+    const d = await post('/auth/verify-otp', { email: otpEmail, token: code });
+    if (d.status === 'success') {
+      userId = d.user_id;
+      userProfile = d.user;
+      localStorage.setItem('zubhai_uid', userId);
+      afterLogin();
+    } else {
+      err.textContent = d.message || 'Wrong or expired OTP.';
+    }
+  } catch (e) {
+    err.textContent = 'Network error. Try again.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Verify & Start →';
+  }
+}
 
-// 3. In backToEmail() — change 6 to 4:
-  for (let i=0;i<4;i++) { const d=document.getElementById('od'+i); if(d) d.value=''; }
-
-// 4. In afterLogin() — change 6 to 4:
-  for(let i=0;i<4;i++){const d=document.getElementById('od'+i);if(d)d.value='';}
-
-// 5. In the paste handler — change both 6s to 4:
-  const digits = text.replace(/[^0-9]/g,'').slice(0,4).split('');
-  digits.forEach((d, i) => { const el = document.getElementById('od'+i); if (el) el.value = d; });
-  if (digits.length === 4) verifyOTP();
-  else if (digits.length > 0) document.getElementById('od'+digits.length)?.focus();
-
-You can also delete the old Supabase "Magic link or OTP" email template — it's no longer used.You are out of free messages until 5:20 PMUpgrade
-
-// Handle OTP paste
 document.addEventListener('paste', function(e) {
   const target = e.target;
   if (!target.classList.contains('otp-digit')) return;
   e.preventDefault();
   const text = (e.clipboardData || window.clipboardData).getData('text');
-  const digits = text.replace(/[^0-9]/g,'').slice(0,6).split('');
+  const digits = text.replace(/\D/g, '').slice(0, OTP_LENGTH).split('');
   digits.forEach((d, i) => {
-    const el = document.getElementById('od'+i);
+    const el = document.getElementById('od' + i);
     if (el) el.value = d;
   });
-  if (digits.length === 6) verifyOTP();
-  else if (digits.length > 0) document.getElementById('od'+digits.length)?.focus();
+  if (digits.length === OTP_LENGTH) verifyOTP();
+  else if (digits.length > 0) document.getElementById('od' + digits.length)?.focus();
 });
 
 /* ═══════════════════════════════════════════════════════
@@ -1790,7 +1814,6 @@ async function signInGoogle(){
 ('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
 
 /* ── AFTER LOGIN ── */
-// REPLACE WITH:
 function afterLogin(){
   try{
     document.getElementById('otp-step-email')?.classList.add('show');
@@ -1799,7 +1822,7 @@ function afterLogin(){
     if(sb){sb.disabled=false;sb.textContent='Send OTP →';}
     const ae=document.getElementById('auth-err');if(ae)ae.textContent='';
     const oe=document.getElementById('otp-err');if(oe)oe.textContent='';
-    for(let i=0;i<6;i++){const d=document.getElementById('od'+i);if(d)d.value='';}
+    clearOtpDigits();
   }catch(e){}
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
