@@ -4,7 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from supabase import create_client
 from openai import OpenAI
 import anthropic
-import os, json, re, requests, resend
+import os, json, re, requests, resend, secrets, uuid
 from datetime import date, datetime, timedelta
 
 app = FastAPI()
@@ -23,6 +23,8 @@ SITE_URL     = "https://zubhai.com"
 SENDER_EMAIL = "hello@zubhai.com"
 SENDER_NAME  = "Shubh from Zubhai"
 ADMIN_SECRET = os.environ.get("ADMIN_SECRET", "zubhai-admin-2026")
+OTP_TTL_MINUTES = 10
+OTP_CODES = {}
 
 PLAN_LIMITS = {
     "free_trial": {"days": 7,  "price": 0},
@@ -742,6 +744,21 @@ def get_user_route(user_id: str):
 
 
 # ── OTP AUTH ───────────────────────────────────────────────────────────────────
+def _cleanup_otps():
+    now = datetime.utcnow()
+    expired = [email for email, data in OTP_CODES.items() if data.get("expires_at", now) < now]
+    for email in expired:
+        OTP_CODES.pop(email, None)
+
+def _otp_email_html(code: str) -> str:
+    return email_wrap(
+        f'<div class="tag">Login code</div>'
+        f'<h1>Your Zubhai code is {code}</h1>'
+        f'<p>Enter this 4-digit code to continue. It expires in {OTP_TTL_MINUTES} minutes.</p>'
+        f'<div class="card" style="text-align:center;font-size:32px;letter-spacing:10px;font-weight:700;color:#fff">{code}</div>'
+        f'<p style="font-size:12px;color:#777;margin-top:14px">If you did not request this, you can ignore this email.</p>'
+    )
+
 @app.post("/auth/send-otp")
 def send_otp(data: dict):
     email = data.get("email", "").strip().lower()
@@ -753,6 +770,7 @@ def send_otp(data: dict):
     except Exception as e:
         print(f"Send OTP error: {e}")
         return {"status": "error", "message": "Could not send OTP. Try again."}
+    return {"status": "success", "message": f"4-digit OTP sent to {email}"}
 
 @app.post("/auth/verify-otp")
 def verify_otp(data: dict):
