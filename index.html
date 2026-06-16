@@ -1370,7 +1370,7 @@ let obStep=0, obAns={};
    ═══════════════════════════════════════════════════════ */
 let otpEmail = '';
 let otpResendTimer = null;
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 8;
 
 function clearOtpDigits() {
   for (let i = 0; i < OTP_LENGTH; i++) {
@@ -1436,7 +1436,7 @@ async function resendOTP() {
   if (d.status === 'success') {
     clearOtpDigits();
     startResendTimer();
-    showToast('New 6-digit code sent!');
+    showToast('New code sent!');
     document.getElementById('od0')?.focus();
   } else {
     document.getElementById('otp-err').textContent = d.message || 'Could not resend code.';
@@ -1472,7 +1472,7 @@ async function verifyOTP() {
   const btn = document.getElementById('otp-verify-btn');
   err.textContent = '';
   if (code.length < OTP_LENGTH) {
-    err.textContent = 'Enter the full 6-digit code.';
+    err.textContent = 'Enter the full 8-digit code.';
     return;
   }
   btn.disabled = true;
