@@ -480,8 +480,8 @@ footer{background:var(--text);border-top:none;padding:48px 0 24px}
 
 /* ── OTP AUTH FLOW ───────────────────────────────────── */
 .otp-step{display:none}.otp-step.show{display:block}
-.otp-digits{display:flex;gap:8px;justify-content:center;margin-bottom:14px}
-.otp-digit{width:44px;height:52px;text-align:center;font-size:22px;font-family:var(--fm);border:1.5px solid var(--border2);border-radius:var(--r8);background:#fff;color:var(--text);transition:.2s}
+.otp-digits{display:flex;gap:5px;justify-content:center;margin-bottom:14px}
+.otp-digit{width:36px;height:46px;text-align:center;font-size:18px;font-family:var(--fm);border:1.5px solid var(--border2);border-radius:var(--r8);background:#fff;color:var(--text);transition:.2s}
 .otp-digit:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,96,44,.1)}
 .otp-resend{font-size:11px;color:var(--text3);text-align:center;margin-top:8px;cursor:pointer;transition:.2s}
 .otp-resend:hover{color:var(--text2)}
@@ -1117,10 +1117,10 @@ details summary>span{display:inline-block;transition:transform .2s}
             <input class="inp" type="email" id="a-email" placeholder="Your email address" autocomplete="email"/>
             <button class="auth-btn" id="otp-send-btn" onclick="sendOTP()">Send OTP →</button>
             <div class="auth-err" id="auth-err"></div>
-            <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">We'll email you a 4-digit code. No password needed.</div>
+            <div style="font-size:11px;color:var(--text3);text-align:center;margin-top:8px">We'll email you an 8-digit code. No password needed.</div>
           </div>
 
-          <!-- STEP 2: enter 6-digit OTP -->
+          <!-- STEP 2: enter 8-digit OTP -->
           <div class="otp-step" id="otp-step-verify">
             <div class="otp-email-display">Code sent to <strong id="otp-sent-to"></strong></div>
             <div class="otp-digits">
@@ -1130,6 +1130,8 @@ details summary>span{display:inline-block;transition:transform .2s}
               <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od3" oninput="otpInput(this,3)" onkeydown="otpKey(event,3)"/>
               <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od4" oninput="otpInput(this,4)" onkeydown="otpKey(event,4)"/>
               <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od5" oninput="otpInput(this,5)" onkeydown="otpKey(event,5)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od6" oninput="otpInput(this,6)" onkeydown="otpKey(event,6)"/>
+              <input class="otp-digit" type="text" maxlength="1" inputmode="numeric" id="od7" oninput="otpInput(this,7)" onkeydown="otpKey(event,7)"/>
             </div>
             <button class="auth-btn" id="otp-verify-btn" onclick="verifyOTP()" style="margin-top:4px">Verify & Start →</button>
             <div class="auth-err" id="otp-err"></div>
@@ -1368,7 +1370,7 @@ let obStep=0, obAns={};
    ═══════════════════════════════════════════════════════ */
 let otpEmail = '';
 let otpResendTimer = null;
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 8;
 
 function clearOtpDigits() {
   for (let i = 0; i < OTP_LENGTH; i++) {
@@ -1434,7 +1436,7 @@ async function resendOTP() {
   if (d.status === 'success') {
     clearOtpDigits();
     startResendTimer();
-    showToast('New 6-digit code sent!');
+    showToast('New 8-digit code sent!');
     document.getElementById('od0')?.focus();
   } else {
     document.getElementById('otp-err').textContent = d.message || 'Could not resend code.';
@@ -1470,7 +1472,7 @@ async function verifyOTP() {
   const btn = document.getElementById('otp-verify-btn');
   err.textContent = '';
   if (code.length < OTP_LENGTH) {
-    err.textContent = 'Enter the full 6-digit code.';
+    err.textContent = 'Enter the full 8-digit code.';
     return;
   }
   btn.disabled = true;
@@ -1764,21 +1766,12 @@ function logout(){
 }
 
 /* ── AUTH UI ── */
-// DELETE THIS:
 function updateAuthUI(){
-  const l=authMode==='login';
-  document.getElementById('auth-lbl').textContent=l?'Login →':'Sign Up Free →';
-  document.getElementById('auth-sw-txt').textContent=l?'New to Zubhai?':'Already have an account?';
-  document.getElementById('auth-sw-act').textContent=l?'Sign up free':'Login instead';
-  document.getElementById('auth-tagline').textContent=l?'Welcome back.':'7 days to transform how you work with AI.';
+  const t = document.getElementById('auth-tagline');
+  if(t) t.textContent = authMode==='login' ? 'Welcome back.' : '7 days to transform how you work with AI.';
 }
-function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();document.getElementById('auth-err').textContent='';}
+function toggleMode(){authMode=authMode==='login'?'signup':'login';updateAuthUI();}
 
-// REPLACE WITH:
-function updateAuthUI(){
-  const t=document.getElementById('auth-tagline');
-  if(t)t.textContent=authMode==='login'?'Welcome back.':'7 days to transform how you work with AI.';
-}
 /* ── GOOGLE AUTH ── */
 async function signInGoogle(){
   if(!sb){showToast('Google login: add Supabase anon key to frontend');return;}
@@ -1805,25 +1798,46 @@ async function signInGoogle(){
         userId=d.user_id;userProfile=d.user;
         localStorage.setItem('zubhai_uid',userId);
         document.getElementById('land').style.display='none';
-        document.getElementById('app').classList.add('open');
+        const appEl = document.getElementById('app');
+        appEl.classList.add('open');
+        appEl.classList.remove('auth-mode');
         afterLogin();
       }
     }
   }catch(e){console.log('OAuth check:',e);}
 })();
-('keydown',e=>{if(e.key==='Enter'&&document.activeElement?.id==='a-pass')handleAuth();});
+
+/* Enter key on password field removed — OTP flow uses otp-send-btn */
 
 /* ── AFTER LOGIN ── */
 function afterLogin(){
+  // ── Safe reset of auth UI for OTP + Google flows ──
   try{
+    const sendBtn = document.getElementById('otp-send-btn');
+    if(sendBtn){ sendBtn.disabled = false; sendBtn.textContent = 'Send OTP →'; }
+
+    const verifyBtn = document.getElementById('otp-verify-btn');
+    if(verifyBtn){ verifyBtn.disabled = false; verifyBtn.textContent = 'Verify & Start →'; }
+
     document.getElementById('otp-step-email')?.classList.add('show');
     document.getElementById('otp-step-verify')?.classList.remove('show');
-    const sb=document.getElementById('otp-send-btn');
-    if(sb){sb.disabled=false;sb.textContent='Send OTP →';}
-    const ae=document.getElementById('auth-err');if(ae)ae.textContent='';
-    const oe=document.getElementById('otp-err');if(oe)oe.textContent='';
+
+    const emailStep = document.getElementById('otp-step-email');
+    const verifyStep = document.getElementById('otp-step-verify');
+    if(emailStep) emailStep.classList.add('show');
+    if(verifyStep) verifyStep.classList.remove('show');
+
     clearOtpDigits();
-  }catch(e){}
+
+    const ae = document.getElementById('auth-err'); if(ae) ae.textContent = '';
+    const oe = document.getElementById('otp-err'); if(oe) oe.textContent = '';
+
+    const legacyBtn = document.getElementById('auth-btn');
+    if(legacyBtn) legacyBtn.disabled = false;
+
+    updateAuthUI();
+  }catch(e){ console.warn('afterLogin cleanup:', e); }
+
   document.getElementById('sb').style.display='flex';
   document.getElementById('app').classList.remove('auth-mode');
   refreshSidebar();
